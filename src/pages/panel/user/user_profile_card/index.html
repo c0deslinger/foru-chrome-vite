@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Profile Card</title>
+  <link rel="stylesheet" href="index.css">
+</head>
+<body>
+  <!-- User Profile Card HTML Template - Used by JavaScript -->
+  <div id="user-profile-card-template" style="display: none;">
+    
+    <!-- Profile Card Modern -->
+    <div class="profile-card-modern">
+      <div class="ai-did-badge">AI-DID</div>
+      <button id="copy-token-btn" class="copy-token-button" title="Copy Access Token">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+        </svg>
+      </button>
+      <div class="profile-avatar-container">
+        <img src="" alt="Profile Picture" class="profile-avatar-modern">
+      </div>
+      <div class="profile-info-modern">
+        <h2 class="profile-name"></h2>
+        <div class="profile-handle"></div>
+        <div class="shannon-coder-badge">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 8l-3 3 3 3"></path>
+            <path d="M15 8l-3 3 3 3"></path>
+          </svg>
+          <span class="identifi-score-text">IdentiFi Score: 0</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Current Level Section -->
+    <div class="current-level-section">
+      <div class="level-progress">
+        <div class="level-progress-ring">
+          <svg width="82" height="41" viewBox="0 0 100 50">
+            <defs>
+              <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#FFB005FF" />
+                <stop offset="100%" stop-color="#FF8800FF" />
+              </linearGradient>
+            </defs>
+            <!-- Background Arc -->
+            <path d="M10 50 A40 40 0 0 1 90 50" stroke="#5D5D5DFF" stroke-width="8" fill="none" stroke-linecap="round" />
+            <!-- Foreground Arc -->
+            <path class="ring-fg" id="ringFg" d="M10 50 A40 40 0 0 1 90 50" stroke="url(#progressGradient)" stroke-width="8" fill="none" stroke-linecap="round" />
+          </svg>
+        </div>
+        <div class="level-info">
+          <div class="level-header">
+            <span class="current-level-text">Current level</span>
+            <span class="level-number">1</span>
+          </div>
+          <div class="xp-info">
+            <img src="" alt="Coin" class="xp-coin-img" />
+            <span class="xp-current">0</span>
+            <span class="xp-total">/500 Xp</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Metrics Display Area -->
+    <div id="user-metrics-display-area"></div>
+    
+    <!-- Badges Display Area -->
+    <div id="user-badges-display-area"></div>
+
+    <!-- Error State Template -->
+    <div class="profile-error-state" style="display: none;">
+      <p style="color: #aeb0b6; font-size: 14px; margin-top: 20px;">
+        Failed to load your profile data. Please check your network or try again.
+      </p>
+    </div>
+
+  </div>
+  
+  <script type="module" src="index.ts"></script>
+</body>
+</html>

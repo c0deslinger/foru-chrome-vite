@@ -1,0 +1,242 @@
+/* src/user/user_metrics_card/index.css */
+/* User Metrics Card Styles */
+
+/* Section Headers */
+h3 {
+  font-size: 14px;
+  font-weight: 600;
+  color: #ececf1;
+  margin: 16px 0 12px 0;
+}
+
+/* Score Grid */
+.score-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.score-card {
+  background: #1f1b2b;
+  border-radius: 12px;
+  padding: 16px;
+  text-align: center;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+
+.score-card:hover {
+  background: #2a2535;
+  border-color: rgba(108, 76, 179, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.score-card.governance-score {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.score-card.governance-score:hover {
+  transform: none;
+  background: #1f1b2b;
+  border-color: transparent;
+  box-shadow: none;
+}
+
+.score-card .label {
+  font-size: 12px;
+  color: #aeb0b6;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.score-card .value {
+  font-size: 24px;
+  color: #ececf1;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.score-card .details {
+  font-size: 10px;
+  color: #aeb0b6;
+  line-height: 1.3;
+}
+
+/* Digital DNA Styles */
+.digital-dna-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 32px 16px;
+  text-align: center;
+  background: #1f1b2b;
+  border-radius: 12px;
+  border: 2px dashed #343541;
+}
+
+.dna-empty-icon {
+  margin-bottom: 16px;
+}
+
+.dna-empty-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #ececf1;
+  margin-bottom: 8px;
+}
+
+.dna-empty-description {
+  font-size: 12px;
+  color: #aeb0b6;
+  line-height: 1.4;
+  max-width: 300px;
+}
+
+.digital-dna-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.dna-card {
+  background: #1f1b2b;
+  border-radius: 12px;
+  padding: 16px;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 1px solid transparent;
+}
+
+.dna-card:hover {
+  background: #2a2535;
+  border-color: rgba(108, 76, 179, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(108, 76, 179, 0.2);
+}
+
+.dna-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.dna-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.dna-shield-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.dna-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: #ececf1;
+  line-height: 1.2;
+}
+
+.dna-content {
+  margin-top: 8px;
+}
+
+.dna-progress-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dna-progress {
+  flex: 1;
+  height: 6px;
+  background: #2a2535;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.dna-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #6c4cb3 0%, #8b5cf6 100%);
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+.dna-percentage {
+  font-size: 10px;
+  font-weight: 600;
+  color: #ececf1;
+  min-width: 32px;
+  text-align: right;
+}
+
+/* Shimmer loading animation */
+.shimmer {
+  background: linear-gradient(90deg, #2a2535 25%, #3a3545 50%, #2a2535 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+.shimmer.score-card {
+  height: 60px;
+  border-radius: 12px;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .score-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  
+  .digital-dna-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  
+  .score-card {
+    padding: 12px;
+  }
+  
+  .score-card .value {
+    font-size: 20px;
+  }
+  
+  .dna-card {
+    padding: 12px;
+  }
+  
+  .dna-header {
+    gap: 6px;
+    margin-bottom: 8px;
+  }
+  
+  .dna-icon {
+    width: 28px;
+    height: 28px;
+  }
+  
+  .dna-title {
+    font-size: 11px;
+  }
+}

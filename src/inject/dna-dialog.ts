@@ -1,8 +1,8 @@
-// src/inject/dna-dialog.js
+// src/inject/dna-dialog.ts
 
 /**
  * DnaDialog - Shared class for displaying DNA popup dialogs
- * Can be used by score_credibility.js, profile.js, and user_metrics_card.js
+ * Can be used by score_credibility.ts, profile.ts, and user_metrics_card.ts
  * 
  * This file contains both CSS styles and JavaScript functionality
  */
@@ -224,10 +224,31 @@ const DNA_DIALOG_CSS = `
 }
 `;
 
+interface DnaData {
+  id?: string;
+  title: string;
+  description: string;
+  percentage: number;
+  image?: string;
+  rank?: string;
+  created_at: string;
+  tweet_highlight: string;
+}
+
+interface UserProfileData {
+  twitter_account?: {
+    profile_picture_url?: string;
+    username?: string;
+  };
+  name?: string;
+}
+
 /**
  * DnaDialog class for managing DNA popup dialogs
  */
 class DnaDialog {
+  private currentOverlay: HTMLElement | null = null;
+
   constructor() {
     this.injectStyles();
   }
@@ -246,10 +267,10 @@ class DnaDialog {
 
   /**
    * Show DNA dialog
-   * @param {Object} dna - DNA data object
-   * @param {Object} userProfileData - User profile data (optional, for user tab)
+   * @param {DnaData} dna - DNA data object
+   * @param {UserProfileData} userProfileData - User profile data (optional, for user tab)
    */
-  show(dna, userProfileData = null) {
+  show(dna: DnaData, userProfileData: UserProfileData | null = null) {
     console.log('DnaDialog.show called with:', dna, 'userProfileData:', userProfileData);
     
     // Remove existing dialog if any
@@ -283,7 +304,7 @@ class DnaDialog {
     dnaImage.src = dna.image || chrome.runtime.getURL('images/dna_molecule.png');
     dnaImage.alt = dna.title;
     dnaImage.onerror = function() {
-      this.src = chrome.runtime.getURL('images/dna_molecule.png');
+      (this as HTMLImageElement).src = chrome.runtime.getURL('images/dna_molecule.png');
     };
     
     // DNA title
@@ -353,13 +374,13 @@ class DnaDialog {
         if (primaryColumn) {
           const avatarElem = primaryColumn.querySelector('img[src*="profile_images"]');
           if (avatarElem) {
-            profilePhotoUrl = avatarElem.src;
+            profilePhotoUrl = (avatarElem as HTMLImageElement).src;
           }
         }
         if (profilePhotoUrl === chrome.runtime.getURL('icons/icon128.png')) {
           const fallback = document.querySelector('img[src*="profile_images"]');
           if (fallback) {
-            profilePhotoUrl = fallback.src;
+            profilePhotoUrl = (fallback as HTMLImageElement).src;
           }
         }
         
@@ -382,7 +403,7 @@ class DnaDialog {
     profilePhoto.src = profilePhotoUrl;
     profilePhoto.alt = 'Profile Photo';
     profilePhoto.onerror = function() {
-      this.src = chrome.runtime.getURL('icons/icon128.png');
+      (this as HTMLImageElement).src = chrome.runtime.getURL('icons/icon128.png');
     };
     
     const tweetInfo = document.createElement('div');
@@ -429,7 +450,7 @@ class DnaDialog {
     });
     
     // Close on Escape key
-    const escapeHandler = (e) => {
+    const escapeHandler = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         this.hide();
         document.removeEventListener('keydown', escapeHandler);
@@ -475,17 +496,20 @@ class DnaDialog {
           console.log('No DNA data found');
         }
       });
-      item.style.cursor = 'pointer';
+      (item as HTMLElement).style.cursor = 'pointer';
     });
   }
 }
 
 // Create global instance
-window.dnaDialog = new DnaDialog();
+const dnaDialog = new DnaDialog();
+(window as any).dnaDialog = dnaDialog;
 
 // Expose function for backward compatibility
-window.createDnaDialog = function(dna) {
-  window.dnaDialog.show(dna);
+(window as any).createDnaDialog = function(dna: DnaData) {
+  dnaDialog.show(dna);
 };
 
-console.log('DnaDialog loaded and ready'); 
+console.log('DnaDialog loaded and ready');
+
+export default DnaDialog;

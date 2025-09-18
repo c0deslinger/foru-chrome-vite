@@ -1,17 +1,17 @@
-// src/user/user_badges_section.js
+// src/user/user_badges_section/index.ts
 
 import {
   generateForuSignature,
   NEXT_PUBLIC_API_PRIVATE_KEY,
   API_BASE_URL,
-} from "./user_tab.js";
+} from "../../../../lib/crypto-utils.js";
 
 /**
  * Fetches user badges from the API
  * @param {string} accessToken - User's access token
  * @returns {Promise<Array>} Array of partner data with badges
  */
-async function fetchUserBadges(accessToken) {
+async function fetchUserBadges(accessToken: string): Promise<any[]> {
   try {
     const currentTimestamp = Date.now().toString();
     const signature = generateForuSignature("GET", "status=unlocked", currentTimestamp);
@@ -50,7 +50,7 @@ async function fetchUserBadges(accessToken) {
  * @param {HTMLElement} container - Container element to render badges in
  * @param {string} accessToken - User's access token
  */
-export async function renderUserBadgesSection(container, accessToken) {
+async function renderUserBadgesSection(container: HTMLElement, accessToken: string): Promise<void> {
   if (!container || !accessToken) return;
 
   // Show loading state
@@ -83,10 +83,10 @@ export async function renderUserBadgesSection(container, accessToken) {
     }
 
     // Collect all unlocked badges from all partners
-    const allUnlockedBadges = [];
+    const allUnlockedBadges: any[] = [];
     partners.forEach(partner => {
-      const unlockedBadges = partner.badges.filter(badge => badge.unlocked);
-      unlockedBadges.forEach(badge => {
+      const unlockedBadges = partner.badges.filter((badge: any) => badge.unlocked);
+      unlockedBadges.forEach((badge: any) => {
         allUnlockedBadges.push({
           ...badge,
           partnerName: partner.name,
@@ -150,7 +150,7 @@ export async function renderUserBadgesSection(container, accessToken) {
             
             // Send message to content script to show badge dialog on web page
             chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-              if (tabs && tabs[0]) {
+              if (tabs && tabs[0] && tabs[0].id) {
                 chrome.tabs.sendMessage(tabs[0].id, {
                   action: 'showBadgeDialog',
                   badge: badge
@@ -170,7 +170,7 @@ export async function renderUserBadgesSection(container, accessToken) {
           console.log('No badge data found in user badges section');
         }
       });
-      item.style.cursor = 'pointer';
+      (item as HTMLElement).style.cursor = 'pointer';
     });
   } catch (error) {
     console.error("Error rendering user badges:", error);
@@ -190,3 +190,5 @@ export async function renderUserBadgesSection(container, accessToken) {
     `;
   }
 }
+
+export { fetchUserBadges, renderUserBadgesSection };

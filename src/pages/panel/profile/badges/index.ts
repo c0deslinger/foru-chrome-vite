@@ -1,13 +1,13 @@
-// src/profile/badges.js
+// src/profile/badges/index.ts
 
-import { generateForuSignature, buildForuHeaders, API_BASE_URL, NEXT_PUBLIC_API_PRIVATE_KEY } from '../lib/crypto-utils.js';
+import { generateForuSignature, buildForuHeaders, API_BASE_URL, NEXT_PUBLIC_API_PRIVATE_KEY } from '../../../../lib/crypto-utils.js';
 
 /**
  * Fetches public badges for a Twitter username
  * @param {string} username - Twitter username without @
  * @returns {Promise<Array>} Array of unlocked badges
  */
-async function fetchPublicBadges(username) {
+async function fetchPublicBadges(username: string): Promise<any[]> {
   try {
     const currentTimestamp = Date.now().toString();
     const signature = generateForuSignature("GET", "status=unlocked", currentTimestamp);
@@ -32,9 +32,9 @@ async function fetchPublicBadges(username) {
     const data = await response.json();
     if (data?.code === 200 && data.data) {
       // Extract all unlocked badges from all partners
-      const unlockedBadges = [];
-      data.data.forEach(partner => {
-        partner.badges.forEach(badge => {
+      const unlockedBadges: any[] = [];
+      data.data.forEach((partner: any) => {
+        partner.badges.forEach((badge: any) => {
           if (badge.unlocked) {
             unlockedBadges.push({
               name: badge.name,
@@ -60,7 +60,7 @@ async function fetchPublicBadges(username) {
  * @param {string} containerId - ID of the container element
  * @param {string} username - Twitter username without @
  */
-async function renderBadgesSection(containerId, username) {
+async function renderBadgesSection(containerId: string, username: string): Promise<void> {
   const container = document.getElementById(containerId);
   if (!container) return;
 
@@ -164,9 +164,9 @@ async function renderBadgesSection(containerId, username) {
     container.innerHTML = badgesHtml;
     
     // Add event listeners for image fallback
-    const badgeImages = container.querySelectorAll('.badge-item img[data-fallback]');
+    const badgeImages = container.querySelectorAll('.badge-item img[data-fallback]') as NodeListOf<HTMLImageElement>;
     badgeImages.forEach(img => {
-      img.addEventListener('error', function() {
+      img.addEventListener('error', function(this: HTMLImageElement) {
         const fallbackUrl = this.getAttribute('data-fallback');
         if (fallbackUrl && this.src !== fallbackUrl) {
           this.src = fallbackUrl;
@@ -175,9 +175,9 @@ async function renderBadgesSection(containerId, username) {
     });
 
     // Add event listeners for badge clicks using shared BadgeDialog class
-    if (window.badgeDialog) {
+    if ((window as any).badgeDialog) {
       const badgeItems = container.querySelectorAll('.badge-item.collected');
-      window.badgeDialog.addEventListeners(badgeItems);
+      (window as any).badgeDialog.addEventListeners(badgeItems);
       console.log('Badge event listeners added for', badgeItems.length, 'items');
     } else {
       console.error('BadgeDialog not available');
@@ -185,60 +185,62 @@ async function renderBadgesSection(containerId, username) {
 
   } catch (error) {
     console.error("Error rendering profile badges:", error);
-          container.innerHTML = `
-        <h3>Collected Badges</h3>
-        <div class="badges">
-          <div class="badge-item badge-empty" data-tooltip="No badges\nEmpty slot">
-            <div class="icon">
-              <img src="${chrome.runtime.getURL("images/badge_empty.png")}" alt="No Badges" style="width: 48px; height: 48px; object-fit: contain;">
-            </div>
-            <div class="name">No badges</div>
+    container.innerHTML = `
+      <h3>Collected Badges</h3>
+      <div class="badges">
+        <div class="badge-item badge-empty" data-tooltip="No badges\nEmpty slot">
+          <div class="icon">
+            <img src="${chrome.runtime.getURL("images/badge_empty.png")}" alt="No Badges" style="width: 48px; height: 48px; object-fit: contain;">
           </div>
-          <div class="badge-item badge-empty" data-tooltip="No badges\nEmpty slot">
-            <div class="icon">
-              <img src="${chrome.runtime.getURL("images/badge_empty.png")}" alt="No Badges" style="width: 48px; height: 48px; object-fit: contain;">
-            </div>
-            <div class="name">No badges</div>
-          </div>
-          <div class="badge-item badge-empty" data-tooltip="No badges\nEmpty slot">
-            <div class="icon">
-              <img src="${chrome.runtime.getURL("images/badge_empty.png")}" alt="No Badges" style="width: 48px; height: 48px; object-fit: contain;">
-            </div>
-            <div class="name">No badges</div>
-          </div>
-          <div class="badge-item badge-empty" data-tooltip="No badges\nEmpty slot">
-            <div class="icon">
-              <img src="${chrome.runtime.getURL("images/badge_empty.png")}" alt="No Badges" style="width: 48px; height: 48px; object-fit: contain;">
-            </div>
-            <div class="name">No badges</div>
-          </div>
-          <div class="badge-item badge-empty" data-tooltip="No badges\nEmpty slot">
-            <div class="icon">
-              <img src="${chrome.runtime.getURL("images/badge_empty.png")}" alt="No Badges" style="width: 48px; height: 48px; object-fit: contain;">
-            </div>
-            <div class="name">No badges</div>
-          </div>
-          <div class="badge-item badge-empty" data-tooltip="No badges\nEmpty slot">
-            <div class="icon">
-              <img src="${chrome.runtime.getURL("images/badge_empty.png")}" alt="No Badges" style="width: 48px; height: 48px; object-fit: contain;">
-            </div>
-            <div class="name">No badges</div>
-          </div>
+          <div class="name">No badges</div>
         </div>
-      `;
+        <div class="badge-item badge-empty" data-tooltip="No badges\nEmpty slot">
+          <div class="icon">
+            <img src="${chrome.runtime.getURL("images/badge_empty.png")}" alt="No Badges" style="width: 48px; height: 48px; object-fit: contain;">
+          </div>
+          <div class="name">No badges</div>
+        </div>
+        <div class="badge-item badge-empty" data-tooltip="No badges\nEmpty slot">
+          <div class="icon">
+            <img src="${chrome.runtime.getURL("images/badge_empty.png")}" alt="No Badges" style="width: 48px; height: 48px; object-fit: contain;">
+          </div>
+          <div class="name">No badges</div>
+        </div>
+        <div class="badge-item badge-empty" data-tooltip="No badges\nEmpty slot">
+          <div class="icon">
+            <img src="${chrome.runtime.getURL("images/badge_empty.png")}" alt="No Badges" style="width: 48px; height: 48px; object-fit: contain;">
+          </div>
+          <div class="name">No badges</div>
+        </div>
+        <div class="badge-item badge-empty" data-tooltip="No badges\nEmpty slot">
+          <div class="icon">
+            <img src="${chrome.runtime.getURL("images/badge_empty.png")}" alt="No Badges" style="width: 48px; height: 48px; object-fit: contain;">
+          </div>
+          <div class="name">No badges</div>
+        </div>
+        <div class="badge-item badge-empty" data-tooltip="No badges\nEmpty slot">
+          <div class="icon">
+            <img src="${chrome.runtime.getURL("images/badge_empty.png")}" alt="No Badges" style="width: 48px; height: 48px; object-fit: contain;">
+          </div>
+          <div class="name">No badges</div>
+        </div>
+      </div>
+    `;
   }
 }
 
 /**
  * Create badge dialog popup using shared BadgeDialog class
  */
-function createBadgeDialog(badge) {
-  if (window.badgeDialog) {
-    window.badgeDialog.show(badge);
+function createBadgeDialog(badge: any): void {
+  if ((window as any).badgeDialog) {
+    (window as any).badgeDialog.show(badge);
   } else {
     console.error('BadgeDialog not available');
   }
 }
 
 // Expose to global
-window.renderBadgesSection = renderBadgesSection;
+(window as any).renderBadgesSection = renderBadgesSection;
+
+export { fetchPublicBadges, renderBadgesSection, createBadgeDialog };

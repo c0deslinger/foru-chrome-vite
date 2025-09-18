@@ -1,15 +1,15 @@
-// src/profile/profile.js
+// src/profile/profile/index.ts
 
-import { generateForuSignature, buildForuHeaders, API_BASE_URL } from '../lib/crypto-utils.js';
+import { generateForuSignature, buildForuHeaders, API_BASE_URL } from '../../../../lib/crypto-utils.js';
 
 /**
  * This function runs in the page context.
  * It must return a complete HTML string for the Profile section.
  */
-export async function renderProfileSectionOnPage() {
+export async function renderProfileSectionOnPage(): Promise<string> {
 
   // --- Helper: HTML encode function ---
-  function htmlEncode(str) {
+  function htmlEncode(str: string): string {
     if (!str) return "";
     return String(str)
       .replace(/&/g, "&amp;")
@@ -28,11 +28,11 @@ export async function renderProfileSectionOnPage() {
   if (primaryColumn) {
     const avatarElem = primaryColumn.querySelector(
       'img[src*="profile_images"]'
-    );
+    ) as HTMLImageElement;
     if (avatarElem) avatarUrl = avatarElem.src;
   }
   if (!avatarUrl) {
-    const fallback = document.querySelector('img[src*="profile_images"]');
+    const fallback = document.querySelector('img[src*="profile_images"]') as HTMLImageElement;
     if (fallback) avatarUrl = fallback.src;
   }
 
@@ -44,7 +44,7 @@ export async function renderProfileSectionOnPage() {
   // --- 3) Get bio ---
   let bioText = "";
   const bioElem = document.querySelector('div[data-testid="UserDescription"]');
-  if (bioElem) bioText = bioElem.innerText.replace(/\n/g, " ").trim();
+  if (bioElem) bioText = bioElem.textContent?.replace(/\n/g, " ").trim() || "";
 
   // --- 4) Get location, occupation, URL, join date ---
   let locationText = "",
@@ -57,18 +57,18 @@ export async function renderProfileSectionOnPage() {
   if (items) {
     const spans = Array.from(items.querySelectorAll("span"));
     const links = Array.from(items.querySelectorAll("a"));
-    const jSpan = spans.find((s) => s.innerText.trim().startsWith("Joined "));
-    if (jSpan) joinDateText = jSpan.innerText.trim();
-    const linkElem = links.find((a) => (a.href || "").startsWith("http"));
-    if (linkElem) urlText = linkElem.href;
+    const jSpan = spans.find((s) => s.textContent?.trim().startsWith("Joined "));
+    if (jSpan) joinDateText = jSpan.textContent?.trim() || "";
+    const linkElem = links.find((a) => (a as HTMLAnchorElement).href?.startsWith("http"));
+    if (linkElem) urlText = (linkElem as HTMLAnchorElement).href;
     const others = spans.filter(
-      (s) => !s.innerText.trim().startsWith("Joined ")
+      (s) => !s.textContent?.trim().startsWith("Joined ")
     );
     if (others.length >= 2) {
-      locationText = others[0].innerText.trim();
-      jobText = others[1].innerText.trim();
+      locationText = others[0].textContent?.trim() || "";
+      jobText = others[1].textContent?.trim() || "";
     } else if (others.length === 1) {
-      jobText = others[0].innerText.trim();
+      jobText = others[0].textContent?.trim() || "";
     }
   }
 
@@ -77,19 +77,19 @@ export async function renderProfileSectionOnPage() {
     followingCount = "0";
   const anchors = Array.from(document.querySelectorAll("a"));
   const fA = anchors.find((a) =>
-    a.innerText.toLowerCase().endsWith("followers")
+    a.textContent?.toLowerCase().endsWith("followers")
   );
-  if (fA) followersCount = fA.innerText.split(" ")[0];
+  if (fA) followersCount = fA.textContent?.split(" ")[0] || "0";
   const gA = anchors.find((a) =>
-    a.innerText.toLowerCase().endsWith("following")
+    a.textContent?.toLowerCase().endsWith("following")
   );
-  if (gA) followingCount = gA.innerText.split(" ")[0];
+  if (gA) followingCount = gA.textContent?.split(" ")[0] || "0";
 
   // --- 6) Fetch real scores from your API ---
   const username = handle.replace(/^@/, "");
 
   // --- 7.5) Fetch Digital DNA data from API ---
-  let digitalDnaData = [];
+  let digitalDnaData: any[] = [];
   let isDnaEmpty = false;
   
   // --- 7.6) Fetch Badges data from API ---
@@ -108,7 +108,7 @@ export async function renderProfileSectionOnPage() {
         console.log("🧬 DNA JSON", dnaJson);
         if (dnaJson.code === 200 && dnaJson.data && dnaJson.data.length > 0) {
           // Take top 4 items
-          digitalDnaData = dnaJson.data.slice(0, 4).map((item, index) => ({
+          digitalDnaData = dnaJson.data.slice(0, 4).map((item: any, index: number) => ({
             id: `dna-${index}`,
             title: item.dna?.title || "Unknown",
             percentage: Math.round(item.percentage || 0),
@@ -138,6 +138,7 @@ export async function renderProfileSectionOnPage() {
     console.error("🧬 Error fetching DNA data:", error);
     isDnaEmpty = true;
   }
+
   let reachScore = 0,
     engagementScore = 0,
     impressionScore = 0,
@@ -153,7 +154,7 @@ export async function renderProfileSectionOnPage() {
     console.log("🔵 About to fetch scores for", username);
     const headers = await buildForuHeaders("GET", "", null);
     console.log("🟡 Headers built", headers);
-          const url = `${API_BASE_URL}/v1/public/user/metrics/${username}`;
+    const url = `${API_BASE_URL}/v1/public/user/metrics/${username}`;
     console.log("➡️ Fetching from", url);
     const resp = await fetch(url, { headers });
     console.log("⬅️ Status", resp.status);
@@ -224,7 +225,7 @@ export async function renderProfileSectionOnPage() {
   try {
     console.log(`🔖 Fetching badges for ${username}`);
     const badgesHeaders = await buildForuHeaders("GET", "status=unlocked", null);
-          const badgesUrl = `${API_BASE_URL}/v1/badge-public/twitter/${username}?status=unlocked`;
+    const badgesUrl = `${API_BASE_URL}/v1/badge-public/twitter/${username}?status=unlocked`;
     console.log("➡️ Fetching badges from", badgesUrl);
     const badgesResp = await fetch(badgesUrl, { headers: badgesHeaders });
     console.log("⬅️ Badges Status", badgesResp.status);
@@ -234,9 +235,9 @@ export async function renderProfileSectionOnPage() {
       console.log("🔖 Badges JSON", badgesJson);
       if (badgesJson.code === 200 && badgesJson.data) {
         // Extract all unlocked badges from all partners
-        const unlockedBadges = [];
-        badgesJson.data.forEach(partner => {
-          partner.badges.forEach(badge => {
+        const unlockedBadges: any[] = [];
+        badgesJson.data.forEach((partner: any) => {
+          partner.badges.forEach((badge: any) => {
             if (badge.unlocked) {
               unlockedBadges.push({
                 name: badge.name,
@@ -509,13 +510,13 @@ export async function renderProfileSectionOnPage() {
 /**
  * Create badge dialog popup using shared BadgeDialog class
  */
-function createBadgeDialog(badge) {
+function createBadgeDialog(badge: any): void {
   console.log('createBadgeDialog called with:', badge);
-  console.log('window.badgeDialog available:', !!window.badgeDialog);
+  console.log('window.badgeDialog available:', !!(window as any).badgeDialog);
   
-  if (window.badgeDialog) {
+  if ((window as any).badgeDialog) {
     console.log('Using shared BadgeDialog');
-    window.badgeDialog.show(badge);
+    (window as any).badgeDialog.show(badge);
   } else {
     console.error('BadgeDialog not available, creating manual dialog');
     // Fallback: create dialog manually
@@ -526,7 +527,7 @@ function createBadgeDialog(badge) {
 /**
  * Create badge dialog manually as fallback
  */
-function createManualBadgeDialog(badge) {
+function createManualBadgeDialog(badge: any): void {
   console.log('Creating manual badge dialog');
   
   // Remove existing dialog if any
@@ -562,7 +563,7 @@ function createManualBadgeDialog(badge) {
   badgeImage.className = 'foru-badge-dialog-badge-image';
   badgeImage.src = badge.image;
   badgeImage.alt = badge.name;
-  badgeImage.onerror = function() {
+  badgeImage.onerror = function(this: HTMLImageElement) {
     this.src = chrome.runtime.getURL('images/badge_empty.png');
   };
   
@@ -588,7 +589,7 @@ function createManualBadgeDialog(badge) {
   partnerLogo.className = 'foru-badge-dialog-partner-logo';
   partnerLogo.src = badge.partnerLogo || chrome.runtime.getURL('images/badge_empty.png');
   partnerLogo.alt = 'Partner Logo';
-  partnerLogo.onerror = function() {
+  partnerLogo.onerror = function(this: HTMLImageElement) {
     this.src = chrome.runtime.getURL('images/badge_empty.png');
   };
   
@@ -626,13 +627,13 @@ function createManualBadgeDialog(badge) {
 /**
  * Add event listeners to badge items using shared BadgeDialog class
  */
-function addBadgeEventListeners() {
+function addBadgeEventListeners(): void {
   console.log('addBadgeEventListeners called');
-  console.log('window.badgeDialog available:', !!window.badgeDialog);
+  console.log('window.badgeDialog available:', !!(window as any).badgeDialog);
   
-  if (window.badgeDialog) {
+  if ((window as any).badgeDialog) {
     console.log('Adding event listeners to all badge items');
-    window.badgeDialog.addEventListenersToAll();
+    (window as any).badgeDialog.addEventListenersToAll();
   } else {
     console.error('BadgeDialog not available');
     // Fallback: manually add event listeners
@@ -655,17 +656,17 @@ function addBadgeEventListeners() {
           console.log('No badge data found');
         }
       });
-      item.style.cursor = 'pointer';
+      (item as HTMLElement).style.cursor = 'pointer';
     });
   }
 }
 
 // Expose function so it can be called from sidepanel.js
-window.renderProfileSectionOnPage = renderProfileSectionOnPage;
-window.addBadgeEventListeners = addBadgeEventListeners;
+(window as any).renderProfileSectionOnPage = renderProfileSectionOnPage;
+(window as any).addBadgeEventListeners = addBadgeEventListeners;
 
 // Add tooltip functionality
-window.showTooltip = function(message, event) {
+(window as any).showTooltip = function(message: string, event: Event) {
   // Remove existing tooltip
   const existingTooltip = document.querySelector('.foru-tooltip');
   if (existingTooltip) {
@@ -691,7 +692,7 @@ window.showTooltip = function(message, event) {
   `;
 
   // Position tooltip
-  const rect = event.target.getBoundingClientRect();
+  const rect = (event.target as HTMLElement).getBoundingClientRect();
   tooltip.style.left = rect.left + (rect.width / 2) - (tooltip.offsetWidth / 2) + 'px';
   tooltip.style.top = rect.top - tooltip.offsetHeight - 8 + 'px';
 
@@ -705,3 +706,5 @@ window.showTooltip = function(message, event) {
     }
   }, 3000);
 };
+
+export { createBadgeDialog, addBadgeEventListeners };

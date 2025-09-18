@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ForU Profile</title>
+  <link rel="stylesheet" href="index.css">
+</head>
+<body>
+  <!-- Profile HTML Template - Used by JavaScript -->
+  <div id="profile-template" style="display: none;">
+    
+    <!-- Profile Header Template -->
+    <div class="profile-header">
+      <img src="" alt="avatar" class="profile-avatar" />
+      <div class="info">
+        <span class="username"></span>
+        <span class="location"></span>
+      </div>
+    </div>
+
+    <!-- Profile Bio Template -->
+    <p class="profile-bio"></p>
+
+    <!-- Profile Details Grid Template -->
+    <div class="profile-details-grid">
+      <div class="profile-job"></div>
+      <div class="profile-url"></div>
+      <div class="profile-join-date"></div>
+      <div class="profile-followers"></div>
+    </div>
+
+    <!-- Current Level Section Template -->
+    <div class="profile-current-level-section current-level-profile">
+      <div class="level-progress">
+        <div class="level-progress-ring">
+          <svg width="82" height="41" viewBox="0 0 100 50">
+            <defs>
+              <linearGradient id="progressGradientProfile" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#FFB005FF" />
+                <stop offset="100%" stop-color="#FF8800FF" />
+              </linearGradient>
+            </defs>
+            <!-- Background Arc -->
+            <path d="M10 50 A40 40 0 0 1 90 50" stroke="#5D5D5DFF" stroke-width="8" fill="none" stroke-linecap="round" />
+            <!-- Foreground Arc -->
+            <path class="ring-fg" id="ringFgProfile" d="M10 50 A40 40 0 0 1 90 50" stroke="url(#progressGradientProfile)" stroke-width="8" fill="none" stroke-linecap="round" />
+          </svg>
+        </div>
+        <div class="level-info">
+          <div class="level-header">
+            <span class="current-level-text">Current level</span>
+            <span class="level-number"></span>
+          </div>
+          <div class="xp-info">
+            <img src="" alt="Coin" class="xp-coin-img" />
+            <span class="xp-current"></span>
+            <span class="xp-total"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Score Breakdown Template -->
+    <h3>IdentiFi Score Breakdown</h3>
+    <div class="score-grid">
+      <div class="score-card social-score">
+        <div class="label">Social</div>
+        <div class="value"></div>
+        <div class="details"></div>
+      </div>
+      <div class="score-card reputation-score">
+        <div class="label">Reputation</div>
+        <div class="value"></div>
+        <div class="details"></div>
+      </div>
+      <div class="score-card onchain-score">
+        <div class="label">On Chain</div>
+        <div class="value"></div>
+        <div class="details"></div>
+      </div>
+      <div class="score-card governance-score">
+        <div class="label">Governance</div>
+        <div class="value">-</div>
+        <div class="details">Coming soon</div>
+      </div>
+    </div>
+
+    <!-- Digital DNA Section Template -->
+    <h3>Digital DNA</h3>
+    <div class="digital-dna-container">
+      <!-- DNA content will be dynamically inserted -->
+    </div>
+
+    <!-- Badges Container -->
+    <div class="badges-container">
+      <!-- Badges will be dynamically inserted -->
+    </div>
+
+    <!-- Quests Container -->
+    <div id="quests-in-profile"></div>
+
+  </div>
+  
+  <script type="module" src="index.ts"></script>
+</body>
+</html>

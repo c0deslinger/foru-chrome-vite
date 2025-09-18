@@ -1,11 +1,33 @@
-// File: src/user/user_metrics_card.js
+// src/user/user_metrics_card/index.ts
 
 import {
   generateForuSignature,
-  showCustomNotification,
   NEXT_PUBLIC_API_PRIVATE_KEY,
   API_BASE_URL,
-} from "./user_tab.js";
+} from "../../../../lib/crypto-utils.js";
+
+import { showCustomNotification } from "../user_tab/index.js";
+
+interface MetricsData {
+  engagement_score?: number;
+  reach_score?: number;
+  impression_score?: number;
+  on_chain_score?: number;
+  followers_count?: number;
+  average_likes?: number;
+  average_replies?: number;
+  average_repost?: number;
+  badges_minted?: number;
+  quest_completed?: number;
+  referral_count?: number;
+}
+
+interface UserProfileData {
+  name?: string;
+  email?: string;
+  avatar?: string;
+  [key: string]: any;
+}
 
 /**
  * Merender bagian metrik pengguna, mengambil data dari API /v1/user/metrics.
@@ -14,13 +36,13 @@ import {
  * @param {boolean} forceRefresh - Force refresh data.
  * @param {Object} userProfileData - Data profil pengguna untuk DNA dialog.
  */
-export async function renderUserMetricsCard(
-  targetContainer,
-  accessToken,
+async function renderUserMetricsCard(
+  targetContainer: HTMLElement,
+  accessToken: string,
   forceRefresh = false,
-  userProfileData = null
-) {
-  // <--- MODIFIKASI PARAMETER
+  userProfileData: UserProfileData | null = null
+): Promise<void> {
+  
   if (!targetContainer) {
     console.error("Target container for user metrics card is not provided.");
     return;
@@ -37,7 +59,7 @@ export async function renderUserMetricsCard(
         </div>
       `;
 
-  let metricsData = null;
+  let metricsData: MetricsData | null = null;
 
   try {
     const currentTimestamp = Date.now().toString();
@@ -116,11 +138,11 @@ export async function renderUserMetricsCard(
   }
 
   // Fetch Digital DNA data from API
-  let digitalDnaData = [];
+  let digitalDnaData: any[] = [];
   let isDnaEmpty = false;
 
    // --- Helper: HTML encode function ---
-   function htmlEncode(str) {
+   function htmlEncode(str: string): string {
     if (!str) return "";
     return String(str)
       .replace(/&/g, "&amp;")
@@ -152,7 +174,7 @@ export async function renderUserMetricsCard(
       console.log("[DigitalDNA] API Response:", dnaJson);
       if (dnaJson.code === 200 && dnaJson.data && dnaJson.data.length > 0) {
         // Take top 4 items, no rank display
-        digitalDnaData = dnaJson.data.slice(0, 4).map((item, index) => ({
+        digitalDnaData = dnaJson.data.slice(0, 4).map((item: any, index: number) => ({
           id: `dna-${index}`,
           title: item.dna?.title || "Unknown",
           percentage: Math.round(item.percentage || 0),
@@ -262,12 +284,12 @@ export async function renderUserMetricsCard(
     }
   `;
 
-  targetContainer.innerHTML = metricsHtml; // Menggunakan targetContainer
+  targetContainer.innerHTML = metricsHtml;
   
   // Add event listeners for image fallback
-  const dnaImages = targetContainer.querySelectorAll('.dna-shield-img[data-fallback]');
+  const dnaImages = targetContainer.querySelectorAll('.dna-shield-img[data-fallback]') as NodeListOf<HTMLImageElement>;
   dnaImages.forEach(img => {
-    img.addEventListener('error', function() {
+    img.addEventListener('error', function(this: HTMLImageElement) {
       const fallbackUrl = this.getAttribute('data-fallback');
       if (fallbackUrl && this.src !== fallbackUrl) {
         this.src = fallbackUrl;
@@ -290,7 +312,7 @@ export async function renderUserMetricsCard(
           
           // Send message to content script to show DNA dialog on web page
           chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-            if (tabs && tabs[0]) {
+            if (tabs && tabs[0] && tabs[0].id) {
               chrome.tabs.sendMessage(tabs[0].id, {
                 action: 'showDnaDialog',
                 dna: dna,
@@ -314,7 +336,7 @@ export async function renderUserMetricsCard(
   });
 
   // Add tooltip functionality
-  window.showTooltip = function(message, event) {
+  (window as any).showTooltip = function(message: string, event: Event) {
     // Remove existing tooltip
     const existingTooltip = document.querySelector('.foru-tooltip');
     if (existingTooltip) {
@@ -340,7 +362,7 @@ export async function renderUserMetricsCard(
     `;
 
     // Position tooltip
-    const rect = event.target.getBoundingClientRect();
+    const rect = (event.target as HTMLElement).getBoundingClientRect();
     tooltip.style.left = rect.left + (rect.width / 2) - (tooltip.offsetWidth / 2) + 'px';
     tooltip.style.top = rect.top - tooltip.offsetHeight - 8 + 'px';
 
@@ -355,3 +377,5 @@ export async function renderUserMetricsCard(
     }, 3000);
   };
 }
+
+export { renderUserMetricsCard };

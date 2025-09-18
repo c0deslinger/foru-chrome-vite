@@ -2,7 +2,7 @@
 
 /**
  * BadgeDialog - Shared class for displaying badge popup dialogs
- * Can be used by score_credibility.js, profile.js, and badges.js
+ * Can be used by score_credibility.ts, profile.ts, and badges.ts
  * 
  * This file contains both CSS styles and JavaScript functionality
  */
@@ -193,7 +193,7 @@ const BADGE_DIALOG_CSS = `
 
 interface Badge {
   name: string;
-  image?: string;
+  image: string;
   description?: string;
   partnerLogo?: string;
   partnerName?: string;
@@ -203,12 +203,11 @@ interface Badge {
  * BadgeDialog Class
  */
 class BadgeDialog {
-  private isDialogOpen: boolean = false;
-  private isStylesInjected: boolean = false;
+  private isDialogOpen = false;
+  private isStylesInjected = false;
 
   constructor() {
     this.injectStyles();
-    this.setupMessageListener();
   }
 
   /**
@@ -233,19 +232,6 @@ class BadgeDialog {
     this.isStylesInjected = true;
     
     console.log('Badge dialog styles injected');
-  }
-
-  /**
-   * Setup message listener for sidepanel communication
-   */
-  private setupMessageListener() {
-    // Listen for messages from sidepanel
-    chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-      if (message.action === 'showBadgeDialog' && message.badge) {
-        this.show(message.badge);
-        sendResponse({ success: true });
-      }
-    });
   }
 
   /**
@@ -292,7 +278,7 @@ class BadgeDialog {
     // Badge image
     const badgeImage = document.createElement('img');
     badgeImage.className = 'foru-badge-dialog-badge-image';
-    badgeImage.src = badge.image || chrome.runtime.getURL('images/badge_empty.png');
+    badgeImage.src = badge.image;
     badgeImage.alt = badge.name;
     badgeImage.onerror = function() {
       (this as HTMLImageElement).src = chrome.runtime.getURL('images/badge_empty.png');
@@ -440,7 +426,5 @@ const badgeDialog = new BadgeDialog();
 
 // Expose to global scope for use in other modules
 (window as any).badgeDialog = badgeDialog;
-
-console.log('[ForU Badge Dialog] Script loaded and initialized');
 
 export default BadgeDialog;

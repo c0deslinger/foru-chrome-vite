@@ -58,11 +58,14 @@ async function initializeInjectScripts() {
     
     // Load profile and user scripts
     try {
-      await import('../../profile/profile.ts');
-      await import('../../profile/badges.ts');
-      await import('../../user/user_tab.ts');
-      await import('../../user/user_profile_card.ts');
-      await import('../../user/user_referral_section.ts');
+      await import('../panel/profile/profile/index.ts');
+      await import('../panel/profile/badges/index.ts');
+      await import('../panel/profile/quests/index.ts');
+      await import('../panel/user/user_tab/index.ts');
+      await import('../panel/user/user_profile_card/index.ts');
+      await import('../panel/user/user_referral_section/index.ts');
+      await import('../panel/user/user_metrics_card/index.ts');
+      await import('../panel/user/user_badges_section/index.ts');
       console.log('[Inject Scripts] Profile and user scripts loaded');
     } catch (error) {
       console.warn('[Inject Scripts] Failed to load profile/user scripts:', error);

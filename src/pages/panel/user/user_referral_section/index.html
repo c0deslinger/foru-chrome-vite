@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Referral Section</title>
+  <link rel="stylesheet" href="index.css">
+</head>
+<body>
+  <!-- User Referral Section HTML Template - Used by JavaScript -->
+  <div id="user-referral-template" style="display: none;">
+    
+    <!-- Invitation Codes Section -->
+    <h3 style="margin-top:16px;">Invitation Codes</h3>
+    <div class="invitation-codes-list">
+      
+      <!-- Invitation Code Item Template -->
+      <div class="invitation-code-item" data-code-index="">
+        <div class="code-info">
+          <div class="code-text"></div>
+        </div>
+        <div class="code-actions">
+          <button class="copy-link-btn" data-code="">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+            </svg>
+            Copy Code
+          </button>
+          <button class="share-btn" data-code="">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="18" cy="5" r="3"></circle>
+              <circle cx="6" cy="12" r="3"></circle>
+              <circle cx="18" cy="19" r="3"></circle>
+              <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+              <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+            </svg>
+            Share
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Invites Section -->
+    <div class="invites-section">
+      <h3>Your Invites</h3>
+      <div class="invites-table">
+        
+        <!-- Table Header -->
+        <div class="table-header">
+          <div class="col-name">Name</div>
+          <div class="col-invited">Invited</div>
+          <div class="col-status">Status</div>
+          <div class="col-level">Lv</div>
+          <div class="col-karma">Karma Impact</div>
+        </div>
+
+        <!-- Table Row Template -->
+        <div class="table-row">
+          <div class="col-name">
+            <div class="invite-user">
+              <img src="" alt="" class="invite-avatar">
+              <div class="invite-info">
+                <div class="invite-name"></div>
+                <div class="invite-handle"></div>
+              </div>
+            </div>
+          </div>
+          <div class="col-invited"></div>
+          <div class="col-status">
+            <span class="status-badge"></span>
+          </div>
+          <div class="col-level">
+            <div class="level-info">
+              <span class="level-number"></span>
+              <span class="level-progress"></span>
+            </div>
+          </div>
+          <div class="col-karma">
+            <span class="karma-impact"></span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+  
+  <script type="module" src="index.ts"></script>
+</body>
+</html>

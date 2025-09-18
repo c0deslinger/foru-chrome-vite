@@ -1,16 +1,42 @@
-// File: src/user/user_profile_card.js
+// src/user/user_profile_card/index.ts
 
-// Import fungsi yang dibutuhkan dari user_tab.js
+// Import fungsi yang dibutuhkan
 import {
-  showCustomNotification,
   generateForuSignature,
   NEXT_PUBLIC_API_PRIVATE_KEY,
   API_BASE_URL,
-} from "./user_tab.js";
-// Import renderUserMetricsCard
-import { renderUserMetricsCard } from "./user_metrics_card.js"; // <--- TAMBAHKAN INI
-// Import renderUserBadgesSection
-import { renderUserBadgesSection } from "./user_badges_section.js";
+} from "../../../../lib/crypto-utils.js";
+
+import { showCustomNotification } from "../user_tab/index.js";
+import { renderUserMetricsCard } from "../user_metrics_card/index.js";
+import { renderUserBadgesSection } from "../user_badges_section/index.js";
+
+interface UserProfileData {
+  name?: string;
+  email?: string;
+  twitter_account?: {
+    profile_picture_url?: string;
+    username?: string;
+    location?: string;
+  };
+  attributes?: {
+    level?: number;
+    exp?: number;
+    max_exp_on_level?: number;
+    exp_progress_percentage?: number;
+  };
+  [key: string]: any;
+}
+
+interface StoredData {
+  accessToken?: string;
+  id?: string;
+  twitterId?: string;
+  googleId?: string;
+  expiresAt?: string;
+  loginType?: string;
+  [key: string]: any;
+}
 
 /**
  * Merender kartu profil pengguna dengan data yang diberikan dan tombol logout.
@@ -18,12 +44,12 @@ import { renderUserBadgesSection } from "./user_badges_section.js";
  * @param {object} storedData - Data yang disimpan di chrome.storage.local (accessToken, id, dll.).
  * @param {function} onLogoutCallback - Fungsi callback yang akan dipanggil setelah logout berhasil (misalnya, renderReferralSection).
  */
-export async function renderUserProfileCard(
-  userProfileData = null,
-  storedData = {},
-  onLogoutCallback = () => {},
+async function renderUserProfileCard(
+  userProfileData: UserProfileData | null = null,
+  storedData: StoredData = {},
+  onLogoutCallback: () => void = () => {},
   forceRefresh = false
-) {
+): Promise<void> {
   const container = document.getElementById("referral-section");
   if (!container) return;
 
@@ -160,91 +186,78 @@ export async function renderUserProfileCard(
   const existingProfileCard = container.querySelector('.profile-card-modern');
   const existingLevelSection = container.querySelector('.current-level-section');
   const existingMetricsArea = container.querySelector('#user-metrics-display-area');
-  
-  if (existingProfileCard) {
-    existingProfileCard.remove();
-  }
-  if (existingLevelSection) {
-    existingLevelSection.remove();
-  }
-  if (existingMetricsArea) {
-    existingMetricsArea.remove();
-  }
-  
-  // Insert profile HTML at the beginning of the container
-  container.insertAdjacentHTML("afterbegin", profileHtml);
+  const existingBadgesArea = container.querySelector('#user-badges-display-area');
 
-  // Setelah HTML disisipkan dan elemen #user-metrics-display-area ada,
-  // baru kita panggil renderUserMetricsCard.
-  if (storedData.accessToken) {
-    const metricsDisplayArea = document.getElementById(
-      "user-metrics-display-area"
-    );
-    if (metricsDisplayArea) {
-      renderUserMetricsCard(
-        metricsDisplayArea,
+  if (existingProfileCard) existingProfileCard.remove();
+  if (existingLevelSection) existingLevelSection.remove();
+  if (existingMetricsArea) existingMetricsArea.remove();
+  if (existingBadgesArea) existingBadgesArea.remove();
+
+  // Create a wrapper div for all profile content
+  const profileWrapper = document.createElement('div');
+  profileWrapper.className = 'user-profile-wrapper';
+  profileWrapper.innerHTML = profileHtml;
+  
+  // Insert at the beginning of container
+  container.insertBefore(profileWrapper, container.firstChild);
+
+  // Add copy token functionality if user data available
+  if (userProfileData && storedData.accessToken) {
+    const copyTokenBtn = document.getElementById("copy-token-btn");
+    if (copyTokenBtn) {
+      copyTokenBtn.addEventListener("click", async () => {
+        try {
+          await navigator.clipboard.writeText(storedData.accessToken || "");
+          showCustomNotification("Access token copied to clipboard!");
+        } catch (error) {
+          console.error("Failed to copy access token:", error);
+          showCustomNotification("Failed to copy access token", true);
+        }
+      });
+    }
+
+    // Animate the level progress ring
+    setTimeout(() => {
+      const ringPath = document.getElementById("ringFg") as SVGPathElement;
+      if (ringPath && typeof ringPath.getTotalLength === "function") {
+        try {
+          const length = ringPath.getTotalLength();
+          if (length > 0) {
+            ringPath.style.strokeDasharray = length.toString();
+            ringPath.style.strokeDashoffset = length.toString();
+            
+            // Force reflow
+            ringPath.getBoundingClientRect();
+            
+            // Animate
+            ringPath.style.transition = "stroke-dashoffset 1.5s ease-out";
+            ringPath.style.strokeDashoffset = (length * (1 - progressPercent / 100)).toString();
+          }
+        } catch (error) {
+          console.warn("Could not animate progress ring:", error);
+        }
+      }
+    }, 100);
+
+    // Render user metrics and badges in their respective containers
+    const metricsContainer = document.getElementById("user-metrics-display-area");
+    const badgesContainer = document.getElementById("user-badges-display-area");
+    
+    if (metricsContainer && storedData.accessToken) {
+      await renderUserMetricsCard(
+        metricsContainer,
         storedData.accessToken,
         forceRefresh,
         userProfileData
-      ); // <--- PASSING ELEMENT SEBAGAI ARGUMEN
-    } else {
-      console.error(
-        "Could not find #user-metrics-display-area to render metrics."
       );
     }
-
-    // Render badges section
-    const badgesDisplayArea = document.getElementById(
-      "user-badges-display-area"
-    );
-    if (badgesDisplayArea) {
-      renderUserBadgesSection(
-        badgesDisplayArea,
-        storedData.accessToken
-      );
-    } else {
-      console.error(
-        "Could not find #user-badges-display-area to render badges."
-      );
+    
+    if (badgesContainer && storedData.accessToken) {
+      await renderUserBadgesSection(badgesContainer, storedData.accessToken);
     }
   }
 
-  // AFTER inserting profileHtml, animate ring progress
-  const ringPath = container.querySelector("#ringFg");
-  if (ringPath) {
-    const length = ringPath.getTotalLength();
-    if (length > 0) {
-      ringPath.style.strokeDasharray = length;
-      ringPath.style.strokeDashoffset = length;
-
-      // Force reflow before applying the transition
-      ringPath.getBoundingClientRect();
-
-      // Start the animation
-      ringPath.style.transition = "stroke-dashoffset 1.5s ease-out";
-      const offset = length * (1 - progressPercent / 100);
-      // const offset = length * (1 - 10 / 100);
-      ringPath.style.strokeDashoffset = offset;
-    }
-  }
-
-  // Add event listener for copy token button
-  const copyTokenBtn = document.getElementById("copy-token-btn");
-  if (copyTokenBtn && storedData.accessToken) {
-    copyTokenBtn.addEventListener("click", async () => {
-      try {
-        await navigator.clipboard.writeText(storedData.accessToken);
-        showCustomNotification("Access token copied to clipboard!");
-
-        // Visual feedback - change button color briefly
-        copyTokenBtn.style.background = "rgba(34, 197, 94, 0.9)";
-        setTimeout(() => {
-          copyTokenBtn.style.background = "rgba(99, 102, 241, 0.9)";
-        }, 1000);
-      } catch (error) {
-        console.error("Failed to copy access token:", error);
-        showCustomNotification("Failed to copy access token!", true);
-      }
-    });
-  }
+  console.log("[UserProfileCard] User profile card rendered successfully");
 }
+
+export { renderUserProfileCard };

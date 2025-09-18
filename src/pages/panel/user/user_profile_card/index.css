@@ -1,0 +1,214 @@
+/* src/user/user_profile_card/index.css */
+/* User Profile Card Styles */
+
+.user-profile-wrapper {
+  margin-bottom: 16px;
+}
+
+/* Profile Card Modern */
+.profile-card-modern {
+  background: linear-gradient(135deg, #1f1b2b 0%, #2a2535 100%);
+  border-radius: 16px;
+  padding: 20px;
+  position: relative;
+  border: 1px solid rgba(108, 76, 179, 0.2);
+  margin-bottom: 16px;
+}
+
+.ai-did-badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background: linear-gradient(135deg, #6c4cb3 0%, #8b5cf6 100%);
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.copy-token-button {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  padding: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: #ececf1;
+}
+
+.copy-token-button:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: scale(1.05);
+}
+
+.profile-avatar-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.profile-avatar-modern {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid rgba(108, 76, 179, 0.3);
+  transition: all 0.3s ease;
+}
+
+.profile-avatar-modern:hover {
+  border-color: #6c4cb3;
+  transform: scale(1.05);
+}
+
+.profile-info-modern {
+  text-align: center;
+}
+
+.profile-name {
+  font-size: 18px;
+  font-weight: 700;
+  color: #ececf1;
+  margin: 0 0 4px 0;
+}
+
+.profile-handle {
+  font-size: 14px;
+  color: #aeb0b6;
+  margin-bottom: 12px;
+}
+
+.shannon-coder-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(108, 76, 179, 0.1);
+  border: 1px solid rgba(108, 76, 179, 0.3);
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #6c4cb3;
+}
+
+/* Current Level Section */
+.current-level-section {
+  background: #1f1b2b;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.level-progress {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.level-progress-ring {
+  flex-shrink: 0;
+}
+
+.level-info {
+  flex: 1;
+}
+
+.level-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.current-level-text {
+  font-size: 12px;
+  color: #aeb0b6;
+  font-weight: 400;
+}
+
+.level-number {
+  font-size: 20px;
+  color: #ececf1;
+  font-weight: 700;
+}
+
+.xp-info {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.xp-coin-img {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+}
+
+.xp-current {
+  font-size: 16px;
+  color: #ececf1;
+  font-weight: 600;
+}
+
+.xp-total {
+  font-size: 14px;
+  color: #aeb0b6;
+}
+
+/* Error State */
+.profile-error-state {
+  text-align: center;
+  padding: 20px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .profile-card-modern {
+    padding: 16px;
+    margin-bottom: 12px;
+  }
+  
+  .profile-avatar-modern {
+    width: 64px;
+    height: 64px;
+  }
+  
+  .profile-name {
+    font-size: 16px;
+  }
+  
+  .profile-handle {
+    font-size: 12px;
+  }
+  
+  .shannon-coder-badge {
+    font-size: 11px;
+    padding: 4px 8px;
+  }
+  
+  .level-progress {
+    flex-direction: column;
+    gap: 12px;
+    text-align: center;
+  }
+  
+  .level-header {
+    justify-content: center;
+    gap: 8px;
+  }
+  
+  .xp-info {
+    justify-content: center;
+  }
+  
+  .current-level-section {
+    padding: 12px;
+  }
+}

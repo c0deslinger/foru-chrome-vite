@@ -1,17 +1,24 @@
-// File: src/user/user_referral_section.js
+// src/user/user_referral_section/index.ts
 
-// Import fungsi yang dibutuhkan dari user_tab.js
+// Import fungsi yang dibutuhkan
 import {
-  showCustomNotification,
   generateForuSignature,
   NEXT_PUBLIC_API_PRIVATE_KEY,
   API_BASE_URL,
-} from "./user_tab.js";
+} from "../../../../lib/crypto-utils.js";
+
+import { showCustomNotification } from "../user_tab/index.js";
+
+interface UserProfileData {
+  name?: string;
+  email?: string;
+  [key: string]: any;
+}
 
 /**
  * Helper untuk escape HTML.
  */
-function escapeHtml(str) {
+function escapeHtml(str: string): string {
   return String(str || "")
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
@@ -25,10 +32,10 @@ function escapeHtml(str) {
  * @param {object|null} userProfileData - Data profil pengguna (saat ini tidak digunakan secara langsung di sini, tapi bisa untuk data referral dinamis di masa depan).
  * @param {boolean} forceRefresh - Force refresh data from API even if already loaded
  */
-export async function renderReferralDetails(
-  userProfileData,
+async function renderReferralDetails(
+  userProfileData: UserProfileData | null,
   forceRefresh = false
-) {
+): Promise<void> {
   const container = document.getElementById("referral-section");
   if (!container) return;
 
@@ -37,7 +44,7 @@ export async function renderReferralDetails(
   const accessToken = storedData.accessToken;
 
   // Always fetch fresh invitation codes from API
-  let invitationCodes = [];
+  let invitationCodes: any[] = [];
   try {
     if (accessToken) {
       const currentTimestamp = Date.now().toString();
@@ -60,7 +67,7 @@ export async function renderReferralDetails(
       if (response.ok) {
         const data = await response.json();
         if (data && data.code === 200 && data.data) {
-          invitationCodes = data.data.map((item) => ({
+          invitationCodes = data.data.map((item: any) => ({
             id: item.id,
             code: item.code,
             expiredAt: item.expired_at,
@@ -175,7 +182,7 @@ export async function renderReferralDetails(
   // Event listeners untuk tombol copy link
   document.querySelectorAll(".copy-link-btn").forEach((btn) => {
     btn.addEventListener("click", (e) => {
-      const code = btn.dataset.code;
+      const code = (btn as HTMLElement).dataset.code;
       const inviteLink = `${code}`;
 
       navigator.clipboard
@@ -193,7 +200,7 @@ export async function renderReferralDetails(
   // Event listeners untuk tombol share
   document.querySelectorAll(".share-btn").forEach((btn) => {
     btn.addEventListener("click", (e) => {
-      const code = btn.dataset.code;
+      const code = (btn as HTMLElement).dataset.code;
       const shareText = `Join me on ForU IdentiFi! Use my invitation code: ${code}`;
       const inviteLink = `https://social.foruai.io/signin?code=${code}&utm_source=chrome-extension`;
       const tweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(
@@ -204,3 +211,5 @@ export async function renderReferralDetails(
     });
   });
 }
+
+export { renderReferralDetails, escapeHtml };
