@@ -11,7 +11,7 @@ declare global {
   }
 }
 
-import { generateForuSignature, API_BASE_URL, NEXT_PUBLIC_API_PRIVATE_KEY } from '../lib/crypto-utils.js';
+import { generateForuSignature, API_BASE_URL, NEXT_PUBLIC_API_PRIVATE_KEY } from '../../../lib/crypto-utils.js';
 
 // Use different variable names to avoid conflict
 const API_BASE_URL_CRED = API_BASE_URL;

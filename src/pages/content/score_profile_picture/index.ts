@@ -1,6 +1,6 @@
 // src/inject/score_profile_picture.ts
 
-import { generateForuSignature, API_BASE_URL, NEXT_PUBLIC_API_PRIVATE_KEY } from '../lib/crypto-utils.js';
+import { generateForuSignature, API_BASE_URL, NEXT_PUBLIC_API_PRIVATE_KEY } from '../../../lib/crypto-utils.js';
 
 console.log("[ForU Score Profile Picture] Script loading...");
 

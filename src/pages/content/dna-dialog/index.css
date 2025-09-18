@@ -1,0 +1,213 @@
+/* DNA Dialog Styles */
+.foru-dna-dialog-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  backdrop-filter: blur(20px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999999;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.foru-dna-dialog {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 24px;
+  padding: 24px;
+  max-width: 650px;
+  width: 90%;
+  backdrop-filter: blur(20px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+
+.foru-dna-dialog-content-wrapper {
+  background: #ffffff;
+  border-radius: 22px;
+  padding: 32px;
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.foru-dna-dialog-header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  margin-bottom: 24px;
+  position: relative;
+}
+
+.foru-dna-dialog-close {
+  background: #7246ce;
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  position: absolute;
+  top: 0;
+  left: 0;
+  box-shadow: 0px 1px 2px 0px rgba(55, 93, 251, 0.08);
+}
+
+.foru-dna-dialog-close img {
+  width: 16px;
+  height: 16px;
+  filter: brightness(0) invert(1);
+}
+
+.foru-dna-dialog-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  text-align: center;
+}
+
+.foru-dna-dialog-dna-image {
+  width: 120px;
+  height: 120px;
+  border-radius: 16px;
+  object-fit: cover;
+}
+
+.foru-dna-dialog-title {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 32px;
+  color: #0a0d14;
+  letter-spacing: -0.2px;
+  margin: 0;
+}
+
+.foru-dna-dialog-percentage {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+  color: #6c4cb3;
+  margin: 0;
+}
+
+.foru-dna-dialog-description {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 14px;
+  line-height: 20px;
+  color: #6b7280;
+  margin: 0;
+  max-width: 400px;
+}
+
+.foru-dna-dialog-progress-section {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 16px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.foru-dna-dialog-progress-bar {
+  flex: 1;
+  height: 8px;
+  background-color: #2a2a2a;
+  border-radius: 4px;
+  overflow: hidden;
+  min-width: 0;
+}
+
+.foru-dna-dialog-progress-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.8s ease-in-out;
+  animation: progressLoad 1.5s ease-out;
+}
+
+@keyframes progressLoad {
+  from {
+    width: 0%;
+  }
+}
+
+.foru-dna-dialog-percentage-text {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  color: #6c4cb3;
+  margin: 0;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.foru-dna-dialog-rank {
+  background: linear-gradient(135deg, #6c4cb3 0%, #4a2c85 100%);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.foru-dna-dialog-tweet-section {
+  width: 100%;
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 16px;
+  margin-top: 8px;
+}
+
+.foru-dna-dialog-tweet-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.foru-dna-dialog-profile-photo {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.foru-dna-dialog-tweet-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  align-items: flex-start;
+  text-align: left;
+}
+
+.foru-dna-dialog-tweet-author {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: #0a0d14;
+  margin: 0;
+}
+
+.foru-dna-dialog-tweet-date {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 12px;
+  color: #6b7280;
+  margin: 0;
+}
+
+.foru-dna-dialog-tweet-content {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 14px;
+  line-height: 20px;
+  color: #0a0d14;
+  margin: 0;
+  text-align: left;
+}

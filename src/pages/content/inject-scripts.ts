@@ -8,49 +8,49 @@ async function initializeInjectScripts() {
     
     // Load all inject scripts dynamically
     try {
-      await import('../../inject/badge-dialog.ts');
+      await import('./badge-dialog/index.ts');
       console.log('[Inject Scripts] Loaded badge-dialog');
     } catch (error) {
       console.warn('[Inject Scripts] Failed to load badge-dialog:', error);
     }
     
     try {
-      await import('../../inject/dna-dialog.ts');
+      await import('./dna-dialog/index.ts');
       console.log('[Inject Scripts] Loaded dna-dialog');
     } catch (error) {
       console.warn('[Inject Scripts] Failed to load dna-dialog:', error);
     }
     
     try {
-      await import('../../inject/tweet-analysis-dialog.ts');
+      await import('./tweet-analysis-dialog/index.ts');
       console.log('[Inject Scripts] Loaded tweet-analysis-dialog');
     } catch (error) {
       console.warn('[Inject Scripts] Failed to load tweet-analysis-dialog:', error);
     }
     
     try {
-      await import('../../inject/tweet-analyze-buttons.ts');
+      await import('./tweet-analyze-buttons/index.ts');
       console.log('[Inject Scripts] Loaded tweet-analyze-buttons');
     } catch (error) {
       console.warn('[Inject Scripts] Failed to load tweet-analyze-buttons:', error);
     }
     
     try {
-      await import('../../inject/button_view_profile.ts');
+      await import('./button_view_profile/index.ts');
       console.log('[Inject Scripts] Loaded button_view_profile');
     } catch (error) {
       console.warn('[Inject Scripts] Failed to load button_view_profile:', error);
     }
     
     try {
-      await import('../../inject/score_profile_picture.ts');
+      await import('./score_profile_picture/index.ts');
       console.log('[Inject Scripts] Loaded score_profile_picture');
     } catch (error) {
       console.warn('[Inject Scripts] Failed to load score_profile_picture:', error);
     }
     
     try {
-      await import('../../inject/score_credibility.ts');
+      await import('./score_credibility/index.ts');
       console.log('[Inject Scripts] Loaded score_credibility');
     } catch (error) {
       console.warn('[Inject Scripts] Failed to load score_credibility:', error);

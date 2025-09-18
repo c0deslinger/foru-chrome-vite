@@ -1,10 +1,41 @@
-// src/inject/button_view_profile.ts
+// src/pages/content/button_view_profile/index.ts
 
 /**
  * Inserts the "View Profile" icon button next to the Follow/Following button.
  * Updates on every navigation.
  */
+
+let isStylesInjected = false;
+
+async function injectStyles() {
+  if (isStylesInjected) {
+    return;
+  }
+
+  // Check if styles already exist
+  const existingStyle = document.querySelector('#foru-view-profile-styles');
+  if (existingStyle) {
+    isStylesInjected = true;
+    return;
+  }
+
+  // Load CSS content
+  const cssResponse = await fetch(chrome.runtime.getURL('src/pages/content/button_view_profile/index.css'));
+  const cssContent = await cssResponse.text();
+
+  const styleElement = document.createElement('style');
+  styleElement.id = 'foru-view-profile-styles';
+  styleElement.textContent = cssContent;
+  document.head.appendChild(styleElement);
+  isStylesInjected = true;
+  
+  console.log('View Profile button styles injected');
+}
+
 function insertCustomViewProfileButton() {
+  // Inject styles first
+  injectStyles();
+
   const parts = window.location.pathname.split("/").filter(Boolean);
   const username = parts[0] || ""; // username from the path
 

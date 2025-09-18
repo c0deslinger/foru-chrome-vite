@@ -72,7 +72,8 @@
         "icon-16.png",
         "icon-48.png",
         "images/*",
-        "assets/*"
+        "assets/*",
+        "src/pages/content/*/index.css"
       ],
       "matches": ["*://*.x.com/*", "*://*.twitter.com/*", "*://twitter.com/*"]
     }

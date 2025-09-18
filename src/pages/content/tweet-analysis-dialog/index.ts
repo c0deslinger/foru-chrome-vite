@@ -1,6 +1,6 @@
 // src/inject/tweet-analysis-dialog.ts
 
-import { generateForuSignature, API_BASE_URL, NEXT_PUBLIC_API_PRIVATE_KEY } from '../lib/crypto-utils.js';
+import { generateForuSignature, API_BASE_URL, NEXT_PUBLIC_API_PRIVATE_KEY } from '../../../lib/crypto-utils.js';
 
 /**
  * TweetAnalysisDialog - Class for displaying tweet analysis popup dialogs

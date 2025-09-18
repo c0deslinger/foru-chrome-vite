@@ -1,195 +1,11 @@
-// src/inject/badge-dialog.ts
+// src/pages/content/badge-dialog/index.ts
 
 /**
  * BadgeDialog - Shared class for displaying badge popup dialogs
  * Can be used by score_credibility.ts, profile.ts, and badges.ts
  * 
- * This file contains both CSS styles and JavaScript functionality
+ * This file contains JavaScript functionality only
  */
-
-// CSS Styles for Badge Dialog
-const BADGE_DIALOG_CSS = `
-/* Badge Dialog Styles */
-.foru-badge-dialog-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: transparent;
-  backdrop-filter: blur(20px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 999999;
-  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-}
-
-.foru-badge-dialog {
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 24px;
-  padding: 24px;
-  max-width: 400px;
-  width: 90%;
-  backdrop-filter: blur(20px);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-  position: relative;
-}
-
-.foru-badge-dialog-content-wrapper {
-  background: #ffffff;
-  border-radius: 22px;
-  padding: 32px;
-  width: 100%;
-  height: 100%;
-  position: relative;
-}
-
-.foru-badge-dialog-header {
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  margin-bottom: 24px;
-  position: relative;
-}
-
-.foru-badge-dialog-close {
-  background: #7246ce;
-  border: none;
-  border-radius: 50%;
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  position: absolute;
-  top: 0;
-  left: 0;
-  box-shadow: 0px 1px 2px 0px rgba(55, 93, 251, 0.08);
-}
-
-.foru-badge-dialog-close img {
-  width: 16px;
-  height: 16px;
-  filter: brightness(0) invert(1);
-}
-
-.foru-badge-dialog-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 24px;
-  text-align: center;
-}
-
-.foru-badge-dialog-badge-image {
-  width: 120px;
-  height: 120px;
-  border-radius: 16px;
-  object-fit: cover;
-}
-
-.foru-badge-dialog-title {
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  font-size: 24px;
-  font-weight: 600;
-  line-height: 32px;
-  color: #0a0d14;
-  letter-spacing: -0.2px;
-  margin: 0;
-}
-
-.foru-badge-dialog-description {
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  font-size: 14px;
-  font-weight: 400;
-  line-height: 20px;
-  color: #525866;
-  letter-spacing: -0.1px;
-  margin: 0;
-  max-width: 300px;
-}
-
-.foru-badge-dialog-partner {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-top: 8px;
-}
-
-.foru-badge-dialog-partner-text {
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  font-size: 12px;
-  font-weight: 400;
-  color: #525866;
-  margin: 0;
-}
-
-.foru-badge-dialog-partner-logo {
-  height: 16px;
-  width: auto;
-  border-radius: 6px;
-  object-fit: contain;
-  display: block;
-  background-color: rgba(0, 0, 0, 0.3);
-  padding: 2px 6px;
-  max-width: 80px;
-}
-
-/* Animation */
-.foru-badge-dialog-overlay {
-  animation: fadeIn 0.3s ease-out;
-}
-
-.foru-badge-dialog {
-  animation: slideIn 0.3s ease-out;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: scale(0.9) translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1) translateY(0);
-  }
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-  .foru-badge-dialog {
-    width: 95%;
-    padding: 16px;
-    border-radius: 24px;
-  }
-  
-  .foru-badge-dialog-title {
-    font-size: 28px;
-    line-height: 36px;
-  }
-  
-  .foru-badge-dialog-badge {
-    width: 150px;
-    height: 150px;
-  }
-  
-  .foru-badge-dialog-badge-container {
-    width: 100%;
-  }
-}
-`;
 
 interface Badge {
   name: string;
@@ -213,7 +29,7 @@ class BadgeDialog {
   /**
    * Inject CSS styles into document head
    */
-  injectStyles() {
+  async injectStyles() {
     if (this.isStylesInjected) {
       return;
     }
@@ -225,9 +41,13 @@ class BadgeDialog {
       return;
     }
 
+    // Load CSS content
+    const cssResponse = await fetch(chrome.runtime.getURL('src/pages/content/badge-dialog/index.css'));
+    const cssContent = await cssResponse.text();
+
     const styleElement = document.createElement('style');
     styleElement.id = 'foru-badge-dialog-styles';
-    styleElement.textContent = BADGE_DIALOG_CSS;
+    styleElement.textContent = cssContent;
     document.head.appendChild(styleElement);
     this.isStylesInjected = true;
     

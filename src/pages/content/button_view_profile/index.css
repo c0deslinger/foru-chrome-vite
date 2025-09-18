@@ -1,0 +1,30 @@
+/* View Profile Button Styles */
+#foru-view-profile-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 36px !important;
+  height: 36px !important;
+  min-width: 36px !important;
+  min-height: 36px !important;
+  padding: 0 !important;
+  border-radius: 50% !important;
+  background: #6c4cb3 !important;
+  color: #ffffff !important;
+  text-decoration: none !important;
+  font-weight: 700 !important;
+  font-size: 0 !important;
+  cursor: pointer !important;
+  margin-left: 12px !important;
+  box-sizing: border-box !important;
+  vertical-align: middle !important;
+  line-height: 0 !important;
+  transform: translateY(-11px) !important;
+  flex-shrink: 0 !important;
+}
+
+#foru-view-profile-btn img {
+  width: 20px !important;
+  height: 20px !important;
+  object-fit: contain !important;
+}
