@@ -70,7 +70,7 @@ function insertCustomViewProfileButton() {
       parentOfFollowPlacementDiv &&
       !document.getElementById("foru-view-profile-btn")
     ) {
-      const iconUrl = chrome.runtime.getURL("icons/icon128.png");
+      const iconUrl = chrome.runtime.getURL("icon-128.png");
       const viewBtn = document.createElement("a");
       viewBtn.id = "foru-view-profile-btn"; // Give it an ID to prevent re-insertion
       // viewBtn.href = `https://foruai.io/profile/x/${username}`;

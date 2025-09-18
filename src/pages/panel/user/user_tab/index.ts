@@ -319,7 +319,7 @@ async function renderReferralSection(forceRefresh = false): Promise<void> {
     container.innerHTML = `
       <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;padding:20px;box-sizing:border-box;">
         <img src="${chrome.runtime.getURL(
-          "icons/icon128.png"
+          "icon-128.png"
         )}" alt="ForU Icon" style="width:60px;height:60px;margin-bottom:15px;border-radius:50%;filter:grayscale(100%);opacity:0.7;">
         <p style="color:#aeb0b6;font-size:14px;margin-bottom:25px;line-height:1.5;">Please log in to get your social profile data.</p>
         <button id="login-twitter-btn" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:10px 25px;background-color:#1DA1F2;color:#ffffff;border:none;border-radius:9999px;cursor:pointer;font-size:15px;font-weight:bold;min-width:200px;box-sizing:border-box;margin-bottom:10px;">
@@ -415,26 +415,469 @@ async function renderReferralSection(forceRefresh = false): Promise<void> {
  * Setup login handlers for email and Twitter login
  */
 function setupLoginHandlers(container: HTMLElement): void {
-  // Implementation for login handlers would go here
-  // This is a simplified version - the full implementation would include
-  // all the email login, OTP verification, etc. logic from the original file
-  
+  // Tambahkan handlers untuk tombol login
   const twitterBtn = document.getElementById("login-twitter-btn");
-  const emailBtn = document.getElementById("login-email-btn");
-  
   if (twitterBtn) {
     twitterBtn.addEventListener("click", async () => {
-      // Twitter login logic
-      console.log("Twitter login clicked");
+      try {
+        const backendUrl = `${API_BASE_URL}/v1/user-auth/twitter`;
+        const redirectUrlParam = encodeURIComponent("https://x.com/4UAICrypto");
+        const fetchUrl = `${backendUrl}?redirect_uri=${redirectUrlParam}`;
+
+        console.log("Fetching Twitter login URL from backend:", fetchUrl);
+
+        const response = await fetch(fetchUrl);
+        if (!response.ok) {
+          const errorBody = await response.text();
+          throw new Error(
+            `HTTP error! status: ${response.status}. Response: ${errorBody}`
+          );
+        }
+        const data = await response.json();
+
+        if (
+          data &&
+          data.code === 200 &&
+          typeof data.data === "string" &&
+          data.data.startsWith("http")
+        ) {
+          chrome.tabs.create({ url: data.data });
+        } else {
+          console.error("Invalid backend response:", data);
+          const errorMessage = data.message || "Unknown error format.";
+          showCustomNotification(
+            `Failed to get authentication URL: ${errorMessage}`,
+            true
+          );
+        }
+      } catch (error) {
+        console.error("Error during Twitter login initiation:", error);
+        showCustomNotification(
+          `Failed to start Twitter login process. Error: ${
+            (error as Error).message || "Unknown error"
+          }. Please try again.`,
+          true
+        );
+      }
     });
   }
-  
+
+  // State variables for email login
+  let currentEmail = "";
+
+  // State management functions
+  function saveLoginState(state: string, email = "") {
+    localStorage.setItem('foru_login_state', state);
+    if (email) {
+      localStorage.setItem('foru_current_email', email);
+    }
+    console.log('[ForU] State saved:', state, 'Email:', email);
+  }
+
+  function saveCountdownTime(remainingTime: number) {
+    localStorage.setItem('foru_countdown_time', remainingTime.toString());
+    localStorage.setItem('foru_countdown_start', Date.now().toString());
+    console.log('[ForU] Countdown saved:', remainingTime, 'seconds');
+  }
+
+  function getCountdownTime() {
+    const savedTime = localStorage.getItem('foru_countdown_time');
+    const savedStart = localStorage.getItem('foru_countdown_start');
+    
+    if (savedTime && savedStart) {
+      const startTime = parseInt(savedStart);
+      const elapsed = Math.floor((Date.now() - startTime) / 1000);
+      const remaining = Math.max(0, parseInt(savedTime) - elapsed);
+      console.log('[ForU] Countdown calculation - saved:', savedTime, 'elapsed:', elapsed, 'remaining:', remaining);
+      return remaining;
+    }
+    return 0;
+  }
+
+  function clearCountdownTime() {
+    localStorage.removeItem('foru_countdown_time');
+    localStorage.removeItem('foru_countdown_start');
+    console.log('[ForU] Countdown cleared');
+  }
+
+  function getLoginState() {
+    return localStorage.getItem('foru_login_state') || 'login_buttons';
+  }
+
+  function getCurrentEmail() {
+    return localStorage.getItem('foru_current_email') || "";
+  }
+
+  // Helper functions to show/hide forms
+  function showLoginButtons() {
+    const loginBtns = document.getElementById("login-twitter-btn")?.parentElement;
+    const emailForm = document.getElementById("email-login-form");
+    const otpForm = document.getElementById("otp-verification-form");
+    
+    if (loginBtns) loginBtns.style.display = "flex";
+    if (emailForm) emailForm.style.display = "none";
+    if (otpForm) otpForm.style.display = "none";
+    saveLoginState('login_buttons');
+  }
+
+  function showEmailForm() {
+    console.log('[ForU] Showing email form');
+    const loginBtns = document.getElementById("login-twitter-btn")?.parentElement;
+    const emailForm = document.getElementById("email-login-form");
+    const otpForm = document.getElementById("otp-verification-form");
+    
+    if (loginBtns) loginBtns.style.display = "none";
+    if (emailForm) emailForm.style.display = "block";
+    if (otpForm) otpForm.style.display = "none";
+    saveLoginState('email_form');
+  }
+
+  function showOtpForm() {
+    console.log('[ForU] Showing OTP form');
+    const loginBtns = document.getElementById("login-twitter-btn")?.parentElement;
+    const emailForm = document.getElementById("email-login-form");
+    const otpForm = document.getElementById("otp-verification-form");
+    
+    if (loginBtns) loginBtns.style.display = "none";
+    if (emailForm) emailForm.style.display = "none";
+    if (otpForm) otpForm.style.display = "block";
+    saveLoginState('otp_form');
+  }
+
+  // Email login button handler
+  const emailBtn = document.getElementById("login-email-btn");
   if (emailBtn) {
     emailBtn.addEventListener("click", () => {
-      // Email login logic
-      console.log("Email login clicked");
+      console.log('[ForU] Login with email clicked');
+      showEmailForm();
+      const emailInput = document.getElementById("email-input") as HTMLInputElement;
+      if (emailInput) emailInput.focus();
     });
   }
+
+  // Back to login options handler
+  const backToLoginBtn = document.getElementById("back-to-login-btn");
+  if (backToLoginBtn) {
+    backToLoginBtn.addEventListener("click", () => {
+      showLoginButtons();
+    });
+  }
+
+  // Email form submit handler
+  const emailSubmitBtn = document.getElementById("email-login-submit-btn");
+  if (emailSubmitBtn) {
+    emailSubmitBtn.addEventListener("click", async () => {
+      const emailInput = document.getElementById("email-input") as HTMLInputElement;
+      if (!emailInput) return;
+
+      const email = emailInput.value.trim();
+      if (!email) {
+        showCustomNotification("Please enter your email address", true);
+        return;
+      }
+
+      if (!isValidEmail(email)) {
+        showCustomNotification("Please enter a valid email address", true);
+        return;
+      }
+
+      try {
+        emailSubmitBtn.textContent = "Sending...";
+        emailSubmitBtn.style.pointerEvents = "none";
+
+        const timestamp = Date.now().toString();
+        const payload = { email };
+        const signature = generateForuSignature("POST", payload, timestamp);
+
+        const response = await fetch(`${API_BASE_URL}/v1/user-auth/email/send-otp`, {
+          method: "POST",
+          headers: {
+            "accept": "application/json",
+            "x-foru-apikey": NEXT_PUBLIC_API_PRIVATE_KEY,
+            "Content-Type": "application/json",
+            "x-foru-timestamp": timestamp,
+            "x-foru-signature": signature,
+          },
+          body: JSON.stringify(payload),
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.code === 200) {
+          currentEmail = email;
+          showOtpForm();
+          const otpMessage = document.getElementById("otp-message");
+          if (otpMessage) {
+            otpMessage.textContent = `We've sent a secure link to ${email}`;
+          }
+          startCountdown();
+          showCustomNotification("OTP sent successfully!");
+        } else {
+          console.error("Send OTP failed:", data);
+          showCustomNotification(data.message || "Failed to send OTP", true);
+        }
+      } catch (error) {
+        console.error("Send OTP error:", error);
+        showCustomNotification("Failed to send OTP. Please try again.", true);
+      } finally {
+        emailSubmitBtn.textContent = "Send OTP";
+        emailSubmitBtn.style.pointerEvents = "auto";
+      }
+    });
+  }
+
+  // OTP verification handlers
+  setupOtpHandlers();
+  
+  // Helper function for email validation
+  function isValidEmail(email: string): boolean {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  }
+
+  // Countdown functionality
+  let countdownInterval: NodeJS.Timeout | null = null;
+
+  function startCountdown() {
+    const countdownTextElement = document.getElementById("countdown-text");
+    const resendBtn = document.getElementById("resend-otp-btn") as HTMLButtonElement;
+    
+    if (!countdownTextElement || !resendBtn) return;
+
+    let timeLeft = getCountdownTime() || 60;
+    saveCountdownTime(timeLeft);
+
+    if (countdownInterval) {
+      clearInterval(countdownInterval);
+    }
+
+    countdownInterval = setInterval(() => {
+      timeLeft--;
+      saveCountdownTime(timeLeft);
+      countdownTextElement.textContent = `(${timeLeft}s)`;
+
+      if (timeLeft <= 0) {
+        clearInterval(countdownInterval!);
+        countdownTextElement.textContent = "";
+        resendBtn.disabled = false;
+        resendBtn.style.background = "#6c4cb3";
+        resendBtn.style.color = "#ffffff";
+        resendBtn.style.cursor = "pointer";
+        clearCountdownTime();
+      }
+    }, 1000);
+  }
+
+  function setupOtpHandlers() {
+    // OTP input handlers for auto-focus
+    for (let i = 1; i <= 6; i++) {
+      const input = document.getElementById(`otp-input-${i}`) as HTMLInputElement;
+      if (input) {
+        input.addEventListener("input", (e) => {
+          const target = e.target as HTMLInputElement;
+          if (target.value.length === 1 && i < 6) {
+            const nextInput = document.getElementById(`otp-input-${i + 1}`) as HTMLInputElement;
+            if (nextInput) nextInput.focus();
+          }
+        });
+
+        input.addEventListener("keydown", (e) => {
+          if (e.key === "Backspace" && input.value === "" && i > 1) {
+            const prevInput = document.getElementById(`otp-input-${i - 1}`) as HTMLInputElement;
+            if (prevInput) prevInput.focus();
+          }
+        });
+      }
+    }
+
+    // OTP verify button handler
+    const otpVerifyBtn = document.getElementById("otp-verify-btn");
+    if (otpVerifyBtn) {
+      otpVerifyBtn.addEventListener("click", async () => {
+        const otpCode = Array.from({length: 6}, (_, i) => {
+          const input = document.getElementById(`otp-input-${i + 1}`) as HTMLInputElement;
+          return input ? input.value : "";
+        }).join("");
+
+        if (otpCode.length !== 6) {
+          showCustomNotification("Please enter the complete 6-digit OTP", true);
+          return;
+        }
+
+        try {
+          otpVerifyBtn.textContent = "Verifying...";
+          otpVerifyBtn.style.pointerEvents = "none";
+
+          const timestamp = Date.now().toString();
+          const payload = { email: currentEmail, otp: otpCode };
+          const signature = generateForuSignature("POST", payload, timestamp);
+
+          const response = await fetch(`${API_BASE_URL}/v1/user-auth/email/verify-otp`, {
+            method: "POST",
+            headers: {
+              "accept": "application/json",
+              "x-foru-apikey": NEXT_PUBLIC_API_PRIVATE_KEY,
+              "Content-Type": "application/json",
+              "x-foru-timestamp": timestamp,
+              "x-foru-signature": signature,
+            },
+            body: JSON.stringify(payload),
+          });
+
+          const data = await response.json();
+
+          if (response.ok && data.code === 200) {
+            const { access_token, expires_at, user } = data.data;
+            
+            await chrome.storage.local.set({
+              accessToken: access_token,
+              expiresAt: expires_at,
+              id: user.id,
+              email: user.email,
+              loginType: "email",
+            });
+
+            showCustomNotification("Login successful!");
+            
+            // Clear login state
+            localStorage.removeItem('foru_login_state');
+            localStorage.removeItem('foru_current_email');
+            clearCountdownTime();
+            
+            // Reload the section to show user data
+            setTimeout(() => {
+              renderReferralSection(true);
+            }, 500);
+          } else {
+            console.error("OTP verification failed:", data);
+            showCustomNotification(data.message || "Invalid OTP", true);
+          }
+        } catch (error) {
+          console.error("OTP verification error:", error);
+          showCustomNotification("Failed to verify OTP. Please try again.", true);
+        } finally {
+          otpVerifyBtn.textContent = "Submit OTP";
+          otpVerifyBtn.style.pointerEvents = "auto";
+        }
+      });
+    }
+
+    // Resend OTP button handler
+    const resendBtn = document.getElementById("resend-otp-btn");
+    if (resendBtn) {
+      resendBtn.addEventListener("click", async () => {
+        if (!currentEmail) return;
+
+        try {
+          resendBtn.textContent = "Sending...";
+          resendBtn.style.pointerEvents = "none";
+
+          const timestamp = Date.now().toString();
+          const payload = { email: currentEmail };
+          const signature = generateForuSignature("POST", payload, timestamp);
+
+          const response = await fetch(`${API_BASE_URL}/v1/user-auth/email/send-otp`, {
+            method: "POST",
+            headers: {
+              "accept": "application/json",
+              "x-foru-apikey": NEXT_PUBLIC_API_PRIVATE_KEY,
+              "Content-Type": "application/json",
+              "x-foru-timestamp": timestamp,
+              "x-foru-signature": signature,
+            },
+            body: JSON.stringify(payload),
+          });
+
+          const data = await response.json();
+
+          if (response.ok && data.code === 200) {
+            startCountdown();
+            showCustomNotification("OTP sent successfully!");
+            
+            // Reset button state
+            const resendElement = resendBtn as HTMLButtonElement;
+            resendElement.disabled = true;
+            resendElement.style.background = "#6b7280";
+            resendElement.style.color = "#9ca3af";
+            resendElement.style.cursor = "not-allowed";
+          } else {
+            console.error("Resend OTP failed:", data);
+            showCustomNotification(data.message || "Failed to resend OTP", true);
+          }
+        } catch (error) {
+          console.error("Resend OTP error:", error);
+          showCustomNotification("Failed to resend OTP. Please try again.", true);
+        } finally {
+          const resendTextElement = document.getElementById("resend-text");
+          if (resendTextElement) resendTextElement.textContent = "Resend OTP";
+          resendBtn.style.pointerEvents = "auto";
+        }
+      });
+    }
+
+    // Back to email input handler
+    const backToEmailBtn = document.getElementById("back-to-email-btn");
+    if (backToEmailBtn) {
+      backToEmailBtn.addEventListener("click", () => {
+        showEmailForm();
+        if (countdownInterval) {
+          clearInterval(countdownInterval);
+        }
+        clearCountdownTime();
+      });
+    }
+  }
+
+  // Restore state on page load
+  function restoreLoginState() {
+    const savedState = getLoginState();
+    const savedEmail = getCurrentEmail();
+    
+    console.log('[ForU] Restoring login state:', savedState, 'Email:', savedEmail);
+    
+    switch (savedState) {
+      case 'email_form':
+        showEmailForm();
+        if (savedEmail) {
+          const emailInput = document.getElementById("email-input") as HTMLInputElement;
+          if (emailInput) emailInput.value = savedEmail;
+        }
+        break;
+      case 'otp_form':
+        if (savedEmail) {
+          currentEmail = savedEmail;
+          showOtpForm();
+          const otpMessage = document.getElementById("otp-message");
+          if (otpMessage) {
+            otpMessage.textContent = `We've sent a secure link to ${savedEmail}`;
+          }
+          
+          const remainingTime = getCountdownTime();
+          if (remainingTime > 0) {
+            startCountdown();
+          } else {
+            const resendBtn = document.getElementById("resend-otp-btn") as HTMLButtonElement;
+            const countdownText = document.getElementById("countdown-text");
+            if (resendBtn && countdownText) {
+              resendBtn.disabled = false;
+              resendBtn.style.background = "#6c4cb3";
+              resendBtn.style.color = "#ffffff";
+              resendBtn.style.cursor = "pointer";
+              countdownText.textContent = "";
+            }
+          }
+        } else {
+          showLoginButtons();
+        }
+        break;
+      default:
+        showLoginButtons();
+        break;
+    }
+  }
+
+  // Restore state after a short delay to ensure DOM is ready
+  setTimeout(restoreLoginState, 100);
 }
 
 /**

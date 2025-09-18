@@ -147,12 +147,12 @@ class DnaDialog {
     tweetSection.className = 'foru-dna-dialog-tweet-section';
     
     // Get profile photo and username - use userProfileData if available (user tab), otherwise from Twitter page (profile tab)
-    let profilePhotoUrl = chrome.runtime.getURL('icons/icon128.png'); // Default fallback
+    let profilePhotoUrl = chrome.runtime.getURL('icon-128.png'); // Default fallback
     let username = 'User';
     
     if (userProfileData) {
       // Use user profile data from user tab
-      profilePhotoUrl = userProfileData.twitter_account?.profile_picture_url || chrome.runtime.getURL('icons/icon128.png');
+      profilePhotoUrl = userProfileData.twitter_account?.profile_picture_url || chrome.runtime.getURL('icon-128.png');
       username = userProfileData.twitter_account?.username || userProfileData.name || 'User';
     } else {
       // Use Twitter page data for profile tab
@@ -164,7 +164,7 @@ class DnaDialog {
             profilePhotoUrl = (avatarElem as HTMLImageElement).src;
           }
         }
-        if (profilePhotoUrl === chrome.runtime.getURL('icons/icon128.png')) {
+        if (profilePhotoUrl === chrome.runtime.getURL('icon-128.png')) {
           const fallback = document.querySelector('img[src*="profile_images"]');
           if (fallback) {
             profilePhotoUrl = (fallback as HTMLImageElement).src;
@@ -190,7 +190,7 @@ class DnaDialog {
     profilePhoto.src = profilePhotoUrl;
     profilePhoto.alt = 'Profile Photo';
     profilePhoto.onerror = function() {
-      (this as HTMLImageElement).src = chrome.runtime.getURL('icons/icon128.png');
+      (this as HTMLImageElement).src = chrome.runtime.getURL('icon-128.png');
     };
     
     const tweetInfo = document.createElement('div');

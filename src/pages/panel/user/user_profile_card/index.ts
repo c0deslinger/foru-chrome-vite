@@ -96,7 +96,7 @@ async function renderUserProfileCard(
   if (userProfileData) {
     const profilePic =
       userProfileData.twitter_account?.profile_picture_url ||
-      chrome.runtime.getURL("icons/icon128.png");
+      chrome.runtime.getURL("icon-128.png");
     const userName = userProfileData.name || "N/A";
     const twitterHandle = userProfileData.twitter_account?.username
       ? `@${userProfileData.twitter_account.username}`
