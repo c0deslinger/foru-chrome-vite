@@ -1,0 +1,80 @@
+{
+  "manifest_version": 3,
+  "name": "ForU AI",
+  "description": "A new way to exist on-chain.",
+  "foruConfig": {
+    "secretKey": "5452ea6c10f23d4e5b83d1eb393f99d53705951d7b43acc90eadf17ecc839623",
+    "privateKey": "7886064592c4c35255318389dbe15226de78f16a46f809a29218bc43ea0f8684",
+    "apiBaseUrl": "https://api-social.foruai.io"
+  },
+  "options_ui": {
+    "page": "src/pages/options/index.html"
+  },
+  "action": {
+    "default_popup": "src/pages/popup/index.html",
+    "default_icon": {
+      "16": "icon-16.png",
+      "32": "icon-32.png",
+      "48": "icon-48.png",
+      "128": "icon-128.png"
+    }
+  },
+  "icons": {
+    "16": "icon-16.png",
+    "48": "icon-48.png",
+    "128": "icon-128.png"
+  },
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "sidePanel",
+    "webNavigation",
+    "storage"
+  ],
+  "host_permissions": [
+    "*://*.twitter.com/*",
+    "*://twitter.com/*",
+    "*://*.x.com/*",
+    "*://x.com/*"
+  ],
+  "side_panel": {
+    "default_path": "src/pages/panel/index.html",
+    "matches": [
+      "*://*.twitter.com/*",
+      "*://twitter.com/*",
+      "*://*.x.com/*",
+      "*://x.com/*",
+      "https://generativelanguage.googleapis.com/*"
+    ]
+  },
+  "background": {
+    "service_worker": "src/pages/background/index.ts"
+  },
+  "content_scripts": [
+    {
+      "matches": ["*://twitter.com/*", "*://x.com/*"],
+      "js": [
+        "src/pages/content/index.tsx"
+      ],
+      "css": [
+        "contentStyle.css"
+      ],
+      "run_at": "document_end"
+    }
+  ],
+  "devtools_page": "src/pages/devtools/index.html",
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "contentStyle.css",
+        "icon-128.png",
+        "icon-32.png",
+        "icon-16.png",
+        "icon-48.png",
+        "images/*",
+        "assets/*"
+      ],
+      "matches": ["*://*.x.com/*", "*://*.twitter.com/*", "*://twitter.com/*"]
+    }
+  ]
+}

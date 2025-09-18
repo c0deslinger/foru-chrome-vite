@@ -1,0 +1,1753 @@
+/* ===== Reset ===== */
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+/* === Side Panel Container === */
+#sp-container {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  color: #ececf1;
+  background: linear-gradient(180deg, #1f1b2b 0%, #0d0b12 100%);
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* —– Header dengan gambar dan judul ForU IdentiFi —– */
+#sp-container .sider-header {
+  position: relative;
+  padding: 0;
+  margin: 0;
+}
+
+#sp-container .sider-header-image {
+  display: block;
+  width: 100%;
+  height: auto;
+  z-index: 1;
+  pointer-events: none;
+}
+
+#sp-container .sider-header-title {
+  position: absolute;
+  bottom: 8px;
+  right: 20px;
+  font-size: 20px;
+  font-weight: bold;
+  color: #ffffff;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
+  z-index: 2;
+  pointer-events: none;
+}
+
+#sp-container .close-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(0, 0, 0, 0.5);
+  border: none;
+  color: #ececf1;
+  font-size: 18px;
+  width: 32px;
+  height: 32px;
+  border-radius: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+}
+
+/* —– Tab Menu —– */
+#sp-container .sider-tabs {
+  display: flex;
+  border-bottom: 1px solid #343541;
+  margin-top: 8px;
+}
+
+#sp-container .sider-tabs button {
+  flex: 1;
+  padding: 8px 0 8px 8px;
+  font-size: 14px;
+  color: #aeb0b6;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: center;
+}
+
+#sp-container .sider-tabs button.active {
+  color: #ececf1;
+  border-bottom: 2px solid #6c4cb3;
+}
+
+/* —– Konten Area —– */
+#sp-container .sider-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px;
+  box-sizing: border-box;
+
+  /* Sembunyikan scrollbar pada browser modern */
+  scrollbar-width: none;
+  /* Firefox */
+}
+
+#sp-container .sider-content::-webkit-scrollbar {
+  display: none;
+  /* Chrome, Safari, Edge */
+}
+
+/* —– Profile Section —– */
+#sp-container .profile-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+#sp-container .profile-header img {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: 2px solid #6c4cb3;
+}
+
+#sp-container .profile-header .info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+#sp-container .profile-header .info .username {
+  font-size: 16px;
+  font-weight: bold;
+  color: #ececf1;
+}
+
+#sp-container .profile-header .info .location {
+  font-size: 12px;
+  color: #aeb0b6;
+}
+
+/* Modern Profile Card */
+#sp-container .profile-card-modern {
+  background: linear-gradient(135deg, #6c4cb3 0%, #4a2c85 50%, #2d1b4e 100%);
+  border-radius: 16px;
+  padding: 16px;
+  position: relative;
+  margin-bottom: 12px;
+  border: 2px solid #8b5cf6;
+  box-shadow: 0 6px 24px rgba(108, 76, 179, 0.25);
+}
+
+#sp-container .ai-did-badge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  padding: 4px 8px;
+  font-size: 10px;
+  font-weight: 600;
+  color: #ffffff;
+  letter-spacing: 0.5px;
+  z-index: 5;
+}
+
+#sp-container .profile-avatar-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 12px;
+  margin-top: 16px;
+}
+
+#sp-container .profile-avatar-modern {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  object-fit: cover;
+}
+
+#sp-container .profile-info-modern {
+  text-align: center;
+}
+
+#sp-container .profile-name {
+  font-size: 18px;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0 0 3px 0;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+#sp-container .profile-handle {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 8px;
+}
+
+#sp-container .shannon-coder-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #ffffff;
+}
+
+#sp-container .shannon-coder-badge svg {
+  color: #ffffff;
+  width: 14px;
+  height: 14px;
+}
+
+#sp-container .info-icon {
+  background: #ffffff;
+  color: #6c4cb3;
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: bold;
+}
+
+/* Current Level Section */
+#sp-container .current-level-section {
+  background: linear-gradient(135deg, #2a2a2a 0%, #1e1e1e 100%);
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 12px;
+  border: 1px solid #3a3a3a;
+}
+
+#sp-container .profile-current-level-section {
+  background: linear-gradient(135deg, #1f1b2b 0%, #1f1b2b 100%);
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 12px;
+}
+
+#sp-container .level-progress {
+  display: flex;
+  align-items: center;
+  gap: 23px;
+}
+
+#sp-container .level-progress-ring {
+  flex-shrink: 0;
+}
+
+#sp-container .level-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+#sp-container .level-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+#sp-container .current-level-text {
+  font-family: "Neue Montreal", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Roboto, sans-serif;
+  font-size: 12px;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.5);
+  text-transform: capitalize;
+  letter-spacing: 0.4px;
+  line-height: 16px;
+}
+
+#sp-container .level-number {
+  font-family: "Neue Montreal", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Roboto, sans-serif;
+  font-size: 12px;
+  font-weight: 400;
+  color: #ffffff;
+  text-transform: capitalize;
+  letter-spacing: 0.4px;
+  line-height: 16px;
+}
+
+#sp-container .xp-info {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  justify-content: flex-start;
+}
+
+#sp-container .xp-coin-img {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+}
+
+#sp-container .xp-current {
+  font-family: "Neue Montreal", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Roboto, sans-serif;
+  font-size: 20px;
+  font-weight: 400;
+  color: #ffffff;
+  text-transform: capitalize;
+  letter-spacing: 0.4px;
+  line-height: 24px;
+}
+
+#sp-container .xp-total {
+  font-family: "Neue Montreal", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Roboto, sans-serif;
+  font-size: 20px;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.25);
+  text-transform: capitalize;
+  letter-spacing: 0.4px;
+  line-height: 24px;
+}
+
+#sp-container .profile-bio {
+  margin-top: 8px;
+  font-size: 13px;
+  color: #ececf1;
+}
+
+/* Impact Score Breakdown */
+#sp-container .score-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  margin-top: 12px;
+}
+
+#sp-container .score-card {
+  background-color: #1f1b2b;
+  padding: 8px;
+  border-radius: 6px;
+}
+
+#sp-container .score-card .label {
+  font-size: 11px;
+  color: #aeb0b6;
+}
+
+#sp-container .score-card .value {
+  font-size: 16px;
+  font-weight: bold;
+  color: #ececf1;
+  margin-top: 2px;
+}
+
+#sp-container .score-card .details {
+  font-size: 10px;
+  color: #80818b;
+  margin-top: 2px;
+}
+
+/* Recent Badges */
+#sp-container .badges {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(2, auto);
+  gap: 8px;
+  margin-top: 12px;
+  max-height: fit-content;
+}
+
+#sp-container .badge-item {
+  background-color: #1f1b2b;
+  padding: 8px;
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+  height: 80px;
+  box-sizing: border-box;
+  justify-content: center;
+}
+
+#sp-container .badge-item .icon {
+  font-size: 20px;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#sp-container .badge-item .icon img {
+  width: 48px;
+  height: 48px;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+#sp-container .badge-item .name {
+  font-size: 9px;
+  font-weight: 500;
+  color: #ececf1;
+  text-align: center;
+  line-height: 1.2;
+  max-width: 100%;
+  overflow: visible;
+  word-wrap: break-word;
+  white-space: normal;
+}
+
+/* Badge item styling */
+#sp-container .badge-item {
+  position: relative;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+#sp-container .badge-item.collected:hover {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  transform: translateY(-2px);
+}
+
+/* Empty badge styling */
+#sp-container .badge-item.badge-empty {
+  opacity: 0.5;
+}
+
+#sp-container .badge-item.badge-empty .name {
+  color: #80818b;
+}
+
+/* —– Digital DNA Section —– */
+#sp-container .digital-dna-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 12px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+@media (max-width: 320px) {
+  #sp-container .digital-dna-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  #sp-container .dna-card {
+    padding: 10px;
+  }
+
+  #sp-container .dna-shield-img {
+    width: 40px;
+    height: 40px;
+  }
+
+  #sp-container .dna-title {
+    font-size: 11px;
+  }
+
+  #sp-container .dna-percentage {
+    font-size: 11px;
+  }
+
+  /* Tweet Cards Mobile Responsive */
+  #sp-container .tweet-timestamp,
+  #sp-container .tweet-content,
+  #sp-container .tweet-metrics,
+  #sp-container .mint-tweet-btn {
+    margin-left: 0;
+  }
+
+  #sp-container .mint-tweet-btn {
+    width: 100%;
+  }
+
+  #sp-container .tweet-header {
+    gap: 6px;
+    margin-bottom: 6px;
+  }
+
+  #sp-container .tweet-avatar {
+    width: 28px;
+    height: 28px;
+  }
+
+  #sp-container .tweet-username {
+    font-size: 11px;
+  }
+
+  #sp-container .tweet-handle {
+    font-size: 10px;
+  }
+
+  #sp-container .tweet-content {
+    font-size: 11px;
+    margin-bottom: 6px;
+  }
+
+  #sp-container .tweet-timestamp {
+    font-size: 10px;
+    margin-bottom: 6px;
+  }
+
+  #sp-container .tweet-metrics {
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+}
+
+#sp-container .dna-card {
+  background-color: #1f1b2b;
+  border-radius: 12px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: all 0.3s ease;
+  opacity: 0;
+  animation: fadeInUp 0.6s ease-out forwards;
+  width: 100%;
+  box-sizing: border-box;
+  position: relative;
+  min-width: 0;
+}
+
+#sp-container .dna-card:nth-child(1) {
+  animation-delay: 0.1s;
+}
+#sp-container .dna-card:nth-child(2) {
+  animation-delay: 0.2s;
+}
+#sp-container .dna-card:nth-child(3) {
+  animation-delay: 0.3s;
+}
+#sp-container .dna-card:nth-child(4) {
+  animation-delay: 0.4s;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+#sp-container .dna-card:hover {
+  transform: translateY(-2px);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  transition: all 0.3s ease;
+}
+
+#sp-container .dna-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+#sp-container .dna-icon {
+  flex-shrink: 0;
+}
+
+#sp-container .dna-shield-img {
+  width: 48px;
+  height: 48px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+#sp-container .dna-content {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+#sp-container .dna-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: #ececf1;
+  line-height: 1.2;
+  flex: 1;
+}
+
+#sp-container .dna-progress-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+#sp-container .dna-progress {
+  flex: 1;
+  height: 6px;
+  background-color: #2a2a2a;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+#sp-container .dna-percentage {
+  font-size: 12px;
+  font-weight: 600;
+  color: #ececf1;
+  white-space: nowrap;
+}
+
+#sp-container .dna-progress-bar {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.8s ease-in-out;
+  animation: progressLoad 1.5s ease-out;
+}
+
+@keyframes progressLoad {
+  from {
+    width: 0%;
+  }
+}
+
+/* Generic DNA progress bars with different gradients */
+#sp-container .dna-0-bar {
+  background: linear-gradient(90deg, #14b8a6 0%, #0d9488 100%); /* Teal/Green */
+}
+
+#sp-container .dna-1-bar {
+  background: linear-gradient(90deg, #f97316 0%, #ea580c 100%); /* Orange */
+}
+
+#sp-container .dna-2-bar {
+  background: linear-gradient(90deg, #3b82f6 0%, #1e40af 100%); /* Blue */
+}
+
+#sp-container .dna-3-bar {
+  background: linear-gradient(90deg, #8b5cf6 0%, #7c3aed 100%); /* Purple */
+}
+
+/* Fallback for any additional DNA bars */
+#sp-container
+  .dna-progress-bar:not(.dna-0-bar):not(.dna-1-bar):not(.dna-2-bar):not(
+    .dna-3-bar
+  ) {
+  background: linear-gradient(
+    90deg,
+    #6366f1 0%,
+    #4f46e5 100%
+  ); /* Default Indigo */
+}
+
+#sp-container .dna-rank {
+  font-size: 9px;
+  color: #aeb0b6;
+  background: rgba(108, 76, 179, 0.2);
+  padding: 2px 6px;
+  border-radius: 6px;
+  text-align: center;
+  width: fit-content;
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 10;
+}
+
+/* Digital DNA Empty State */
+#sp-container .digital-dna-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  text-align: center;
+  background: #1f1b2b;
+  border-radius: 24px;
+  margin-bottom: 16px;
+}
+
+#sp-container .dna-empty-icon {
+  margin-bottom: 16px;
+}
+
+#sp-container .dna-empty-title {
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: bold;
+  font-family: "Neue Montreal", sans-serif;
+  margin-bottom: 12px;
+  line-height: 1.25;
+}
+
+#sp-container .dna-empty-description {
+  color: #aeb0b6;
+  font-size: 12px;
+  font-family: "Plus Jakarta Sans", sans-serif;
+  line-height: 1.4;
+  max-width: 280px;
+}
+
+/* —– Active Quests —– */
+#sp-container .quest-item {
+  background-color: #2a2b2e;
+  padding: 8px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+#sp-container .quest-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+#sp-container .quest-title {
+  font-size: 13px;
+  color: #ececf1;
+}
+
+#sp-container .quest-progress-bar {
+  width: 100%;
+  height: 6px;
+  background-color: #343541;
+  border-radius: 3px;
+  overflow: hidden;
+  margin-top: 2px;
+}
+
+#sp-container .quest-progress-fill {
+  height: 100%;
+  background-color: #6c4cb3;
+  border-radius: 3px;
+}
+
+#sp-container .quest-xp {
+  font-size: 11px;
+  color: #aeb0b6;
+  white-space: nowrap;
+}
+
+/* ===== Shimmer (Skeleton Loader) ===== */
+@keyframes shimmer {
+  0% {
+    background-position: -400px 0;
+  }
+
+  100% {
+    background-position: 400px 0;
+  }
+}
+
+#sp-container .shimmer {
+  position: relative;
+  overflow: hidden;
+  background-color: #1f1b2b;
+}
+
+#sp-container .shimmer::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(
+    90deg,
+    rgba(31, 27, 43, 0) 0%,
+    rgba(60, 56, 72, 0.3) 50%,
+    rgba(31, 27, 43, 0) 100%
+  );
+  background-repeat: no-repeat;
+  background-size: 800px 100%;
+  animation: shimmer 1.2s infinite;
+  animation-fill-mode: forwards;
+}
+
+#sp-container .shimmer.avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  margin-bottom: 8px;
+}
+
+#sp-container .shimmer.text-line {
+  height: 12px;
+  width: 80%;
+  margin-bottom: 6px;
+  border-radius: 4px;
+}
+
+#sp-container .shimmer.small-line {
+  height: 10px;
+  width: 40%;
+  margin-bottom: 6px;
+  border-radius: 4px;
+}
+
+#sp-container .shimmer.score-card {
+  height: 60px;
+  border-radius: 6px;
+  margin-bottom: 8px;
+}
+
+#sp-container .shimmer.badge-item {
+  height: 50px;
+  border-radius: 6px;
+}
+
+#sp-container .shimmer.quest-item {
+  height: 50px;
+  border-radius: 6px;
+  margin-bottom: 8px;
+}
+
+/* —– Referral Button & Friend List —– */
+#sp-container #share-referral-btn {
+  background-color: #6c4cb3;
+  color: #ffffff;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+/* Old friend-item styles removed - replaced with invite-item */
+
+/* —– Pastikan semua h3 di dalam Side Panel berfont-family yang benar —– */
+#sp-container .sider-content h3 {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: #ececf1;
+  margin-top: 16px;
+}
+
+/* —– Tweet Card Styling (Updated to match Figma design) —– */
+#sp-container .tweet-card {
+  background: #1f1b2b;
+  border-radius: 24px;
+  padding: 0;
+  margin-bottom: 16px;
+  transition: all 0.3s ease;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+#sp-container .tweet-card:hover {
+  transform: translateY(-1px);
+}
+
+/* Tweet Header Section */
+#sp-container .tweet-header {
+  display: flex;
+  align-items: center;
+  height: 60px;
+  padding: 0 24px 0 64px; /* Left padding untuk ruang avatar */
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 24px 24px 0 0;
+  margin: 0;
+  position: relative;
+}
+
+#sp-container .tweet-header-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex: 1;
+}
+
+#sp-container .tweet-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  object-fit: cover;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  position: absolute;
+  left: 8px;
+  top: 8px;
+  z-index: 10;
+}
+
+#sp-container .tweet-user-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  flex: 1;
+}
+
+#sp-container .tweet-username {
+  font-family: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont,
+    "Segoe UI", Roboto, sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  color: #ffffff;
+  display: block;
+  margin: 0;
+  line-height: 20px;
+}
+
+#sp-container .tweet-timestamp-header {
+  font-family: "Geist Mono", "SF Mono", Monaco, "Cascadia Code", "Roboto Mono",
+    Consolas, "Courier New", monospace;
+  font-size: 12px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.5);
+  letter-spacing: -0.18px;
+  line-height: 16px;
+}
+
+/* Tweet Content Section */
+#sp-container .tweet-content-section {
+  padding: 24px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 0 0 24px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+#sp-container .tweet-content {
+  font-family: "Plus Jakarta Sans", sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  color: #ffffff;
+  line-height: 20px;
+  margin: 0;
+  word-wrap: break-word;
+}
+
+/* Tweet Metrics as Badges */
+#sp-container .tweet-metrics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  align-items: center;
+}
+
+#sp-container .tweet-metrics .metric-item {
+  background: #1f1b2b;
+  border-radius: 100px;
+  padding: 6px 12px 6px 6px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  color: #868c98;
+  white-space: nowrap;
+  font-family: "Plus Jakarta Sans", sans-serif;
+}
+
+#sp-container .tweet-metrics .metric-icon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+/* Specific metric icons */
+#sp-container .metric-views .metric-icon {
+  background: url("../images/icon_eye.svg") center/contain no-repeat;
+}
+
+#sp-container .metric-likes .metric-icon {
+  background: url("../images/icon_heart.svg") center/contain no-repeat;
+}
+
+#sp-container .metric-comments .metric-icon {
+  background: url("../images/icon_message.svg") center/contain no-repeat;
+}
+
+#sp-container .metric-reposts .metric-icon {
+  background: url("../images/icon_repost.svg") center/contain no-repeat;
+}
+
+/* Mint Tweet Button */
+#sp-container .mint-tweet-btn {
+  background: linear-gradient(40.88deg, #6a30c9 5.98%, #506ddb 85.06%);
+  border: none;
+  border-radius: 16px;
+  padding: 10px 16px;
+  color: white;
+  font-size: 12px;
+  font-weight: 400;
+  font-family: "Lufga", sans-serif;
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  box-sizing: border-box;
+  height: 40px;
+}
+
+#sp-container .mint-tweet-btn:hover {
+  background: linear-gradient(40.88deg, #5a28b5 5.98%, #456bc7 85.06%);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 12px 0 rgba(255, 255, 255, 0.1) inset;
+}
+
+#sp-container .mint-tweet-btn::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  box-shadow: 0 8px 12px 0 rgba(255, 255, 255, 0.5) inset;
+  border-radius: 16px;
+  pointer-events: none;
+}
+
+#sp-container .mint-btn-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+#sp-container .mint-btn-icon {
+  width: 12px;
+  height: 12px;
+  background: url("../images/icon_arrow_up.svg") center/contain no-repeat;
+  transform: rotate(45deg);
+}
+
+#sp-container .mint-btn-text {
+  font-size: 12px;
+  line-height: 24px;
+}
+
+#sp-container .mint-btn-right {
+  font-family: "Pexel Grotesk", sans-serif;
+  font-size: 10px;
+  line-height: 12px;
+  color: #ffffff;
+  opacity: 0.9;
+}
+
+/* Remove old styles that conflict */
+#sp-container .tweet-timestamp,
+#sp-container .tweet-handle {
+  display: none;
+}
+
+/* —– Shimmer for Tweet Cards —– */
+#sp-container .tweet-card.shimmer {
+  background-color: #1f1b2b;
+  height: 200px;
+  margin-bottom: 16px;
+  border-radius: 24px;
+}
+
+/* —– Container for Tweets Section (Scroll Area) —– */
+#tweets-section {
+  height: 100%;
+  overflow-y: auto;
+  padding-right: 4px;
+  box-sizing: border-box;
+
+  /* Sembunyikan scrollbar */
+  scrollbar-width: none;
+  /* Firefox */
+}
+
+#tweets-section::-webkit-scrollbar {
+  display: none;
+  /* Chrome, Safari, Edge */
+}
+
+/* —– Global Shimmer Animation (jika diperlukan) —– */
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(31, 27, 43, 1) 25%,
+    rgba(45, 40, 60, 1) 50%,
+    rgba(31, 27, 43, 1) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.tweet-metrics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 8px;
+  font-size: 13px;
+  color: #8899a6;
+  /* Warna teks metrik, bisa disamakan dengan warna ikon */
+  align-items: center;
+}
+
+.metric-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+/* Gaya untuk ikon SVG */
+.tweet-metrics svg {
+  width: 14px;
+  /* Ubah ukuran lebar ikon menjadi 14px */
+  height: 14px;
+  /* Ubah ukuran tinggi ikon menjadi 14px */
+  fill: #71767b;
+  /* Ubah warna ikon menjadi abu-abu terang */
+  vertical-align: middle;
+}
+
+.badge-item.collected {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  padding: 0;
+
+  width: 160px;
+  height: 128px;
+
+  background-color: #1f1b2b;
+  border-radius: 18.963px;
+
+  flex: none;
+  order: 0;
+  align-self: stretch;
+  flex-grow: 0;
+  transition: background 0.3s ease;
+}
+
+.badge-item.collected:hover {
+  background: linear-gradient(
+      270deg,
+      rgba(245, 175, 61, 0) 55.71%,
+      rgba(245, 175, 61, 0.15) 99.65%
+    ),
+    radial-gradient(
+      50% 50% at 50% 50%,
+      rgba(245, 175, 61, 0.25) 0%,
+      rgba(143, 102, 36, 0.25) 100%
+    );
+}
+
+/* ===== User Badges Styling (Profile Tab Style) ===== */
+#sp-container .badges {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(2, auto);
+  gap: 12px;
+  margin-top: 12px;
+}
+
+#sp-container .badge-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px;
+  border-radius: 12px;
+  background-color: #1f1b2b;
+  transition: background 0.3s ease;
+  position: relative;
+  cursor: default;
+  min-height: 90px;
+}
+
+#sp-container .badge-item.collected {
+  background-color: #1f1b2b;
+  border-radius: 12px;
+  flex: none;
+  order: 0;
+  align-self: stretch;
+  flex-grow: 0;
+  transition: background 0.3s ease;
+}
+
+#sp-container .badge-item.collected:hover {
+  background: linear-gradient(
+      270deg,
+      rgba(245, 175, 61, 0) 55.71%,
+      rgba(245, 175, 61, 0.15) 99.65%
+    ),
+    radial-gradient(
+      50% 50% at 50% 50%,
+      rgba(245, 175, 61, 0.25) 0%,
+      rgba(143, 102, 36, 0.25) 100%
+    );
+}
+
+#sp-container .badge-item.badge-empty {
+  background-color: #1f1b2b;
+  opacity: 0.5;
+}
+
+#sp-container .badge-item .icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 8px;
+}
+
+#sp-container .badge-item .icon img {
+  width: 48px;
+  height: 48px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+#sp-container .badge-item .name {
+  font-size: 9px;
+  font-weight: 500;
+  color: #ececf1;
+  text-align: center;
+  line-height: 1.2;
+  max-width: 100%;
+  overflow: visible;
+  word-wrap: break-word;
+  white-space: normal;
+}
+
+#sp-container .badge-item.badge-empty .name {
+  color: #80818b;
+}
+
+/* ===== Invitation Codes Styling ===== */
+#sp-container .invitation-codes-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+#sp-container .invitation-code-item {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.3s ease;
+}
+
+#sp-container .invitation-code-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+#sp-container .code-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+#sp-container .code-text {
+  font-family: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  color: #ececf1;
+  letter-spacing: 1px;
+}
+
+#sp-container .code-actions {
+  display: flex;
+  gap: 8px;
+}
+
+#sp-container .copy-link-btn,
+#sp-container .share-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  background: rgba(255, 255, 255, 0.1);
+  color: #ececf1;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+#sp-container .copy-link-btn:hover,
+#sp-container .share-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-1px);
+}
+
+#sp-container .copy-link-btn:disabled,
+#sp-container .share-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+#sp-container .copy-link-btn svg,
+#sp-container .share-btn svg {
+  width: 14px;
+  height: 14px;
+  stroke: currentColor;
+}
+
+/* ===== Invites Table Styling ===== */
+#sp-container .invites-table {
+  margin-top: 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+#sp-container .invites-table-header {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 16px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  font-family: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+#sp-container .invites-table-body {
+  display: flex;
+  flex-direction: column;
+}
+
+#sp-container .invite-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 16px;
+  padding: 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  align-items: center;
+  transition: background 0.3s ease;
+}
+
+#sp-container .invite-row:last-child {
+  border-bottom: none;
+}
+
+#sp-container .invite-row:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+#sp-container .col-user {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+#sp-container .avatar-container {
+  position: relative;
+  display: inline-block;
+}
+
+#sp-container .invite-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+#sp-container .user-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+#sp-container .invite-name {
+  font-family: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: #ececf1;
+}
+
+#sp-container .invite-handle {
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+#sp-container .col-invited {
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+#sp-container .col-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+#sp-container .status-indicator {
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid #1a1b23;
+  z-index: 2;
+}
+
+#sp-container .status-indicator.joined {
+  background: #22c55e;
+}
+
+#sp-container .status-indicator.banned {
+  background: #ef4444;
+}
+
+#sp-container .col-progress {
+  position: relative;
+}
+
+#sp-container .progress-bar {
+  position: relative;
+  width: 100%;
+  height: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+#sp-container .progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #8b5cf6, #a855f7);
+  border-radius: 10px;
+  transition: width 0.3s ease;
+}
+
+#sp-container .progress-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 11px;
+  font-weight: 600;
+  color: #ececf1;
+  z-index: 1;
+}
+
+#sp-container .progress-completed {
+  font-size: 12px;
+  font-weight: 500;
+  color: #22c55e;
+}
+
+#sp-container .col-level {
+  font-size: 14px;
+  font-weight: 600;
+  color: #ececf1;
+  text-align: center;
+}
+
+#sp-container .col-karma {
+  font-size: 12px;
+  font-weight: 600;
+  text-align: right;
+}
+
+#sp-container .col-karma.positive {
+  color: #22c55e;
+}
+
+#sp-container .col-karma.negative {
+  color: #ef4444;
+}
+
+/* ===== Logout Button & Confirmation Popup ===== */
+#sp-container #logout-container {
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+#sp-container .logout-button {
+  width: 100%;
+  padding: 12px 16px;
+  background: rgba(107, 114, 128, 0.2);
+  color: #9ca3af;
+  border: 1px solid rgba(107, 114, 128, 0.3);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+  font-family: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
+}
+
+#sp-container .logout-button:hover {
+  background: rgba(107, 114, 128, 0.3);
+  border-color: rgba(107, 114, 128, 0.5);
+  color: #d1d5db;
+  transform: translateY(-1px);
+}
+
+#sp-container .logout-button svg {
+  width: 16px;
+  height: 16px;
+  stroke: currentColor;
+}
+
+/* Logout Confirmation Popup */
+#logout-confirmation {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#logout-confirmation .popup-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+}
+
+#logout-confirmation .popup-content {
+  position: relative;
+  background: #1a1b23;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 24px;
+  max-width: 400px;
+  width: 90%;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+}
+
+#logout-confirmation .popup-content h3 {
+  color: #ececf1;
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0 0 12px 0;
+  font-family: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
+}
+
+#logout-confirmation .popup-content p {
+  color: #9ca3af;
+  font-size: 14px;
+  margin: 0 0 24px 0;
+  line-height: 1.5;
+}
+
+#logout-confirmation .popup-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+#logout-confirmation .confirm-btn,
+#logout-confirmation .cancel-btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  font-family: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
+}
+
+#logout-confirmation .confirm-btn {
+  background: #ef4444;
+  color: white;
+}
+
+#logout-confirmation .confirm-btn:hover {
+  background: #dc2626;
+  transform: translateY(-1px);
+}
+
+#logout-confirmation .cancel-btn {
+  background: rgba(107, 114, 128, 0.2);
+  color: #9ca3af;
+  border: 1px solid rgba(107, 114, 128, 0.3);
+}
+
+#logout-confirmation .cancel-btn:hover {
+  background: rgba(107, 114, 128, 0.3);
+  color: #d1d5db;
+  transform: translateY(-1px);
+}
+
+/* ===== Copy Access Token Button ===== */
+#sp-container .copy-token-button {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(99, 102, 241, 0.9);
+  color: #ffffff;
+  border: none;
+  cursor: pointer;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  padding: 0;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+  z-index: 10;
+  overflow: hidden;
+}
+
+#sp-container .copy-token-button:hover {
+  background: rgba(79, 70, 229, 0.9);
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+}
+
+#sp-container .copy-token-button:active {
+  transform: scale(0.95);
+}
+
+#sp-container .copy-token-button svg {
+  width: 16px;
+  height: 16px;
+  stroke: currentColor;
+}
+
+/* ===== Z-Index Management ===== */
+#sp-container .copy-token-button {
+  z-index: 10;
+}
+
+#sp-container .ai-did-badge {
+  z-index: 5;
+}
+
+/* ===== Loading State Styling ===== */
+#sp-container .loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+#sp-container .loading-text {
+  color: #aeb0b6;
+  font-size: 14px;
+  margin-top: 20px;
+  text-align: center;
+}
+
+#sp-container .error-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+#sp-container .error-text {
+  color: #aeb0b6;
+  font-size: 14px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+#sp-container .retry-button {
+  padding: 8px 16px;
+  background: #6c4cb3;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+#sp-container .retry-button:hover {
+  background: #5a3d9a;
+  transform: translateY(-1px);
+}
+
+#sp-container .version-text {
+  color: #aeb0b6;
+  font-size: 12px;
+  opacity: 0.7;
+  margin: 0;
+}
+
+#sp-container .version-text:hover {
+  opacity: 1;
+}
+
+#sp-container .version-container {
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+
