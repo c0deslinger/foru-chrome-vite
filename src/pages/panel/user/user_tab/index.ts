@@ -508,6 +508,21 @@ function setupLoginHandlers(container: HTMLElement): void {
     return localStorage.getItem('foru_current_email') || "";
   }
 
+  function clearLoginState() {
+    localStorage.removeItem('foru_login_state');
+    localStorage.removeItem('foru_current_email');
+    clearCountdownTime();
+  }
+
+  function clearOTPInputs() {
+    for (let i = 1; i <= 6; i++) {
+      const input = document.getElementById(`otp-input-${i}`) as HTMLInputElement;
+      if (input) {
+        input.value = '';
+      }
+    }
+  }
+
   // Helper functions to show/hide forms
   function showLoginButtons() {
     const loginBtns = document.getElementById("login-twitter-btn")?.parentElement;
@@ -560,6 +575,9 @@ function setupLoginHandlers(container: HTMLElement): void {
   if (backToLoginBtn) {
     backToLoginBtn.addEventListener("click", () => {
       showLoginButtons();
+      const emailInput = document.getElementById("email-input") as HTMLInputElement;
+      if (emailInput) emailInput.value = "";
+      clearLoginState();
     });
   }
 
@@ -589,7 +607,7 @@ function setupLoginHandlers(container: HTMLElement): void {
         const payload = { email };
         const signature = generateForuSignature("POST", payload, timestamp);
 
-        const response = await fetch(`${API_BASE_URL}/v1/user-auth/email/send-otp`, {
+        const response = await fetch(`${API_BASE_URL}/v1/user-auth/otp/request`, {
           method: "POST",
           headers: {
             "accept": "application/json",
@@ -603,15 +621,49 @@ function setupLoginHandlers(container: HTMLElement): void {
 
         const data = await response.json();
 
-        if (response.ok && data.code === 200) {
+        if (response.status === 404) {
+          // Email not registered yet
+          showCustomNotification("", true);
+          setTimeout(() => {
+            const notification = document.getElementById("custom-notification");
+            if (notification) {
+              notification.innerHTML = "";
+              const textPart1 = document.createTextNode(
+                "This email is not registered yet, please register on our "
+              );
+              const linkPart = document.createElement("span");
+              linkPart.textContent = "website";
+              linkPart.style.textDecoration = "underline";
+              linkPart.style.cursor = "pointer";
+              linkPart.addEventListener("click", () => {
+                chrome.tabs.create({
+                  url: "https://social.foruai.io/register",
+                });
+              });
+              const textPart2 = document.createTextNode(" first.");
+              
+              notification.appendChild(textPart1);
+              notification.appendChild(linkPart);
+              notification.appendChild(textPart2);
+            }
+          }, 100);
+        } else if (response.status === 201 && data.code === 201) {
+          // OTP sent successfully
           currentEmail = email;
-          showOtpForm();
+          showCustomNotification("We sent you an OTP code on your email");
           const otpMessage = document.getElementById("otp-message");
           if (otpMessage) {
-            otpMessage.textContent = `We've sent a secure link to ${email}`;
+            otpMessage.innerHTML = `We've sent a secure link to <strong>${email}</strong>`;
           }
-          startCountdown();
-          showCustomNotification("OTP sent successfully!");
+          showOtpForm();
+          saveLoginState('otp_form', email);
+          console.log('[ForU] OTP sent successfully, state saved as otp_form');
+          
+          // Only start new countdown if no active countdown exists
+          const existingCountdown = getCountdownTime();
+          if (existingCountdown <= 0) {
+            startCountdown();
+          }
         } else {
           console.error("Send OTP failed:", data);
           showCustomNotification(data.message || "Failed to send OTP", true);
@@ -712,7 +764,7 @@ function setupLoginHandlers(container: HTMLElement): void {
           const payload = { email: currentEmail, otp: otpCode };
           const signature = generateForuSignature("POST", payload, timestamp);
 
-          const response = await fetch(`${API_BASE_URL}/v1/user-auth/email/verify-otp`, {
+          const response = await fetch(`${API_BASE_URL}/v1/user-auth/otp/verify`, {
             method: "POST",
             headers: {
               "accept": "application/json",
@@ -739,15 +791,18 @@ function setupLoginHandlers(container: HTMLElement): void {
 
             showCustomNotification("Login successful!");
             
-            // Clear login state
-            localStorage.removeItem('foru_login_state');
-            localStorage.removeItem('foru_current_email');
-            clearCountdownTime();
+            // Reset forms and reload
+            currentEmail = "";
+            const emailInput = document.getElementById("email-input") as HTMLInputElement;
+            if (emailInput) emailInput.value = "";
+            clearOTPInputs();
+            clearLoginState();
+            showLoginButtons();
             
             // Reload the section to show user data
             setTimeout(() => {
               renderReferralSection(true);
-            }, 500);
+            }, 1000);
           } else {
             console.error("OTP verification failed:", data);
             showCustomNotification(data.message || "Invalid OTP", true);
@@ -776,7 +831,7 @@ function setupLoginHandlers(container: HTMLElement): void {
           const payload = { email: currentEmail };
           const signature = generateForuSignature("POST", payload, timestamp);
 
-          const response = await fetch(`${API_BASE_URL}/v1/user-auth/email/send-otp`, {
+          const response = await fetch(`${API_BASE_URL}/v1/user-auth/otp/request`, {
             method: "POST",
             headers: {
               "accept": "application/json",
@@ -820,6 +875,8 @@ function setupLoginHandlers(container: HTMLElement): void {
     if (backToEmailBtn) {
       backToEmailBtn.addEventListener("click", () => {
         showEmailForm();
+        clearOTPInputs();
+        saveLoginState('email_form', currentEmail);
         if (countdownInterval) {
           clearInterval(countdownInterval);
         }
@@ -844,16 +901,21 @@ function setupLoginHandlers(container: HTMLElement): void {
         }
         break;
       case 'otp_form':
+        console.log('[ForU] Restoring to OTP form');
+        showOtpForm();
+        clearOTPInputs(); // Clear any existing OTP inputs
         if (savedEmail) {
           currentEmail = savedEmail;
-          showOtpForm();
           const otpMessage = document.getElementById("otp-message");
           if (otpMessage) {
-            otpMessage.textContent = `We've sent a secure link to ${savedEmail}`;
+            otpMessage.innerHTML = `We've sent a secure link to <strong>${savedEmail}</strong>`;
+            console.log('[ForU] OTP message restored for:', savedEmail);
           }
           
+          // Restore countdown with remaining time
           const remainingTime = getCountdownTime();
           if (remainingTime > 0) {
+            console.log('[ForU] Restoring countdown with', remainingTime, 'seconds remaining');
             startCountdown();
           } else {
             const resendBtn = document.getElementById("resend-otp-btn") as HTMLButtonElement;
