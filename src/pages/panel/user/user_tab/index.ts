@@ -97,7 +97,7 @@ async function renderReferralSection(forceRefresh = false): Promise<void> {
       </div>
     `;
 
-    let userProfileData = null;
+    let userProfileData: any = null;
     try {
       console.log("[UserTab] Fetching fresh /user/me data...");
       const currentTimestamp = Date.now().toString();
@@ -175,12 +175,18 @@ async function renderReferralSection(forceRefresh = false): Promise<void> {
     // Check if name is empty - show name input form
     if (!userProfileData?.name || userProfileData.name.trim() === "") {
       await renderNameInputForm(container, storedData, userProfileData);
+      // Clear rendering flag after showing name form
+      (container as any).dataset.rendering = 'false';
+      clearTimeout(renderTimeout);
       return;
     }
 
     // Check if referral is not used - show referral form
     if (userProfileData?.referral?.used === false) {
       await renderReferralInputForm(container, storedData, userProfileData);
+      // Clear rendering flag after showing referral form
+      (container as any).dataset.rendering = 'false';
+      clearTimeout(renderTimeout);
       return;
     }
 
@@ -319,7 +325,7 @@ async function renderReferralSection(forceRefresh = false): Promise<void> {
     container.innerHTML = `
       <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;padding:20px;box-sizing:border-box;">
         <img src="${chrome.runtime.getURL(
-          "icon-128.png"
+          "icons/icon128.png"
         )}" alt="ForU Icon" style="width:60px;height:60px;margin-bottom:15px;border-radius:50%;filter:grayscale(100%);opacity:0.7;">
         <p style="color:#aeb0b6;font-size:14px;margin-bottom:25px;line-height:1.5;">Please log in to get your social profile data.</p>
         <button id="login-twitter-btn" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:10px 25px;background-color:#1DA1F2;color:#ffffff;border:none;border-radius:9999px;cursor:pointer;font-size:15px;font-weight:bold;min-width:200px;box-sizing:border-box;margin-bottom:10px;">
@@ -611,7 +617,7 @@ function setupLoginHandlers(container: HTMLElement): void {
           method: "POST",
           headers: {
             "accept": "application/json",
-            "x-foru-apikey": NEXT_PUBLIC_API_PRIVATE_KEY,
+            "x-foru-apikey": `foru-private-${NEXT_PUBLIC_API_PRIVATE_KEY}`,
             "Content-Type": "application/json",
             "x-foru-timestamp": timestamp,
             "x-foru-signature": signature,
@@ -662,7 +668,10 @@ function setupLoginHandlers(container: HTMLElement): void {
           // Only start new countdown if no active countdown exists
           const existingCountdown = getCountdownTime();
           if (existingCountdown <= 0) {
-            startCountdown();
+            startCountdown(60);
+          } else {
+            console.log('[ForU] Using existing countdown:', existingCountdown, 'seconds');
+            startCountdown(existingCountdown);
           }
         } else {
           console.error("Send OTP failed:", data);
@@ -690,34 +699,50 @@ function setupLoginHandlers(container: HTMLElement): void {
   // Countdown functionality
   let countdownInterval: NodeJS.Timeout | null = null;
 
-  function startCountdown() {
+  function startCountdown(initialCountdown: number = 60) {
     const countdownTextElement = document.getElementById("countdown-text");
     const resendBtn = document.getElementById("resend-otp-btn") as HTMLButtonElement;
     
-    if (!countdownTextElement || !resendBtn) return;
+    if (!countdownTextElement || !resendBtn) {
+      console.log('[ForU] Countdown elements not found');
+      return;
+    }
 
-    let timeLeft = getCountdownTime() || 60;
-    saveCountdownTime(timeLeft);
+    let countdown = initialCountdown;
+    resendBtn.disabled = true;
+    // Set gray color when disabled
+    resendBtn.style.background = "#6b7280";
+    resendBtn.style.color = "#9ca3af";
+    resendBtn.style.cursor = "not-allowed";
+
+    // Update display immediately
+    countdownTextElement.textContent = `(${countdown}s)`;
 
     if (countdownInterval) {
       clearInterval(countdownInterval);
     }
 
     countdownInterval = setInterval(() => {
-      timeLeft--;
-      saveCountdownTime(timeLeft);
-      countdownTextElement.textContent = `(${timeLeft}s)`;
+      countdown--;
+      countdownTextElement.textContent = `(${countdown}s)`;
+      
+      // Save current countdown time
+      saveCountdownTime(countdown);
 
-      if (timeLeft <= 0) {
+      if (countdown <= 0) {
         clearInterval(countdownInterval!);
-        countdownTextElement.textContent = "";
         resendBtn.disabled = false;
+        countdownTextElement.textContent = "";
+        // Reset to purple color when enabled (same as Send OTP button)
         resendBtn.style.background = "#6c4cb3";
         resendBtn.style.color = "#ffffff";
         resendBtn.style.cursor = "pointer";
+        // Clear saved countdown
         clearCountdownTime();
       }
     }, 1000);
+
+    console.log('[ForU] Countdown started with', countdown, 'seconds');
   }
 
   function setupOtpHandlers() {
@@ -768,7 +793,7 @@ function setupLoginHandlers(container: HTMLElement): void {
             method: "POST",
             headers: {
               "accept": "application/json",
-              "x-foru-apikey": NEXT_PUBLIC_API_PRIVATE_KEY,
+              "x-foru-apikey": `foru-private-${NEXT_PUBLIC_API_PRIVATE_KEY}`,
               "Content-Type": "application/json",
               "x-foru-timestamp": timestamp,
               "x-foru-signature": signature,
@@ -778,19 +803,22 @@ function setupLoginHandlers(container: HTMLElement): void {
 
           const data = await response.json();
 
-          if (response.ok && data.code === 200) {
-            const { access_token, expires_at, user } = data.data;
-            
+          if (response.ok && data.code === 201 && data.data) {
+            // Save login data like other login methods
             await chrome.storage.local.set({
-              accessToken: access_token,
-              expiresAt: expires_at,
-              id: user.id,
-              email: user.email,
+              accessToken: data.data.token,
+              expiresAt: data.data.expires_at,
               loginType: "email",
+              email: currentEmail,
             });
 
             showCustomNotification("Login successful!");
-            
+
+            // Trigger auth refresh message
+            chrome.runtime.sendMessage({
+              action: "authSuccessRefreshReferral",
+            });
+
             // Reset forms and reload
             currentEmail = "";
             const emailInput = document.getElementById("email-input") as HTMLInputElement;
@@ -798,10 +826,10 @@ function setupLoginHandlers(container: HTMLElement): void {
             clearOTPInputs();
             clearLoginState();
             showLoginButtons();
-            
-            // Reload the section to show user data
+
+            // Reload the referral section
             setTimeout(() => {
-              renderReferralSection(true);
+              renderReferralSection();
             }, 1000);
           } else {
             console.error("OTP verification failed:", data);
@@ -835,7 +863,7 @@ function setupLoginHandlers(container: HTMLElement): void {
             method: "POST",
             headers: {
               "accept": "application/json",
-              "x-foru-apikey": NEXT_PUBLIC_API_PRIVATE_KEY,
+              "x-foru-apikey": `foru-private-${NEXT_PUBLIC_API_PRIVATE_KEY}`,
               "Content-Type": "application/json",
               "x-foru-timestamp": timestamp,
               "x-foru-signature": signature,
@@ -845,16 +873,11 @@ function setupLoginHandlers(container: HTMLElement): void {
 
           const data = await response.json();
 
-          if (response.ok && data.code === 200) {
-            startCountdown();
-            showCustomNotification("OTP sent successfully!");
-            
-            // Reset button state
-            const resendElement = resendBtn as HTMLButtonElement;
-            resendElement.disabled = true;
-            resendElement.style.background = "#6b7280";
-            resendElement.style.color = "#9ca3af";
-            resendElement.style.cursor = "not-allowed";
+          if (response.status === 201) {
+            showCustomNotification("OTP resent successfully");
+            // Reset countdown to 60 seconds when resending
+            clearCountdownTime();
+            startCountdown(60);
           } else {
             console.error("Resend OTP failed:", data);
             showCustomNotification(data.message || "Failed to resend OTP", true);
@@ -863,8 +886,19 @@ function setupLoginHandlers(container: HTMLElement): void {
           console.error("Resend OTP error:", error);
           showCustomNotification("Failed to resend OTP. Please try again.", true);
         } finally {
-          const resendTextElement = document.getElementById("resend-text");
-          if (resendTextElement) resendTextElement.textContent = "Resend OTP";
+          resendBtn.innerHTML =
+            '<span id="resend-text">Resend OTP</span> <span id="countdown-text">(60s)</span>';
+          // If button is still disabled (countdown active), keep gray color
+          if ((resendBtn as HTMLButtonElement).disabled) {
+            resendBtn.style.background = "#6b7280";
+            resendBtn.style.color = "#9ca3af";
+            resendBtn.style.cursor = "not-allowed";
+          } else {
+            // If countdown finished, set to purple (enabled state)
+            resendBtn.style.background = "#6c4cb3";
+            resendBtn.style.color = "#ffffff";
+            resendBtn.style.cursor = "pointer";
+          }
           resendBtn.style.pointerEvents = "auto";
         }
       });
@@ -916,8 +950,9 @@ function setupLoginHandlers(container: HTMLElement): void {
           const remainingTime = getCountdownTime();
           if (remainingTime > 0) {
             console.log('[ForU] Restoring countdown with', remainingTime, 'seconds remaining');
-            startCountdown();
+            startCountdown(remainingTime);
           } else {
+            console.log('[ForU] No active countdown to restore');
             const resendBtn = document.getElementById("resend-otp-btn") as HTMLButtonElement;
             const countdownText = document.getElementById("countdown-text");
             if (resendBtn && countdownText) {
@@ -946,16 +981,627 @@ function setupLoginHandlers(container: HTMLElement): void {
  * Render form untuk input nama user
  */
 async function renderNameInputForm(container: HTMLElement, storedData: any, userProfileData: any): Promise<void> {
-  // Implementation would go here - simplified for now
-  console.log("Rendering name input form");
+  container.innerHTML = `
+    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;padding:20px;box-sizing:border-box;">
+      <img src="${chrome.runtime.getURL(
+        "icons/icon128.png"
+      )}" alt="ForU Icon" style="width:60px;height:60px;margin-bottom:15px;border-radius:50%;">
+      <h3 style="color:#ececf1;margin-bottom:10px;text-align:center;">Complete Your Profile</h3>
+      <p style="color:#aeb0b6;font-size:14px;margin-bottom:25px;text-align:center;line-height:1.5;">Please enter your name to continue</p>
+      
+      <div style="width:100%;max-width:300px;">
+        <div style="margin-bottom:15px;">
+          <input id="name-input" type="text" placeholder="Enter your full name" style="width:100%;padding:12px;border-radius:8px;border:1px solid #343541;background:#2a2b2e;color:#ececf1;font-size:14px;box-sizing:border-box;" />
+        </div>
+        <button id="save-name-btn" style="width:100%;padding:12px;background-color:#6c4cb3;color:#ffffff;border:none;border-radius:8px;cursor:pointer;font-size:15px;font-weight:bold;margin-bottom:10px;">
+          Save Name
+        </button>
+        <button id="back-to-login-name-btn" style="width:100%;padding:8px;background:transparent;color:#aeb0b6;border:1px solid #343541;border-radius:8px;cursor:pointer;font-size:14px;">
+          Back to login method
+        </button>
+      </div>
+    </div>
+  `;
+
+  // Event listener untuk save name
+  const saveNameBtn = document.getElementById("save-name-btn");
+  if (saveNameBtn) {
+    saveNameBtn.addEventListener("click", async () => {
+      const nameInput = document.getElementById("name-input") as HTMLInputElement;
+      const name = nameInput?.value.trim();
+
+      if (!name) {
+        showCustomNotification("Please enter your name", true);
+        return;
+      }
+
+      const originalText = saveNameBtn.textContent;
+      saveNameBtn.textContent = "Saving...";
+      (saveNameBtn as HTMLButtonElement).disabled = true;
+
+      try {
+        const currentTimestamp = Date.now().toString();
+        const payload = { name: name };
+        const signature = generateForuSignature("PUT", payload, currentTimestamp);
+
+        const response = await fetch(`${API_BASE_URL}/v1/user/profile`, {
+          method: "PUT",
+          headers: {
+            accept: "application/json",
+            "x-foru-apikey": `foru-private-${NEXT_PUBLIC_API_PRIVATE_KEY}`,
+            Authorization: `Bearer ${storedData.accessToken}`,
+            "Content-Type": "application/json",
+            "x-foru-timestamp": currentTimestamp,
+            "x-foru-signature": signature,
+          },
+          body: JSON.stringify(payload),
+        });
+
+        const data = await response.json();
+
+        if (response.status === 200 && data.code === 200) {
+          showCustomNotification("Name saved successfully!");
+
+          // Re-check /v1/user/me to get updated data and continue flow
+          try {
+            const recheckTimestamp = Date.now().toString();
+            const recheckSignature = generateForuSignature("GET", "", recheckTimestamp);
+
+            const recheckResponse = await fetch(`${API_BASE_URL}/v1/user/me`, {
+              method: "GET",
+              headers: {
+                accept: "application/json",
+                "x-foru-apikey": `foru-private-${NEXT_PUBLIC_API_PRIVATE_KEY}`,
+                Authorization: `Bearer ${storedData.accessToken}`,
+                "x-foru-timestamp": recheckTimestamp,
+                "x-foru-signature": recheckSignature,
+              },
+            });
+
+            if (recheckResponse.ok) {
+              const recheckData = await recheckResponse.json();
+              if (recheckData?.code === 200 && recheckData.data) {
+                const updatedUserData = recheckData.data;
+
+                // Check if name is now available and check referral status
+                if (updatedUserData.name && updatedUserData.name.trim() !== "") {
+                  if (updatedUserData?.referral?.used === false) {
+                    // Name saved, but referral not used - show referral form
+                    setTimeout(() => {
+                      renderReferralInputForm(container, storedData, updatedUserData);
+                    }, 1000);
+                  } else {
+                    // Name saved and referral used - show normal UI
+                    setTimeout(() => {
+                      renderReferralSection(true);
+                    }, 1000);
+                  }
+                } else {
+                  // Name still empty, refresh current form
+                  setTimeout(() => {
+                    renderReferralSection(true);
+                  }, 1000);
+                }
+              } else {
+                // Fallback to normal refresh
+                setTimeout(() => {
+                  renderReferralSection(true);
+                }, 1000);
+              }
+            } else {
+              // Fallback to normal refresh
+              setTimeout(() => {
+                renderReferralSection(true);
+              }, 1000);
+            }
+          } catch (recheckError) {
+            console.error("Error rechecking user data:", recheckError);
+            // Fallback to normal refresh
+            setTimeout(() => {
+              renderReferralSection(true);
+            }, 1000);
+          }
+        } else {
+          throw new Error(data.message || "Failed to save name");
+        }
+      } catch (error) {
+        console.error("Error saving name:", error);
+        showCustomNotification(
+          `Failed to save name. Error: ${(error as Error).message || "Unknown error"}`,
+          true
+        );
+      } finally {
+        saveNameBtn.textContent = originalText;
+        (saveNameBtn as HTMLButtonElement).disabled = false;
+      }
+    });
+  }
+
+  // Event listener untuk "Back to login method"
+  const backToLoginNameBtn = document.getElementById("back-to-login-name-btn");
+  if (backToLoginNameBtn) {
+    backToLoginNameBtn.addEventListener("click", async () => {
+      // Logout current session and return to login methods
+      try {
+        await chrome.storage.local.remove([
+          "accessToken",
+          "id",
+          "twitterId",
+          "googleId",
+          "expiresAt",
+          "loginType",
+          "email",
+        ]);
+
+        showCustomNotification("Returning to sign in options");
+
+        // Return to login screen
+        setTimeout(() => {
+          renderReferralSection();
+        }, 500);
+      } catch (error) {
+        console.error("Error during logout:", error);
+        showCustomNotification("Error occurred, please try again", true);
+      }
+    });
+  }
+
+  // Allow Enter key submission
+  const nameInput = document.getElementById("name-input");
+  if (nameInput) {
+    nameInput.addEventListener("keypress", (e) => {
+      if (e.key === "Enter") {
+        const saveBtn = document.getElementById("save-name-btn");
+        if (saveBtn) saveBtn.click();
+      }
+    });
+  }
 }
 
 /**
  * Render form untuk input referral code
  */
 async function renderReferralInputForm(container: HTMLElement, storedData: any, userProfileData: any): Promise<void> {
-  // Implementation would go here - simplified for now
-  console.log("Rendering referral input form");
+  container.innerHTML = `
+    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;padding:20px;box-sizing:border-box;">
+      <img src="${chrome.runtime.getURL(
+        "icons/icon128.png"
+      )}" alt="ForU Icon" style="width:60px;height:60px;margin-bottom:15px;border-radius:50%;">
+      <h3 style="color:#ececf1;margin-bottom:10px;text-align:center;">Enter Referral Code</h3>
+      <p style="color:#aeb0b6;font-size:14px;margin-bottom:25px;text-align:center;line-height:1.5;">Do you have a referral code from a friend?</p>
+      
+      <div style="width:100%;max-width:300px;">
+        <div style="margin-bottom:15px;">
+          <input id="referral-input" type="text" placeholder="Enter referral code" style="width:100%;padding:12px;border-radius:8px;border:1px solid #343541;background:#2a2b2e;color:#ececf1;font-size:14px;box-sizing:border-box;text-transform:uppercase;" />
+        </div>
+        <button id="continue-referral-btn" style="width:100%;padding:12px;background-color:#6c4cb3;color:#ffffff;border:none;border-radius:8px;cursor:pointer;font-size:15px;font-weight:bold;margin-bottom:10px;">
+          Continue
+        </button>
+        <button id="no-code-btn" style="width:100%;padding:10px;background:transparent;color:#aeb0b6;border:1px solid #343541;border-radius:8px;cursor:pointer;font-size:14px;margin-bottom:10px;">
+          I don't have the code
+        </button>
+        <button id="back-to-signin-btn" style="width:100%;padding:8px;background:transparent;color:#aeb0b6;border:1px solid #343541;border-radius:8px;cursor:pointer;font-size:14px;">
+          Back to sign in method
+        </button>
+      </div>
+    </div>
+  `;
+
+  // Event listener untuk continue dengan referral code
+  const continueReferralBtn = document.getElementById("continue-referral-btn");
+  if (continueReferralBtn) {
+    continueReferralBtn.addEventListener("click", async () => {
+      const referralInput = document.getElementById("referral-input") as HTMLInputElement;
+      const code = referralInput?.value.trim().toUpperCase();
+
+      if (!code) {
+        showCustomNotification("Please enter a referral code", true);
+        return;
+      }
+
+      const originalText = continueReferralBtn.textContent;
+      continueReferralBtn.textContent = "Verifying...";
+      (continueReferralBtn as HTMLButtonElement).disabled = true;
+
+      try {
+        const currentTimestamp = Date.now().toString();
+        const payload = { code: code };
+        const signature = generateForuSignature("POST", payload, currentTimestamp);
+
+        const response = await fetch(`${API_BASE_URL}/v1/referral/use`, {
+          method: "POST",
+          headers: {
+            accept: "application/json",
+            "x-foru-apikey": `foru-private-${NEXT_PUBLIC_API_PRIVATE_KEY}`,
+            Authorization: `Bearer ${storedData.accessToken}`,
+            "Content-Type": "application/json",
+            "x-foru-timestamp": currentTimestamp,
+            "x-foru-signature": signature,
+          },
+          body: JSON.stringify(payload),
+        });
+
+        const data = await response.json();
+
+        if (response.status === 200 || response.status === 201) {
+          showCustomNotification("Referral code verified successfully!");
+          // Refresh to continue to normal flow
+          setTimeout(() => {
+            renderReferralSection(true);
+          }, 1000);
+        } else {
+          showCustomNotification("Invalid referral code, please try again", true);
+        }
+      } catch (error) {
+        console.error("Error verifying referral code:", error);
+        showCustomNotification("Invalid referral code, please try again", true);
+      } finally {
+        continueReferralBtn.textContent = originalText;
+        (continueReferralBtn as HTMLButtonElement).disabled = false;
+      }
+    });
+  }
+
+  // Event listener untuk "I don't have the code"
+  const noCodeBtn = document.getElementById("no-code-btn");
+  if (noCodeBtn) {
+    noCodeBtn.addEventListener("click", async () => {
+      // Cek email di /v1/user/me terlebih dahulu
+      try {
+        const currentTimestamp = Date.now().toString();
+        const signature = generateForuSignature("GET", "", currentTimestamp);
+
+        const meResponse = await fetch(`${API_BASE_URL}/v1/user/me`, {
+          method: "GET",
+          headers: {
+            accept: "application/json",
+            "x-foru-apikey": `foru-private-${NEXT_PUBLIC_API_PRIVATE_KEY}`,
+            Authorization: `Bearer ${storedData.accessToken}`,
+            "x-foru-timestamp": currentTimestamp,
+            "x-foru-signature": signature,
+          },
+        });
+
+        if (meResponse.ok) {
+          const meData = await meResponse.json();
+          if (meData?.code === 200 && meData.data && meData.data.email) {
+            // Email sudah terisi, langsung ke Thanks for Joining
+            renderWaitlistSuccessMessage(container);
+            return;
+          }
+        }
+      } catch (error) {
+        console.error("Error checking user email:", error);
+      }
+
+      // Jika email belum terisi atau error, lanjut ke waitlist form
+      renderWaitlistForm(container, storedData, userProfileData);
+    });
+  }
+
+  // Event listener untuk "Back to sign in method"
+  const backToSigninBtn = document.getElementById("back-to-signin-btn");
+  if (backToSigninBtn) {
+    backToSigninBtn.addEventListener("click", async () => {
+      // Logout current session and return to login methods
+      try {
+        await chrome.storage.local.remove([
+          "accessToken",
+          "id",
+          "twitterId",
+          "googleId",
+          "expiresAt",
+          "loginType",
+          "email",
+        ]);
+
+        showCustomNotification("Returning to sign in options");
+
+        // Return to login screen
+        setTimeout(() => {
+          renderReferralSection();
+        }, 500);
+      } catch (error) {
+        console.error("Error during logout:", error);
+        showCustomNotification("Error occurred, please try again", true);
+      }
+    });
+  }
+
+  // Allow Enter key submission
+  const referralInput = document.getElementById("referral-input");
+  if (referralInput) {
+    referralInput.addEventListener("keypress", (e) => {
+      if (e.key === "Enter") {
+        const continueBtn = document.getElementById("continue-referral-btn");
+        if (continueBtn) continueBtn.click();
+      }
+    });
+  }
+}
+
+/**
+ * Render form untuk join waitlist
+ */
+async function renderWaitlistForm(container: HTMLElement, storedData: any, userProfileData: any): Promise<void> {
+  const needsName = !userProfileData?.name || userProfileData.name.trim() === "";
+
+  container.innerHTML = `
+    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;padding:20px;box-sizing:border-box;">
+      <img src="${chrome.runtime.getURL(
+        "icons/icon128.png"
+      )}" alt="ForU Icon" style="width:60px;height:60px;margin-bottom:15px;border-radius:50%;">
+      <h3 style="color:#ececf1;margin-bottom:10px;text-align:center;">Join Our Waitlist</h3>
+      <p style="color:#aeb0b6;font-size:14px;margin-bottom:25px;text-align:center;line-height:1.5;">We'll notify you when it's your turn to access the platform</p>
+      
+      <div style="width:100%;max-width:300px;">
+        ${needsName ? `
+        <div style="margin-bottom:15px;">
+          <input id="waitlist-name-input" type="text" placeholder="Enter your full name" style="width:100%;padding:12px;border-radius:8px;border:1px solid #343541;background:#2a2b2e;color:#ececf1;font-size:14px;box-sizing:border-box;" />
+        </div>
+        ` : ""}
+        <div style="margin-bottom:15px;">
+          <input id="waitlist-email-input" type="email" placeholder="Enter your email address" style="width:100%;padding:12px;border-radius:8px;border:1px solid #343541;background:#2a2b2e;color:#ececf1;font-size:14px;box-sizing:border-box;" />
+        </div>
+        <button id="join-waitlist-btn" style="width:100%;padding:12px;background-color:#6c4cb3;color:#ffffff;border:none;border-radius:8px;cursor:pointer;font-size:15px;font-weight:bold;margin-bottom:10px;">
+          Join Wait List
+        </button>
+        <button id="back-to-referral-btn" style="width:100%;padding:10px;background:transparent;color:#aeb0b6;border:1px solid #343541;border-radius:8px;cursor:pointer;font-size:14px;margin-bottom:10px;">
+          Back to Referral Code
+        </button>
+        <button id="back-to-login-waitlist-btn" style="width:100%;padding:8px;background:transparent;color:#aeb0b6;border:1px solid #343541;border-radius:8px;cursor:pointer;font-size:14px;">
+          Back to Login Method
+        </button>
+      </div>
+    </div>
+  `;
+
+  // Helper function to validate email
+  function isValidEmail(email: string): boolean {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  }
+
+  // Event listener untuk join waitlist
+  const joinWaitlistBtn = document.getElementById("join-waitlist-btn");
+  if (joinWaitlistBtn) {
+    joinWaitlistBtn.addEventListener("click", async () => {
+      const emailInput = document.getElementById("waitlist-email-input") as HTMLInputElement;
+      const email = emailInput?.value.trim();
+
+      let name = userProfileData?.name || "";
+      if (needsName) {
+        const nameInput = document.getElementById("waitlist-name-input") as HTMLInputElement;
+        name = nameInput?.value.trim();
+        if (!name) {
+          showCustomNotification("Please enter your name", true);
+          return;
+        }
+      }
+
+      if (!email) {
+        showCustomNotification("Please enter your email address", true);
+        return;
+      }
+
+      if (!isValidEmail(email)) {
+        showCustomNotification("Please enter a valid email address", true);
+        return;
+      }
+
+      const originalText = joinWaitlistBtn.textContent;
+      joinWaitlistBtn.textContent = "Joining...";
+      (joinWaitlistBtn as HTMLButtonElement).disabled = true;
+
+      try {
+        const currentTimestamp = Date.now().toString();
+        const payload = { name: name, email: email };
+        const signature = generateForuSignature("PUT", payload, currentTimestamp);
+
+        const response = await fetch(`${API_BASE_URL}/v1/user/profile`, {
+          method: "PUT",
+          headers: {
+            accept: "application/json",
+            "x-foru-apikey": `foru-private-${NEXT_PUBLIC_API_PRIVATE_KEY}`,
+            Authorization: `Bearer ${storedData.accessToken}`,
+            "Content-Type": "application/json",
+            "x-foru-timestamp": currentTimestamp,
+            "x-foru-signature": signature,
+          },
+          body: JSON.stringify(payload),
+        });
+
+        const data = await response.json();
+
+        if (response.status === 200 && data.code === 200) {
+          showCustomNotification("Successfully joined the waitlist!");
+          // Show waitlist success message
+          renderWaitlistSuccessMessage(container);
+        } else {
+          throw new Error(data.message || "Failed to join waitlist");
+        }
+      } catch (error) {
+        console.error("Error joining waitlist:", error);
+        showCustomNotification(
+          `Failed to join waitlist. Error: ${(error as Error).message || "Unknown error"}`,
+          true
+        );
+      } finally {
+        joinWaitlistBtn.textContent = originalText;
+        (joinWaitlistBtn as HTMLButtonElement).disabled = false;
+      }
+    });
+  }
+
+  // Event listener untuk back to referral
+  const backToReferralBtn = document.getElementById("back-to-referral-btn");
+  if (backToReferralBtn) {
+    backToReferralBtn.addEventListener("click", () => {
+      renderReferralInputForm(container, storedData, userProfileData);
+    });
+  }
+
+  // Event listener untuk back to login method
+  const backToLoginWaitlistBtn = document.getElementById("back-to-login-waitlist-btn");
+  if (backToLoginWaitlistBtn) {
+    backToLoginWaitlistBtn.addEventListener("click", async () => {
+      try {
+        await chrome.storage.local.remove([
+          "accessToken",
+          "id",
+          "twitterId",
+          "googleId",
+          "expiresAt",
+          "loginType",
+          "email",
+        ]);
+
+        showCustomNotification("Returning to sign in options");
+
+        setTimeout(() => {
+          renderReferralSection();
+        }, 500);
+      } catch (error) {
+        console.error("Error during logout:", error);
+        showCustomNotification("Error occurred, please try again", true);
+      }
+    });
+  }
+}
+
+/**
+ * Render success message setelah join waitlist
+ */
+function renderWaitlistSuccessMessage(container: HTMLElement): void {
+  container.innerHTML = `
+    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;padding:20px;box-sizing:border-box;">
+      <img src="${chrome.runtime.getURL(
+        "icon-128.png"
+      )}" alt="ForU Icon" style="width:60px;height:60px;margin-bottom:20px;border-radius:50%;">
+      
+      <h2 style="color:#ececf1;margin-bottom:15px;text-align:center;font-size:18px;font-weight:600;">Thanks for Joining the Waitlist!</h2>
+      
+      <div style="background-color:#20232d;border-radius:16px;padding:16px;margin-bottom:24px;width:100%;max-width:350px;">
+        <p style="color:#ffffff;font-size:12px;line-height:16px;text-align:center;margin:0;font-family:'Plus Jakarta Sans', sans-serif;">
+          We respect your privacy. Your email will only be used to notify you when your access is ready — no spam, ever.
+        </p>
+      </div>
+      
+      <p style="color:#aeb0b6;font-size:14px;margin-bottom:24px;text-align:center;line-height:1.5;">
+        We'll email you when it's your time to unlock your AI-DID. In the meantime, here's how to stay connected and prepare for launch.
+      </p>
+      
+      <div style="display:flex;flex-direction:column;align-items:center;gap:12px;">
+        <p style="color:#ffffff;font-size:14px;font-weight:500;margin:0;font-family:'Plus Jakarta Sans', sans-serif;">
+          Don't Miss out on our Updates
+        </p>
+        
+        <div style="display:flex;gap:32px;align-items:center;">
+          <!-- Discord -->
+          <a href="https://discord.gg/foruai" target="_blank" style="text-decoration:none;position:relative;display:block;width:42px;height:42px;">
+            <img src="${chrome.runtime.getURL(
+              "images/social_bg_circle.svg"
+            )}" alt="" style="width:42px;height:42px;" />
+            <div style="position:absolute;top:6px;left:6px;width:30px;height:30px;overflow:hidden;">
+              <img src="${chrome.runtime.getURL(
+                "images/discord_icon_1.svg"
+              )}" alt="" style="position:absolute;top:1.875px;left:1.875px;width:26.25px;height:26.25px;" />
+              <img src="${chrome.runtime.getURL(
+                "images/discord_icon_2.svg"
+              )}" alt="" style="position:absolute;top:7.5px;left:4.6875px;width:20.625px;height:15px;" />
+            </div>
+          </a>
+          
+          <!-- Twitter X -->
+          <a href="https://x.com/4UAICrypto" target="_blank" style="text-decoration:none;position:relative;display:block;width:42px;height:42px;">
+            <img src="${chrome.runtime.getURL(
+              "images/social_bg_circle.svg"
+            )}" alt="" style="width:42px;height:42px;" />
+            <div style="position:absolute;top:11px;left:11px;width:20px;height:20px;overflow:hidden;">
+              <img src="${chrome.runtime.getURL(
+                "images/twitter_x_icon.svg"
+              )}" alt="" style="position:absolute;top:1.875px;left:1.25px;width:17.5px;height:16.25px;" />
+            </div>
+          </a>
+          
+          <!-- Telegram -->
+          <a href="https://t.me/foruai" target="_blank" style="text-decoration:none;position:relative;display:block;width:42px;height:42px;">
+            <img src="${chrome.runtime.getURL(
+              "images/social_bg_circle.svg"
+            )}" alt="" style="width:42px;height:42px;" />
+            <div style="position:absolute;top:6px;left:6px;width:30px;height:30px;overflow:hidden;">
+              <img src="${chrome.runtime.getURL(
+                "images/telegram_icon_1.svg"
+              )}" alt="" style="position:absolute;top:1.875px;left:1.875px;width:26.25px;height:26.25px;" />
+              <img src="${chrome.runtime.getURL(
+                "images/telegram_icon_2.svg"
+              )}" alt="" style="position:absolute;top:8.4375px;left:6.5625px;width:14.0625px;height:12.9375px;" />
+            </div>
+          </a>
+        </div>
+      </div>
+      
+      <div style="margin-top:24px;max-width:350px;">
+        <button id="back-to-waitlist-btn" style="width:100%;padding:8px;background:transparent;color:#aeb0b6;border:1px solid #343541;border-radius:8px;cursor:pointer;font-size:14px;margin-bottom:10px;">
+          I have the code
+        </button>
+        <button id="back-to-login-thanks-btn" style="width:100%;padding:8px;background:transparent;color:#aeb0b6;border:1px solid #343541;border-radius:8px;cursor:pointer;font-size:14px;">
+          Back to Login Method
+        </button>
+      </div>
+    </div>
+  `;
+
+  // Event listeners untuk thanks message buttons
+  setTimeout(() => {
+    // Back button (kembali ke referral form)
+    const backToWaitlistBtn = document.getElementById("back-to-waitlist-btn");
+    if (backToWaitlistBtn) {
+      backToWaitlistBtn.addEventListener("click", () => {
+        // Find the stored data and user profile data to pass to renderReferralInputForm
+        chrome.storage.local
+          .get([
+            "accessToken",
+            "id",
+            "twitterId",
+            "googleId",
+            "expiresAt",
+            "loginType",
+          ])
+          .then((storedData) => {
+            // Since we don't have the userProfileData here, we'll just go back to the main flow
+            renderReferralSection();
+          });
+      });
+    }
+
+    // Back to login method button
+    const backToLoginThanksBtn = document.getElementById("back-to-login-thanks-btn");
+    if (backToLoginThanksBtn) {
+      backToLoginThanksBtn.addEventListener("click", async () => {
+        try {
+          await chrome.storage.local.remove([
+            "accessToken",
+            "id",
+            "twitterId",
+            "googleId",
+            "expiresAt",
+            "loginType",
+            "email",
+          ]);
+
+          showCustomNotification("Returning to sign in options");
+
+          setTimeout(() => {
+            renderReferralSection();
+          }, 500);
+        } catch (error) {
+          console.error("Error during logout:", error);
+          showCustomNotification("Error occurred, please try again", true);
+        }
+      });
+    }
+  }, 100);
 }
 
 /**
