@@ -325,7 +325,7 @@ async function renderReferralSection(forceRefresh = false): Promise<void> {
     container.innerHTML = `
       <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;padding:20px;box-sizing:border-box;">
         <img src="${chrome.runtime.getURL(
-          "icons/icon128.png"
+          "icon-128.png"
         )}" alt="ForU Icon" style="width:60px;height:60px;margin-bottom:15px;border-radius:50%;filter:grayscale(100%);opacity:0.7;">
         <p style="color:#aeb0b6;font-size:14px;margin-bottom:25px;line-height:1.5;">Please log in to get your social profile data.</p>
         <button id="login-twitter-btn" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:10px 25px;background-color:#1DA1F2;color:#ffffff;border:none;border-radius:9999px;cursor:pointer;font-size:15px;font-weight:bold;min-width:200px;box-sizing:border-box;margin-bottom:10px;">
@@ -356,55 +356,50 @@ async function renderReferralSection(forceRefresh = false): Promise<void> {
         </button>
       </div>
       <div id="otp-verification-form" style="display:none;padding:20px;box-sizing:border-box;">
-        <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;box-sizing:border-box;">
-          <!-- 1. Logo email (on black background) -->
-          <img src="${chrome.runtime.getURL(
-            "images/sms_icon.svg"
-          )}" alt="Email Icon" style="width:60px;height:60px;margin-bottom:15px;">
-          
-          <!-- 2. Text check your email (on black background) -->
-          <h3 style="color:#ececf1;margin-bottom:10px;text-align:center;">Check your email</h3>
-          
-          <!-- 3. Text we've sent... (on black background) -->
-          <p id="otp-message" style="color:#aeb0b6;font-size:14px;margin-bottom:25px;text-align:center;line-height:1.5;">We've sent a secure link to your email</p>
-          
-          <!-- Dark gray container for interactive elements -->
-          <div style="background:#20232d;border-radius:32px;padding:24px;width:100%;max-width:300px;">
-            <!-- 4. 6 input digit -->
-            <div style="margin-bottom:15px;">
-              <div style="display:flex;gap:8px;justify-content:center;margin-bottom:15px;">
-                <input id="otp-input-1" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]*" style="width:40px;height:40px;padding:8px;border-radius:8px;border:1px solid #343541;background:#2a2b2e;color:#ececf1;font-size:16px;text-align:center;box-sizing:border-box;" />
-                <input id="otp-input-2" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]*" style="width:40px;height:40px;padding:8px;border-radius:8px;border:1px solid #343541;background:#2a2b2e;color:#ececf1;font-size:16px;text-align:center;box-sizing:border-box;" />
-                <input id="otp-input-3" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]*" style="width:40px;height:40px;padding:8px;border-radius:8px;border:1px solid #343541;background:#2a2b2e;color:#ececf1;font-size:16px;text-align:center;box-sizing:border-box;" />
-                <input id="otp-input-4" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]*" style="width:40px;height:40px;padding:8px;border-radius:8px;border:1px solid #343541;background:#2a2b2e;color:#ececf1;font-size:16px;text-align:center;box-sizing:border-box;" />
-                <input id="otp-input-5" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]*" style="width:40px;height:40px;padding:8px;border-radius:8px;border:1px solid #343541;background:#2a2b2e;color:#ececf1;font-size:16px;text-align:center;box-sizing:border-box;" />
-                <input id="otp-input-6" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]*" style="width:40px;height:40px;padding:8px;border-radius:8px;border:1px solid #343541;background:#2a2b2e;color:#ececf1;font-size:16px;text-align:center;box-sizing:border-box;" />
-              </div>
-            </div>
-            
-            <!-- 5. Tombol submit OTP -->
-            <button id="otp-verify-btn" style="width:100%;padding:8px;background-color:#6c4cb3;color:#ffffff;border:none;border-radius:8px;cursor:pointer;font-size:14px;margin-bottom:15px;">
-              Submit OTP
-            </button>
-            
-            <!-- 6. Tulisan didn't receive it... -->
-            <div style="text-align:center;margin-bottom:10px;">
-              <p style="color:#aeb0b6;font-size:12px;margin:0 0 4px 0;">Didn't receive it?</p>
-              <p style="color:#aeb0b6;font-size:12px;margin:0 0 4px 0;">Check your spam or promotions folder</p>
-              <p style="color:#aeb0b6;font-size:12px;margin:0;">or</p>
-            </div>
-            
-            <!-- 7. Tombol resend OTP -->
-            <button id="resend-otp-btn" style="width:100%;padding:8px;background:#6b7280;color:#9ca3af;border:1px solid rgba(0,0,0,0.25);border-radius:8px;cursor:not-allowed;font-size:14px;margin-bottom:10px;" disabled>
-              <span id="resend-text">Resend OTP</span> <span id="countdown-text">(60s)</span>
-            </button>
-            
-            <!-- 8. Tombol back to email input -->
-            <button id="back-to-email-btn" style="width:100%;padding:8px;background:transparent;color:#aeb0b6;border:1px solid #343541;border-radius:8px;cursor:pointer;font-size:14px;">
-              Back to Email Input
-            </button>
+        <!-- 1. Logo email (on black background) -->
+        <img src="${chrome.runtime.getURL(
+          "images/sms_icon.svg"
+        )}" alt="Email Icon" style="width:60px;height:60px;margin-bottom:15px;display:block;margin-left:auto;margin-right:auto;">
+        
+        <!-- 2. Text check your email (on black background) -->
+        <h3 style="color:#ececf1;margin-bottom:10px;text-align:center;">Check your email</h3>
+        
+        <!-- 3. Text we've sent... (on black background) -->
+        <p id="otp-message" style="color:#aeb0b6;font-size:14px;margin-bottom:25px;text-align:center;line-height:1.5;">We've sent a secure link to your email</p>
+        
+        <!-- 4. 6 input digit -->
+        <div style="margin-bottom:15px;">
+          <div style="display:flex;gap:8px;justify-content:center;margin-bottom:15px;">
+            <input id="otp-input-1" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]*" style="width:40px;height:40px;padding:8px;border-radius:8px;border:1px solid #343541;background:#2a2b2e;color:#ececf1;font-size:16px;text-align:center;box-sizing:border-box;" />
+            <input id="otp-input-2" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]*" style="width:40px;height:40px;padding:8px;border-radius:8px;border:1px solid #343541;background:#2a2b2e;color:#ececf1;font-size:16px;text-align:center;box-sizing:border-box;" />
+            <input id="otp-input-3" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]*" style="width:40px;height:40px;padding:8px;border-radius:8px;border:1px solid #343541;background:#2a2b2e;color:#ececf1;font-size:16px;text-align:center;box-sizing:border-box;" />
+            <input id="otp-input-4" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]*" style="width:40px;height:40px;padding:8px;border-radius:8px;border:1px solid #343541;background:#2a2b2e;color:#ececf1;font-size:16px;text-align:center;box-sizing:border-box;" />
+            <input id="otp-input-5" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]*" style="width:40px;height:40px;padding:8px;border-radius:8px;border:1px solid #343541;background:#2a2b2e;color:#ececf1;font-size:16px;text-align:center;box-sizing:border-box;" />
+            <input id="otp-input-6" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]*" style="width:40px;height:40px;padding:8px;border-radius:8px;border:1px solid #343541;background:#2a2b2e;color:#ececf1;font-size:16px;text-align:center;box-sizing:border-box;" />
           </div>
         </div>
+        
+        <!-- 5. Tombol submit OTP -->
+        <button id="otp-verify-btn" style="width:100%;padding:8px;background-color:#6c4cb3;color:#ffffff;border:none;border-radius:8px;cursor:pointer;font-size:14px;margin-bottom:15px;">
+          Submit OTP
+        </button>
+        
+        <!-- 6. Tulisan didn't receive it... -->
+        <div style="text-align:center;margin-bottom:10px;">
+          <p style="color:#aeb0b6;font-size:12px;margin:0 0 4px 0;">Didn't receive it?</p>
+          <p style="color:#aeb0b6;font-size:12px;margin:0 0 4px 0;">Check your spam or promotions folder</p>
+          <p style="color:#aeb0b6;font-size:12px;margin:0;">or</p>
+        </div>
+        
+        <!-- 7. Tombol resend OTP -->
+        <button id="resend-otp-btn" style="width:100%;padding:8px;background:transparent;color:#9ca3af;border:1px solid #343541;border-radius:8px;cursor:not-allowed;font-size:14px;margin-bottom:10px;" disabled>
+          <span id="resend-text">Resend OTP</span> <span id="countdown-text">(60s)</span>
+        </button>
+        
+        <!-- 8. Tombol back to email input -->
+        <button id="back-to-email-btn" style="width:100%;padding:8px;background:transparent;color:#aeb0b6;border:1px solid #343541;border-radius:8px;cursor:pointer;font-size:14px;">
+          Back to Email Input
+        </button>
       </div>
     `;
 
@@ -710,8 +705,8 @@ function setupLoginHandlers(container: HTMLElement): void {
 
     let countdown = initialCountdown;
     resendBtn.disabled = true;
-    // Set gray color when disabled
-    resendBtn.style.background = "#6b7280";
+    // Set transparent background with gray text when disabled
+    resendBtn.style.background = "transparent";
     resendBtn.style.color = "#9ca3af";
     resendBtn.style.cursor = "not-allowed";
 
@@ -733,9 +728,9 @@ function setupLoginHandlers(container: HTMLElement): void {
         clearInterval(countdownInterval!);
         resendBtn.disabled = false;
         countdownTextElement.textContent = "";
-        // Reset to purple color when enabled (same as Send OTP button)
-        resendBtn.style.background = "#6c4cb3";
-        resendBtn.style.color = "#ffffff";
+        // Reset to transparent background with normal text color when enabled
+        resendBtn.style.background = "transparent";
+        resendBtn.style.color = "#aeb0b6";
         resendBtn.style.cursor = "pointer";
         // Clear saved countdown
         clearCountdownTime();
@@ -888,15 +883,15 @@ function setupLoginHandlers(container: HTMLElement): void {
         } finally {
           resendBtn.innerHTML =
             '<span id="resend-text">Resend OTP</span> <span id="countdown-text">(60s)</span>';
-          // If button is still disabled (countdown active), keep gray color
+          // If button is still disabled (countdown active), keep transparent with gray text
           if ((resendBtn as HTMLButtonElement).disabled) {
-            resendBtn.style.background = "#6b7280";
+            resendBtn.style.background = "transparent";
             resendBtn.style.color = "#9ca3af";
             resendBtn.style.cursor = "not-allowed";
           } else {
-            // If countdown finished, set to purple (enabled state)
-            resendBtn.style.background = "#6c4cb3";
-            resendBtn.style.color = "#ffffff";
+            // If countdown finished, set to transparent with normal text color (enabled state)
+            resendBtn.style.background = "transparent";
+            resendBtn.style.color = "#aeb0b6";
             resendBtn.style.cursor = "pointer";
           }
           resendBtn.style.pointerEvents = "auto";
@@ -957,8 +952,8 @@ function setupLoginHandlers(container: HTMLElement): void {
             const countdownText = document.getElementById("countdown-text");
             if (resendBtn && countdownText) {
               resendBtn.disabled = false;
-              resendBtn.style.background = "#6c4cb3";
-              resendBtn.style.color = "#ffffff";
+              resendBtn.style.background = "transparent";
+              resendBtn.style.color = "#aeb0b6";
               resendBtn.style.cursor = "pointer";
               countdownText.textContent = "";
             }
@@ -984,7 +979,7 @@ async function renderNameInputForm(container: HTMLElement, storedData: any, user
   container.innerHTML = `
     <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;padding:20px;box-sizing:border-box;">
       <img src="${chrome.runtime.getURL(
-        "icons/icon128.png"
+        "icon-128.png"
       )}" alt="ForU Icon" style="width:60px;height:60px;margin-bottom:15px;border-radius:50%;">
       <h3 style="color:#ececf1;margin-bottom:10px;text-align:center;">Complete Your Profile</h3>
       <p style="color:#aeb0b6;font-size:14px;margin-bottom:25px;text-align:center;line-height:1.5;">Please enter your name to continue</p>
@@ -1165,7 +1160,7 @@ async function renderReferralInputForm(container: HTMLElement, storedData: any, 
   container.innerHTML = `
     <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;padding:20px;box-sizing:border-box;">
       <img src="${chrome.runtime.getURL(
-        "icons/icon128.png"
+        "icon-128.png"
       )}" alt="ForU Icon" style="width:60px;height:60px;margin-bottom:15px;border-radius:50%;">
       <h3 style="color:#ececf1;margin-bottom:10px;text-align:center;">Enter Referral Code</h3>
       <p style="color:#aeb0b6;font-size:14px;margin-bottom:25px;text-align:center;line-height:1.5;">Do you have a referral code from a friend?</p>
@@ -1329,7 +1324,7 @@ async function renderWaitlistForm(container: HTMLElement, storedData: any, userP
   container.innerHTML = `
     <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;padding:20px;box-sizing:border-box;">
       <img src="${chrome.runtime.getURL(
-        "icons/icon128.png"
+        "icon-128.png"
       )}" alt="ForU Icon" style="width:60px;height:60px;margin-bottom:15px;border-radius:50%;">
       <h3 style="color:#ececf1;margin-bottom:10px;text-align:center;">Join Our Waitlist</h3>
       <p style="color:#aeb0b6;font-size:14px;margin-bottom:25px;text-align:center;line-height:1.5;">We'll notify you when it's your turn to access the platform</p>
