@@ -1,0 +1,131 @@
+/* src/profile/user_digital_dna/index.css */
+/* Digital DNA Styles */
+
+.digital-dna-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 32px 16px;
+  text-align: center;
+}
+
+.dna-empty-icon {
+  margin-bottom: 16px;
+}
+
+.dna-empty-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #ececf1;
+  margin-bottom: 8px;
+}
+
+.dna-empty-description {
+  font-size: 12px;
+  color: #aeb0b6;
+  line-height: 1.4;
+}
+
+.digital-dna-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.dna-card {
+  background: #1f1b2b;
+  border-radius: 12px;
+  padding: 16px;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.dna-card:hover {
+  background: #2a2535;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(108, 76, 179, 0.2);
+}
+
+.dna-rank {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: linear-gradient(135deg, #FFB005 0%, #FF8800 100%);
+  color: #000;
+  font-size: 8px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 6px;
+  text-transform: uppercase;
+}
+
+.dna-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.dna-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.dna-shield-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.dna-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: #ececf1;
+  line-height: 1.2;
+}
+
+.dna-content {
+  margin-top: 8px;
+}
+
+.dna-progress-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dna-progress {
+  flex: 1;
+  height: 6px;
+  background: #2a2535;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.dna-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #6c4cb3 0%, #8b5cf6 100%);
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+.dna-percentage {
+  font-size: 10px;
+  font-weight: 600;
+  color: #ececf1;
+  min-width: 32px;
+  text-align: right;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .digital-dna-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+}

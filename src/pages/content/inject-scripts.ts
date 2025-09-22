@@ -58,7 +58,7 @@ async function initializeInjectScripts() {
     
     // Load profile and user scripts
     try {
-      await import('../panel/profile/profile/index');
+      await import('../panel/profile/profile_tab/index');
       await import('../panel/profile/badges/index');
       await import('../panel/user/user_tab/index');
       await import('../panel/user/authenticated/profile_header/index');

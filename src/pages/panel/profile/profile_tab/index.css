@@ -1,0 +1,24 @@
+/* src/profile/profile_tab/index.css */
+/* Profile Section Styles - Imports all component styles */
+
+/* Import component styles */
+@import url('../profile_header/index.css');
+@import url('../current_level/index.css');
+@import url('../identifi_score_breakdown/index.css');
+@import url('../user_digital_dna/index.css');
+@import url('../collected_badges/index.css');
+
+/* Tooltip Styles */
+.foru-tooltip {
+  position: absolute;
+  background: rgba(0, 0, 0, 0.9);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  max-width: 250px;
+  z-index: 10000;
+  pointer-events: none;
+  white-space: nowrap;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
