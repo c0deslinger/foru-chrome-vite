@@ -48,6 +48,7 @@ export default function Panel() {
         <div id="tweets-section"></div>
         <div id="referral-section" style={{ display: 'none' }}></div>
       </div>
+      
     </div>
   );
 }

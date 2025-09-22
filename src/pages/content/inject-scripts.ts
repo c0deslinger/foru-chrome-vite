@@ -22,6 +22,13 @@ async function initializeInjectScripts() {
     }
     
     try {
+      await import('../popup/share-dialog/index');
+      console.log('[Inject Scripts] Loaded share-dialog');
+    } catch (error) {
+      console.warn('[Inject Scripts] Failed to load share-dialog:', error);
+    }
+    
+    try {
       await import('../popup/tweet-analysis-dialog/index');
       console.log('[Inject Scripts] Loaded tweet-analysis-dialog');
     } catch (error) {

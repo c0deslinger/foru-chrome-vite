@@ -1,0 +1,35 @@
+<!-- Share Dialog HTML Template - Matching Badge Dialog -->
+<div id="foru-share-dialog-overlay" class="foru-share-dialog-overlay" style="display: none;">
+  <div class="foru-share-dialog">
+    <div class="foru-share-dialog-content-wrapper">
+      <div class="foru-share-dialog-header">
+        <button id="foru-share-dialog-close" class="foru-share-dialog-close">
+          <img src="chrome-extension://__MSG_@@extension_id__/images/badge-dialog/close-icon.svg" alt="Close">
+        </button>
+      </div>
+      <div class="foru-share-dialog-content">
+        <h1 class="foru-share-dialog-title">Share Your Profile</h1>
+        
+        <div id="foru-share-image-loading" class="foru-share-image-loading">
+          <div class="foru-share-loading-spinner"></div>
+          <p>Generating your profile image...</p>
+        </div>
+        
+        <div id="foru-share-image-container" class="foru-share-image-container">
+          <!-- Generated image will be inserted here -->
+        </div>
+        
+        <div class="foru-share-dialog-actions">
+          <button id="foru-share-download-image" class="foru-share-download-button" disabled>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7,10 12,15 17,10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            Download Image
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

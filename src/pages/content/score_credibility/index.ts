@@ -296,7 +296,7 @@ function insertCustomProfileScores() {
       foruContainer.appendChild(metricsSpan);
       renderBadges(foruContainer, username);
       
-      followerStatsContainer.parentElement.insertBefore(foruContainer, followerStatsContainer.nextSibling);
+      followerStatsContainer.parentElement?.insertBefore(foruContainer, followerStatsContainer.nextSibling);
       console.log("[ForU Score] Successfully injected metrics and badges.");
     });
   });
@@ -320,6 +320,13 @@ chrome.runtime.onMessage.addListener((msg) => {
 
 // initial run
 insertCustomProfileScores();
+
+// Extend window interface for shareDialog
+declare global {
+  interface Window {
+    shareDialog?: any;
+  }
+}
 
 // Listen for messages from sidepanel to show badge dialog
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
@@ -354,6 +361,92 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     }
     return true;
   }
+  
+  if (message.action === 'showShareDialog') {
+    console.log('Showing share dialog from sidepanel message');
+    const shareData = message.shareData;
+    
+    if (window.shareDialog) {
+      // Show dialog and setup
+      window.shareDialog.show();
+      window.shareDialog.setLoading(true);
+      window.shareDialog.setDownloadEnabled(false);
+      
+      // Generate share image asynchronously
+      generateAndDisplayShareImage(shareData);
+      
+      sendResponse({ success: true, message: 'Share dialog shown' });
+    } else {
+      console.error('ShareDialog not available in content script');
+      sendResponse({ success: false, message: 'ShareDialog not available' });
+    }
+    return true;
+  }
 });
+
+/**
+ * Generate and display share image
+ */
+async function generateAndDisplayShareImage(shareData: any): Promise<void> {
+  try {
+    console.log("[ShareImage] Generating share image...");
+    console.log("[ShareImage] Share data:", shareData);
+    
+    // Import the share image generator
+    const { generateShareImage } = await import('../../panel/user_tab/authenticated/share-image-generator/index.js');
+    console.log("[ShareImage] Share image generator imported successfully");
+    
+    // Generate the share image
+    console.log("[ShareImage] Calling generateShareImage with data:");
+    console.log("- userProfileData:", shareData.userProfileData);
+    console.log("- storedData:", shareData.storedData);
+    console.log("- scoreBreakdown:", shareData.scoreBreakdown);
+    console.log("- digitalDNA:", shareData.digitalDNA);
+    console.log("- badges:", shareData.badges);
+    
+    const imageDataUrl = await generateShareImage(
+      shareData.userProfileData,
+      shareData.storedData,
+      shareData.scoreBreakdown,
+      shareData.digitalDNA,
+      shareData.badges
+    );
+    
+    console.log("[ShareImage] Image generated, data URL length:", imageDataUrl?.length);
+    
+    // Display the image
+    if (window.shareDialog) {
+      window.shareDialog.displayImage(imageDataUrl);
+      console.log("[ShareImage] Image displayed in dialog");
+    } else {
+      console.error("[ShareImage] shareDialog not available on window");
+    }
+    
+    // Setup download functionality
+    if (window.shareDialog) {
+      window.shareDialog.setDownloadHandler(() => {
+        const link = document.createElement('a');
+        link.download = `foru-profile-${shareData.userProfileData?.name || 'user'}-${Date.now()}.png`;
+        link.href = imageDataUrl;
+        link.click();
+      });
+    }
+    
+    // Hide loading and enable download
+    if (window.shareDialog) {
+      window.shareDialog.setLoading(false);
+      window.shareDialog.setDownloadEnabled(true);
+    }
+    
+    console.log("[ShareImage] Share image generated successfully");
+    
+  } catch (error) {
+    console.error("[ShareImage] Error generating share image:", error);
+    console.error("[ShareImage] Error stack:", error.stack);
+    if (window.shareDialog) {
+      window.shareDialog.setLoading(false);
+    }
+  }
+}
 
 export default insertCustomProfileScores;

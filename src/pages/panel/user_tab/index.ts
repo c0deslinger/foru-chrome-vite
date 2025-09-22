@@ -260,14 +260,24 @@ async function renderReferralSection(forceRefresh = false): Promise<void> {
     currentState = UserTabState.AUTHENTICATED;
     await renderState(UserTabState.AUTHENTICATED);
 
-    // Add logout button at the bottom (check if it doesn't exist first)
-    if (!document.getElementById("logout-container")) {
-      const logoutContainer = document.createElement("div");
-      logoutContainer.id = "logout-container";
-      logoutContainer.innerHTML = `
+    // Add share and logout buttons at the bottom (check if they don't exist first)
+    if (!document.getElementById("action-buttons-container")) {
+      const actionButtonsContainer = document.createElement("div");
+      actionButtonsContainer.id = "action-buttons-container";
+      actionButtonsContainer.innerHTML = `
         <div class="version-container">
           <p class="version-text">v.1.0.0-alpha</p>
         </div>
+        <button id="share-profile-btn" class="share-profile-button">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="18" cy="5" r="3"></circle>
+            <circle cx="6" cy="12" r="3"></circle>
+            <circle cx="18" cy="19" r="3"></circle>
+            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+            <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+          </svg>
+          Share Profile
+        </button>
         <button id="logout-btn" class="logout-button">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
@@ -277,7 +287,7 @@ async function renderReferralSection(forceRefresh = false): Promise<void> {
           Logout
         </button>
       `;
-      container.appendChild(logoutContainer);
+      container.appendChild(actionButtonsContainer);
     }
 
   // Clear rendering flag and timeout
@@ -321,6 +331,20 @@ async function renderReferralSection(forceRefresh = false): Promise<void> {
         }
       });
       logoutBtn.setAttribute("data-listener-added", "true");
+    }
+
+    // Event listener for share button
+    const shareBtn = document.getElementById("share-profile-btn");
+    if (shareBtn && !shareBtn.hasAttribute("data-listener-added")) {
+      shareBtn.addEventListener("click", async () => {
+        try {
+          await handleShareProfile(userProfileData, storedData);
+        } catch (error) {
+          console.error("Error sharing profile:", error);
+          showCustomNotification("Failed to generate share image", true);
+        }
+      });
+      shareBtn.setAttribute("data-listener-added", "true");
     }
 
     if (cancelBtn && !cancelBtn.hasAttribute("data-listener-added")) {
@@ -509,6 +533,146 @@ async function renderState(state: UserTabState): Promise<void> {
         );
       }
       break;
+  }
+}
+
+/**
+ * Handle share profile functionality
+ */
+async function handleShareProfile(userProfileData: any, storedData: any): Promise<void> {
+  try {
+    console.log("[ShareProfile] Starting share profile process...");
+    
+    // Fetch all required data
+    console.log("[ShareProfile] Fetching user data for sharing...");
+    
+    // Fetch score breakdown
+    let scoreBreakdown = {};
+    try {
+      const scoreResponse = await fetch(`${API_BASE_URL}/v1/user/identifi-score-breakdown`, {
+        method: "GET",
+        headers: {
+          accept: "application/json",
+          "x-foru-apikey": `foru-private-${NEXT_PUBLIC_API_PRIVATE_KEY}`,
+          Authorization: `Bearer ${storedData.accessToken}`,
+          "x-foru-timestamp": Date.now().toString(),
+          "x-foru-signature": generateForuSignature("GET", "", Date.now().toString()),
+        },
+      });
+      
+      if (scoreResponse.ok) {
+        const scoreData = await scoreResponse.json();
+        if (scoreData?.code === 200 && scoreData.data) {
+          scoreBreakdown = scoreData.data;
+        }
+      }
+    } catch (error) {
+      console.warn("[ShareProfile] Could not fetch score breakdown:", error);
+    }
+    
+    // Fetch digital DNA
+    let digitalDNA = [];
+    try {
+      const dnaResponse = await fetch(`${API_BASE_URL}/v1/user/persona/dna`, {
+        method: "GET",
+        headers: {
+          accept: "application/json",
+          "x-foru-apikey": `foru-private-${NEXT_PUBLIC_API_PRIVATE_KEY}`,
+          Authorization: `Bearer ${storedData.accessToken}`,
+          "x-foru-timestamp": Date.now().toString(),
+          "x-foru-signature": generateForuSignature("GET", "", Date.now().toString()),
+        },
+      });
+      
+      if (dnaResponse.ok) {
+        const dnaData = await dnaResponse.json();
+        if (dnaData?.code === 200 && dnaData.data && dnaData.data.length > 0) {
+          // Process DNA data to match expected structure
+          digitalDNA = dnaData.data.slice(0, 4).map((item: any, index: number) => ({
+            id: `dna-${index}`,
+            title: item.dna?.title || "Unknown",
+            percentage: Math.round(item.percentage || 0),
+            image: item.dna?.image || null,
+            created_at: `${item.created_at}` || "Unknown",
+            tweet_highlight: item.tweet_highlight || "Unknown",
+            description: item.dna?.description || "Unknown",
+          }));
+        }
+      }
+    } catch (error) {
+      console.warn("[ShareProfile] Could not fetch digital DNA:", error);
+    }
+    
+    // Fetch badges
+    let badges = [];
+    try {
+      const badgesResponse = await fetch(`${API_BASE_URL}/v1/user/badge/all?status=unlocked`, {
+        method: "GET",
+        headers: {
+          accept: "application/json",
+          "x-foru-apikey": `foru-private-${NEXT_PUBLIC_API_PRIVATE_KEY}`,
+          Authorization: `Bearer ${storedData.accessToken}`,
+          "x-foru-timestamp": Date.now().toString(),
+          "x-foru-signature": generateForuSignature("GET", "", Date.now().toString()),
+        },
+      });
+      
+      if (badgesResponse.ok) {
+        const badgesData = await badgesResponse.json();
+        if (badgesData?.code === 200 && badgesData.data) {
+          // Process badges data to match expected structure
+          const allUnlockedBadges: any[] = [];
+          badgesData.data.forEach((partner: any) => {
+            const unlockedBadges = partner.badges.filter((badge: any) => badge.unlocked);
+            unlockedBadges.forEach((badge: any) => {
+              allUnlockedBadges.push({
+                name: badge.name,
+                image: badge.image,
+                description: badge.description,
+                partnerLogo: partner.logo,
+                partnerName: partner.name
+              });
+            });
+          });
+          badges = allUnlockedBadges;
+        }
+      }
+    } catch (error) {
+      console.warn("[ShareProfile] Could not fetch badges:", error);
+    }
+    
+    // Send message to content script to show share dialog
+    const shareData = {
+      userProfileData,
+      storedData,
+      scoreBreakdown,
+      digitalDNA,
+      badges
+    };
+    
+    console.log("[ShareProfile] Sending share data to content script...");
+    
+    // Get the current active tab
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    if (tab?.id) {
+      try {
+        await chrome.tabs.sendMessage(tab.id, {
+          action: 'showShareDialog',
+          shareData: shareData
+        });
+        console.log("[ShareProfile] Share dialog message sent to content script");
+      } catch (error) {
+        console.error("[ShareProfile] Failed to send message to content script:", error);
+        showCustomNotification("Failed to open share dialog", true);
+      }
+    } else {
+      console.error("[ShareProfile] No active tab found");
+      showCustomNotification("No active tab found", true);
+    }
+    
+  } catch (error) {
+    console.error("[ShareProfile] Error in share profile process:", error);
+    showCustomNotification("Failed to generate share image", true);
   }
 }
 
