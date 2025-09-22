@@ -277,11 +277,6 @@ function setupOtpVerifyHandler(onSuccess: () => void): void {
 
           showCustomNotification("Login successful!");
 
-          // Trigger auth refresh message
-          chrome.runtime.sendMessage({
-            action: "authSuccessRefreshReferral",
-          });
-
           // Clear state
           clearOTPInputs();
           clearCountdownTime();

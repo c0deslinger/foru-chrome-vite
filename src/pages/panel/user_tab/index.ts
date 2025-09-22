@@ -28,6 +28,7 @@ enum UserTabState {
 let currentState: UserTabState = UserTabState.LOGIN;
 let currentUserData: any = null;
 let currentStoredData: any = null;
+let isRenderingUserTab = false;
 
 /**
  * Fungsi utilitas untuk menampilkan notifikasi kustom.
@@ -80,11 +81,16 @@ async function renderReferralSection(forceRefresh = false): Promise<void> {
   const container = document.getElementById("referral-section");
   if (!container) return;
 
-  // Prevent multiple simultaneous renders with timeout
-  if ((container as any).dataset.rendering === 'true') {
+  console.log("[UserTab] renderReferralSection called, forceRefresh:", forceRefresh);
+  console.log("[UserTab] Current rendering state - dataset.rendering:", (container as any).dataset.rendering, "isRenderingUserTab:", isRenderingUserTab);
+
+  // Prevent multiple simultaneous renders
+  if ((container as any).dataset.rendering === 'true' || isRenderingUserTab) {
     console.log("[UserTab] Already rendering, skipping...");
     return;
   }
+  
+  isRenderingUserTab = true;
   
   // Set timeout to clear rendering flag if stuck
   const renderTimeout = setTimeout(() => {
@@ -170,7 +176,9 @@ async function renderReferralSection(forceRefresh = false): Promise<void> {
       const meData = await meResponse.json();
       if (meData?.code === 200 && meData.data) {
         userProfileData = meData.data;
-        console.log("[UserTab] /user/me data fetched successfully");
+        console.log("[UserTab] /user/me data fetched successfully:", userProfileData);
+        console.log("[UserTab] User name:", userProfileData?.name);
+        console.log("[UserTab] User referral used:", userProfileData?.referral?.used);
       } else {
         console.error("Invalid /user/me response:", meData);
       }
@@ -178,6 +186,7 @@ async function renderReferralSection(forceRefresh = false): Promise<void> {
       console.error("Error fetching user profile data:", error);
       // Clear rendering flag on error
       (container as any).dataset.rendering = 'false';
+      isRenderingUserTab = false;
       clearTimeout(renderTimeout);
       // Show error state instead of stuck loading
       container.innerHTML = `
@@ -197,57 +206,59 @@ async function renderReferralSection(forceRefresh = false): Promise<void> {
 
     // Check if name is empty - show name input form
     if (!userProfileData?.name || userProfileData.name.trim() === "") {
+      console.log("[UserTab] User name is empty, showing name input form");
       currentState = UserTabState.NAME_INPUT;
       renderNameInputForm(container, storedData, userProfileData);
       setupNameInputHandlers(
         storedData,
-        (updatedUserData) => {
+        async (updatedUserData) => {
           if (updatedUserData) {
             currentUserData = updatedUserData;
             if (updatedUserData?.referral?.used === false) {
-              renderState(UserTabState.REFERRAL_INPUT);
+              await renderState(UserTabState.REFERRAL_INPUT);
             } else {
-              renderState(UserTabState.AUTHENTICATED);
+              await renderState(UserTabState.AUTHENTICATED);
             }
           } else {
-            renderState(UserTabState.AUTHENTICATED);
+            await renderState(UserTabState.AUTHENTICATED);
           }
         },
-        () => renderState(UserTabState.LOGIN)
+        async () => await renderState(UserTabState.LOGIN)
       );
       // Clear rendering flag after showing name form
       (container as any).dataset.rendering = 'false';
+      isRenderingUserTab = false;
       clearTimeout(renderTimeout);
       return;
     }
 
     // Check if referral is not used - show referral form
     if (userProfileData?.referral?.used === false) {
+      console.log("[UserTab] User referral not used, showing referral input form");
       currentState = UserTabState.REFERRAL_INPUT;
       renderReferralInputForm(container, storedData, userProfileData);
       setupReferralInputHandlers(
         storedData,
         userProfileData,
-        () => renderState(UserTabState.AUTHENTICATED),
-        () => renderState(UserTabState.WAITLIST),
-        () => renderState(UserTabState.LOGIN)
+        async () => await renderState(UserTabState.AUTHENTICATED),
+        async () => await renderState(UserTabState.WAITLIST),
+        async () => await renderState(UserTabState.LOGIN)
       );
       // Clear rendering flag after showing referral form
       (container as any).dataset.rendering = 'false';
+      isRenderingUserTab = false;
       clearTimeout(renderTimeout);
       return;
     }
 
     // Normal flow - show full user profile
+    console.log("[UserTab] User is fully authenticated, showing authenticated section");
     // Clear container first to prevent duplication
     container.innerHTML = "";
     
-    // Render authenticated user section (includes profile card, metrics, badges, and referral details)
-    await renderAuthenticatedUserSection(
-      userProfileData,
-      storedData,
-      forceRefresh
-    );
+    // Set state and render authenticated section
+    currentState = UserTabState.AUTHENTICATED;
+    await renderState(UserTabState.AUTHENTICATED);
 
     // Add logout button at the bottom (check if it doesn't exist first)
     if (!document.getElementById("logout-container")) {
@@ -269,9 +280,10 @@ async function renderReferralSection(forceRefresh = false): Promise<void> {
       container.appendChild(logoutContainer);
     }
 
-    // Clear rendering flag and timeout
-    (container as any).dataset.rendering = 'false';
-    clearTimeout(renderTimeout);
+  // Clear rendering flag and timeout
+  (container as any).dataset.rendering = 'false';
+  isRenderingUserTab = false;
+  clearTimeout(renderTimeout);
 
     // Add logout confirmation popup (check if it doesn't exist first)
     if (!document.getElementById("logout-confirmation")) {
@@ -371,9 +383,9 @@ async function renderReferralSection(forceRefresh = false): Promise<void> {
     // User belum login: tampilkan tombol login
     currentState = UserTabState.LOGIN;
     renderLoginForm(container);
-    setupLoginHandlers((email: string) => {
+    setupLoginHandlers(async (email: string) => {
       setEmail(email);
-      renderState(UserTabState.OTP);
+      await renderState(UserTabState.OTP);
     });
 
     // Clear rendering flag for non-logged in users
@@ -385,7 +397,7 @@ async function renderReferralSection(forceRefresh = false): Promise<void> {
 /**
  * Render specific state
  */
-function renderState(state: UserTabState): void {
+async function renderState(state: UserTabState): Promise<void> {
   const container = document.getElementById("referral-section");
   if (!container) return;
 
@@ -395,9 +407,9 @@ function renderState(state: UserTabState): void {
   switch (state) {
     case UserTabState.LOGIN:
       renderLoginForm(container);
-      setupLoginHandlers((email: string) => {
+      setupLoginHandlers(async (email: string) => {
         setEmail(email);
-        renderState(UserTabState.OTP);
+        await renderState(UserTabState.OTP);
       });
       break;
 
@@ -406,11 +418,27 @@ function renderState(state: UserTabState): void {
       const savedEmail = localStorage.getItem('foru_current_email') || "";
       renderOtpForm(container, savedEmail);
       setupOtpHandlers(
-        () => {
-          // After successful OTP verification, refresh to check user state
-          renderReferralSection(true);
+        async () => {
+          // After successful OTP verification, directly transition to authenticated state
+          console.log("[UserTab] OTP verification successful, transitioning to authenticated state...");
+          
+          // Clear any rendering flags to allow fresh render
+          const container = document.getElementById("referral-section");
+          if (container) {
+            (container as any).dataset.rendering = 'false';
+          }
+          isRenderingUserTab = false;
+          
+          // Directly call renderReferralSection to fetch user data and show authenticated state
+          try {
+            await renderReferralSection(true);
+          } catch (error) {
+            console.error("[UserTab] Error in OTP success callback:", error);
+            // Fallback: show login form
+            await renderState(UserTabState.LOGIN);
+          }
         },
-        () => renderState(UserTabState.LOGIN)
+        async () => await renderState(UserTabState.LOGIN)
       );
       break;
 
@@ -419,19 +447,19 @@ function renderState(state: UserTabState): void {
         renderNameInputForm(container, currentStoredData, currentUserData);
         setupNameInputHandlers(
           currentStoredData,
-          (updatedUserData) => {
+          async (updatedUserData) => {
             if (updatedUserData) {
               currentUserData = updatedUserData;
-              if (updatedUserData?.referral?.used === false) {
-                renderState(UserTabState.REFERRAL_INPUT);
-              } else {
-                renderState(UserTabState.AUTHENTICATED);
-              }
+            if (updatedUserData?.referral?.used === false) {
+              await renderState(UserTabState.REFERRAL_INPUT);
             } else {
-              renderState(UserTabState.AUTHENTICATED);
+              await renderState(UserTabState.AUTHENTICATED);
             }
+          } else {
+            await renderState(UserTabState.AUTHENTICATED);
+          }
           },
-          () => renderState(UserTabState.LOGIN)
+          async () => await renderState(UserTabState.LOGIN)
         );
       }
       break;
@@ -442,9 +470,9 @@ function renderState(state: UserTabState): void {
         setupReferralInputHandlers(
           currentStoredData,
           currentUserData,
-          () => renderState(UserTabState.AUTHENTICATED),
-          () => renderState(UserTabState.WAITLIST),
-          () => renderState(UserTabState.LOGIN)
+          async () => await renderState(UserTabState.AUTHENTICATED),
+          async () => await renderState(UserTabState.WAITLIST),
+          async () => await renderState(UserTabState.LOGIN)
         );
       }
       break;
@@ -455,9 +483,9 @@ function renderState(state: UserTabState): void {
         setupWaitlistHandlers(
           currentStoredData,
           currentUserData,
-          () => renderState(UserTabState.WAITLIST_SUCCESS),
-          () => renderState(UserTabState.REFERRAL_INPUT),
-          () => renderState(UserTabState.LOGIN)
+          async () => await renderState(UserTabState.WAITLIST_SUCCESS),
+          async () => await renderState(UserTabState.REFERRAL_INPUT),
+          async () => await renderState(UserTabState.LOGIN)
         );
       }
       break;
@@ -465,14 +493,21 @@ function renderState(state: UserTabState): void {
     case UserTabState.WAITLIST_SUCCESS:
       renderWaitlistSuccessMessage(container);
       setupWaitlistSuccessHandlers(
-        () => renderState(UserTabState.REFERRAL_INPUT),
-        () => renderState(UserTabState.LOGIN)
+        async () => await renderState(UserTabState.REFERRAL_INPUT),
+        async () => await renderState(UserTabState.LOGIN)
       );
       break;
 
     case UserTabState.AUTHENTICATED:
-      // Refresh to show authenticated user interface
-      renderReferralSection(true);
+      // Show authenticated user interface directly without recursive call
+      if (currentUserData && currentStoredData) {
+        container.innerHTML = "";
+        await renderAuthenticatedUserSection(
+          currentUserData,
+          currentStoredData,
+          true
+        );
+      }
       break;
   }
 }
@@ -485,6 +520,7 @@ export function forceRefreshUserTab(): void {
   if (container) {
     // Clear any stuck rendering flags
     (container as any).dataset.rendering = 'false';
+    isRenderingUserTab = false;
     // Force a fresh render
     renderReferralSection(true);
   }
@@ -495,9 +531,10 @@ export function forceRefreshUserTab(): void {
  */
 export function handleTabSwitch(): void {
   const container = document.getElementById("referral-section");
-  if (container && (container as any).dataset.rendering === 'true') {
+  if (container && ((container as any).dataset.rendering === 'true' || isRenderingUserTab)) {
     console.log("[UserTab] Tab switch detected, clearing stuck rendering");
     (container as any).dataset.rendering = 'false';
+    isRenderingUserTab = false;
     // Small delay to ensure clean state
     setTimeout(() => {
       renderReferralSection(false);

@@ -1,7 +1,7 @@
 // src/pages/panel/user_tab/authenticated/index.ts
 
 import { renderUserProfileCard } from './profile_header/index.js';
-// import { renderReferralDetails } from './referral/index.js';
+import { renderReferralDetails } from './referral/index.js';
 import { renderCurrentLevelForUserTab } from '../../global/current_level/index.js';
 import { renderUserBadgesSection } from '../../global/collected_badges/index.js';
 import { renderIdentifiScoreBreakdownForUserTab } from '../../global/identifi_score_breakdown/index.js';
@@ -53,11 +53,12 @@ export async function renderAuthenticatedUserSection(
     return;
   }
 
-  // Clear container first
-  container.innerHTML = '';
+  // Don't clear container if it's already been cleared by parent function
+  // This prevents duplicate clearing and potential race conditions
 
   try {
     // Render profile header (includes profile card, level, metrics, and badges)
+    // Pass userProfileData to avoid duplicate /user/me calls
     await renderUserProfileCard(
       userProfileData,
       storedData,
@@ -69,7 +70,12 @@ export async function renderAuthenticatedUserSection(
     );
 
     // Render referral details
-    // await renderReferralDetails(userProfileData, forceRefresh);
+    try {
+      await renderReferralDetails(userProfileData, forceRefresh);
+    } catch (referralError) {
+      console.error("[AuthenticatedUser] Error rendering referral details:", referralError);
+      // Continue without failing the whole section
+    }
 
     console.log("[AuthenticatedUser] Authenticated user section rendered successfully");
   } catch (error) {
@@ -127,7 +133,7 @@ export async function initializeAuthenticatedUserSection(): Promise<void> {
 
 // Export all the individual component functions for backward compatibility
 export { renderUserProfileCard } from './profile_header/index.js';
-// export { renderReferralDetails } from './referral/index.js';
+export { renderReferralDetails } from './referral/index.js';
 
 // Export global component functions for direct access if needed
 export { renderCurrentLevelForUserTab } from '../../global/current_level/index.js';

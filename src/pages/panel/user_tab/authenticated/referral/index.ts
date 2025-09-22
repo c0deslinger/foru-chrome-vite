@@ -7,7 +7,7 @@ import {
   API_BASE_URL,
 } from "../../../../../lib/crypto-utils.js";
 
-import { showCustomNotification } from "../index.js";
+import { showCustomNotification } from "../../index.js";
 
 interface UserProfileData {
   name?: string;

@@ -189,6 +189,8 @@ function setupProfileEventListeners(container: HTMLElement) {
 // State for the User tab
 let isUserTabContentLoaded = false;
 let userTabLoadingPromise: Promise<void> | null = null;
+let lastUserTabLoad = 0;
+const USER_TAB_DEBOUNCE_TIME = 2000; // 2 seconds debounce
 
 /**
  * Render the User (Referral) tab
@@ -196,6 +198,14 @@ let userTabLoadingPromise: Promise<void> | null = null;
 function loadUserTab() {
   const container = document.getElementById("referral-section");
   if (!container) return;
+
+  // Debounce to prevent multiple rapid calls
+  const now = Date.now();
+  if (now - lastUserTabLoad < USER_TAB_DEBOUNCE_TIME) {
+    console.log("[UserTab] Debouncing user tab load, too recent");
+    return;
+  }
+  lastUserTabLoad = now;
 
   // Clear any stuck rendering states first
   if (window.Foru && window.Foru.handleTabSwitch) {
@@ -291,9 +301,12 @@ function checkAndReloadContentIfNeeded() {
       if (activeTab === "profile") {
         loadProfileTab();
       } else if (activeTab === "user") {
-        loadUserTab();
+        // Only load if not already loaded recently
+        if (!isUserTabContentLoaded) {
+          loadUserTab();
+        }
       } else {
-        document.querySelector('button[data-tab="profile"]')?.click();
+        (document.querySelector('button[data-tab="profile"]') as HTMLElement)?.click();
       }
     } else {
       setTabVisibility(false);
@@ -312,7 +325,10 @@ function checkAndReloadContentIfNeeded() {
         if (!userBtn.classList.contains("active")) {
           userBtn.click();
         } else {
-          loadUserTab();
+          // Only load if not already loaded recently
+          if (!isUserTabContentLoaded) {
+            loadUserTab();
+          }
         }
       }
     }
@@ -351,6 +367,9 @@ function initializeSidepanelScripts() {
         loadProfileTab();
       } else if (tab === "user") {
         if (referralSection) referralSection.style.display = "block";
+        // Reset debounce when user explicitly clicks tab
+        lastUserTabLoad = 0;
+        isUserTabContentLoaded = false;
         loadUserTab();
       }
     });
