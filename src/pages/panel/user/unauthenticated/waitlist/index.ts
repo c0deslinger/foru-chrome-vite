@@ -1,7 +1,7 @@
-// src/pages/panel/user/waitlist/index.ts
+// src/pages/panel/user/unauthenticated/waitlist/index.ts
 
-import { generateForuSignature, NEXT_PUBLIC_API_PRIVATE_KEY, API_BASE_URL } from '../../../../lib/crypto-utils.js';
-import { showCustomNotification } from '../user_tab/index.js';
+import { generateForuSignature, NEXT_PUBLIC_API_PRIVATE_KEY, API_BASE_URL } from '../../../../../lib/crypto-utils.js';
+import { showCustomNotification } from '../../user_tab/index.js';
 
 /**
  * Render waitlist form
@@ -100,7 +100,7 @@ export function renderWaitlistSuccessMessage(container: HTMLElement): void {
           </a>
           
           <!-- Telegram -->
-          <a href="https://t.me/foruai" target="_blank" style="text-decoration:none;position:relative;display:block;width:42px;height:42px;">
+          <a href="https://t.me/@ForUAICryptoBot" target="_blank" style="text-decoration:none;position:relative;display:block;width:42px;height:42px;">
             <img src="${chrome.runtime.getURL(
               "images/social_bg_circle.svg"
             )}" alt="" style="width:42px;height:42px;" />

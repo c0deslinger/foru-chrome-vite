@@ -6,11 +6,11 @@ import { renderReferralDetails } from "../authenticated/referral/index.js";
 import { generateForuSignature, NEXT_PUBLIC_API_PRIVATE_KEY, API_BASE_URL } from '../../../../lib/crypto-utils.js';
 
 // Import new modular components
-import { renderLoginForm, setupLoginHandlers } from "../login/index.js";
-import { renderOtpForm, setupOtpHandlers, setEmail, clearOtpSession } from "../otp/index.js";
-import { renderNameInputForm, setupNameInputHandlers } from "../name-input/index.js";
-import { renderReferralInputForm, setupReferralInputHandlers } from "../referral-input/index.js";
-import { renderWaitlistForm, renderWaitlistSuccessMessage, setupWaitlistHandlers, setupWaitlistSuccessHandlers } from "../waitlist/index.js";
+import { renderLoginForm, setupLoginHandlers } from "../unauthenticated/login/index.js";
+import { renderOtpForm, setupOtpHandlers, setEmail, clearOtpSession } from "../unauthenticated/otp/index.js";
+import { renderNameInputForm, setupNameInputHandlers } from "../unauthenticated/name-input/index.js";
+import { renderReferralInputForm, setupReferralInputHandlers } from "../unauthenticated/referral-input/index.js";
+import { renderWaitlistForm, renderWaitlistSuccessMessage, setupWaitlistHandlers, setupWaitlistSuccessHandlers } from "../unauthenticated/waitlist/index.js";
 
 // Re-export for backward compatibility
 export { generateForuSignature, NEXT_PUBLIC_API_PRIVATE_KEY, API_BASE_URL };
