@@ -1,7 +1,7 @@
-// src/pages/panel/user/unauthenticated/referral-input/index.ts
+// src/pages/panel/user_tab/unauthenticated/referral-input/index.ts
 
 import { generateForuSignature, NEXT_PUBLIC_API_PRIVATE_KEY, API_BASE_URL } from '../../../../../lib/crypto-utils.js';
-import { showCustomNotification } from '../../user_tab/index.js';
+import { showCustomNotification } from '../../index.js';
 
 /**
  * Render referral code input form

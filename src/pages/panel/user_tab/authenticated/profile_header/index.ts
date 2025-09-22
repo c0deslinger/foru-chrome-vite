@@ -1,4 +1,4 @@
-// src/pages/panel/user/authenticated/profile_header/index.ts
+// src/pages/panel/user_tab/authenticated/profile_header/index.ts
 
 // Import fungsi yang dibutuhkan
 import {
@@ -7,7 +7,7 @@ import {
   API_BASE_URL,
 } from "../../../../../lib/crypto-utils.js";
 
-import { showCustomNotification } from "../../user_tab/index.js";
+import { showCustomNotification } from "../../index.js";
 import { renderIdentifiScoreBreakdownForUserTab } from "../../../global/identifi_score_breakdown/index.js";
 import { renderUserDigitalDnaForUserTab } from "../../../global/user_digital_dna/index.js";
 import { renderUserBadgesSection } from "../../../global/collected_badges/index.js";

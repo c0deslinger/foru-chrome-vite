@@ -1,0 +1,58 @@
+/* src/pages/panel/user_tab/authenticated/index.css */
+/* Authenticated User Section Styles - Imports all component styles */
+
+/* Import global component styles */
+@import url('../../global/current_level/index.css');
+@import url('../../global/collected_badges/index.css');
+@import url('../../global/identifi_score_breakdown/index.css');
+@import url('../../global/user_digital_dna/index.css');
+
+/* Import local component styles */
+@import url('./profile_header/index.css');
+@import url('./referral/index.css');
+
+/* Additional styles for the authenticated user section */
+.user-profile-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Ensure proper spacing between sections */
+#user-metrics-display-area {
+  margin-top: 16px;
+}
+
+#user-badges-display-area {
+  margin-top: 16px;
+}
+
+/* Loading states */
+.authenticated-user-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px;
+  color: #aeb0b6;
+}
+
+.authenticated-user-error {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px;
+  color: #ff6b6b;
+  text-align: center;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .user-profile-wrapper {
+    gap: 12px;
+  }
+  
+  #user-metrics-display-area,
+  #user-badges-display-area {
+    margin-top: 12px;
+  }
+}

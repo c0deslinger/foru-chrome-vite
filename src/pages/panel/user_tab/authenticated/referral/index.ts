@@ -1,4 +1,4 @@
-// src/pages/panel/user/authenticated/referral/index.ts
+// src/pages/panel/user_tab/authenticated/referral/index.ts
 
 // Import fungsi yang dibutuhkan
 import {
@@ -7,7 +7,7 @@ import {
   API_BASE_URL,
 } from "../../../../../lib/crypto-utils.js";
 
-import { showCustomNotification } from "../../user_tab/index.js";
+import { showCustomNotification } from "../index.js";
 
 interface UserProfileData {
   name?: string;

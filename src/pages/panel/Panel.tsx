@@ -17,7 +17,7 @@ export default function Panel() {
   const initializeSidepanel = async () => {
     try {
       // Import user_tab module to make renderReferralSection available
-      await import('./user/user_tab/index');
+      await import('./user_tab/index');
       
       // Import sidepanel modules dynamically
       const { default: initializeSidepanelScripts } = await import('./sidepanel-scripts');

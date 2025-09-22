@@ -1,16 +1,15 @@
-// src/user/user_tab/index.ts
+// src/pages/panel/user_tab/index.ts
 
 // Impor fungsi-fungsi komponen UI dari file terpisah
-import { renderUserProfileCard } from "../authenticated/profile_header/index.js";
-import { renderReferralDetails } from "../authenticated/referral/index.js";
-import { generateForuSignature, NEXT_PUBLIC_API_PRIVATE_KEY, API_BASE_URL } from '../../../../lib/crypto-utils.js';
+import { renderAuthenticatedUserSection } from "./authenticated/index.js";
+import { generateForuSignature, NEXT_PUBLIC_API_PRIVATE_KEY, API_BASE_URL } from '../../../lib/crypto-utils.js';
 
 // Import new modular components
-import { renderLoginForm, setupLoginHandlers } from "../unauthenticated/login/index.js";
-import { renderOtpForm, setupOtpHandlers, setEmail, clearOtpSession } from "../unauthenticated/otp/index.js";
-import { renderNameInputForm, setupNameInputHandlers } from "../unauthenticated/name-input/index.js";
-import { renderReferralInputForm, setupReferralInputHandlers } from "../unauthenticated/referral-input/index.js";
-import { renderWaitlistForm, renderWaitlistSuccessMessage, setupWaitlistHandlers, setupWaitlistSuccessHandlers } from "../unauthenticated/waitlist/index.js";
+import { renderLoginForm, setupLoginHandlers } from "./unauthenticated/login/index.js";
+import { renderOtpForm, setupOtpHandlers, setEmail, clearOtpSession } from "./unauthenticated/otp/index.js";
+import { renderNameInputForm, setupNameInputHandlers } from "./unauthenticated/name-input/index.js";
+import { renderReferralInputForm, setupReferralInputHandlers } from "./unauthenticated/referral-input/index.js";
+import { renderWaitlistForm, renderWaitlistSuccessMessage, setupWaitlistHandlers, setupWaitlistSuccessHandlers } from "./unauthenticated/waitlist/index.js";
 
 // Re-export for backward compatibility
 export { generateForuSignature, NEXT_PUBLIC_API_PRIVATE_KEY, API_BASE_URL };
@@ -243,16 +242,12 @@ async function renderReferralSection(forceRefresh = false): Promise<void> {
     // Clear container first to prevent duplication
     container.innerHTML = "";
     
-    // Render profile card first
-    await renderUserProfileCard(
+    // Render authenticated user section (includes profile card, metrics, badges, and referral details)
+    await renderAuthenticatedUserSection(
       userProfileData,
       storedData,
-      renderReferralSection,
       forceRefresh
     );
-
-    // Then render invitation codes after profile card
-    await renderReferralDetails(userProfileData, forceRefresh);
 
     // Add logout button at the bottom (check if it doesn't exist first)
     if (!document.getElementById("logout-container")) {

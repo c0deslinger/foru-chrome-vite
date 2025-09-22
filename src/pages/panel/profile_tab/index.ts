@@ -1,11 +1,11 @@
-// src/profile/profile_tab/index.ts
+// src/pages/panel/profile_tab/index.ts
 
-import { generateForuSignature, buildForuHeaders, API_BASE_URL } from '../../../../lib/crypto-utils.js';
-import { renderProfileHeader } from '../profile_header/index.js';
-import { renderCurrentLevel, CurrentLevelApiConfig } from '../../global/current_level/index.js';
-import { renderIdentifiScoreBreakdown, IdentifiScoreBreakdownApiConfig } from '../../global/identifi_score_breakdown/index.js';
-import { renderUserDigitalDna, UserDigitalDnaApiConfig } from '../../global/user_digital_dna/index.js';
-import { renderCollectedBadges, addBadgeEventListeners, BadgeApiConfig } from '../../global/collected_badges/index.js';
+import { generateForuSignature, buildForuHeaders, API_BASE_URL } from '../../../lib/crypto-utils.js';
+import { renderProfileHeader } from './profile_header/index.js';
+import { renderCurrentLevel, CurrentLevelApiConfig } from '../global/current_level/index.js';
+import { renderIdentifiScoreBreakdown, IdentifiScoreBreakdownApiConfig } from '../global/identifi_score_breakdown/index.js';
+import { renderUserDigitalDna, UserDigitalDnaApiConfig } from '../global/user_digital_dna/index.js';
+import { renderCollectedBadges, addBadgeEventListeners, BadgeApiConfig } from '../global/collected_badges/index.js';
 
 /**
  * This function runs in the page context.
