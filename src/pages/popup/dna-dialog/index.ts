@@ -1,4 +1,4 @@
-// src/pages/content/dna-dialog/index.ts
+// src/pages/popup/dna-dialog/index.ts
 
 /**
  * DnaDialog - Shared class for displaying DNA popup dialogs
@@ -42,7 +42,7 @@ class DnaDialog {
   async injectStyles() {
     if (!document.getElementById('foru-dna-dialog-styles')) {
       // Load CSS content
-      const cssResponse = await fetch(chrome.runtime.getURL('src/pages/content/dna-dialog/index.css'));
+      const cssResponse = await fetch(chrome.runtime.getURL('src/pages/popup/dna-dialog/index.css'));
       const cssContent = await cssResponse.text();
 
       const style = document.createElement('style');

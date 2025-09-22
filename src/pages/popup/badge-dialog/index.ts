@@ -1,4 +1,4 @@
-// src/pages/content/badge-dialog/index.ts
+// src/pages/popup/badge-dialog/index.ts
 
 /**
  * BadgeDialog - Shared class for displaying badge popup dialogs
@@ -42,7 +42,7 @@ class BadgeDialog {
     }
 
     // Load CSS content
-    const cssResponse = await fetch(chrome.runtime.getURL('src/pages/content/badge-dialog/index.css'));
+    const cssResponse = await fetch(chrome.runtime.getURL('src/pages/popup/badge-dialog/index.css'));
     const cssContent = await cssResponse.text();
 
     const styleElement = document.createElement('style');
