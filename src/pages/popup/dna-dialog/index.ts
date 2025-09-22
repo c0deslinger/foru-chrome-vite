@@ -2,7 +2,7 @@
 
 /**
  * DnaDialog - Shared class for displaying DNA popup dialogs
- * Can be used by score_credibility.ts, profile.ts, and user_metrics_card.ts
+ * Can be used by score_credibility.ts, profile.ts, and user_digital_dna.ts
  * 
  * This file contains JavaScript functionality only
  */

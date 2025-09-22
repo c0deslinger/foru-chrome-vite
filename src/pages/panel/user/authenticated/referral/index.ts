@@ -1,13 +1,13 @@
-// src/user/user_referral_section/index.ts
+// src/pages/panel/user/authenticated/referral/index.ts
 
 // Import fungsi yang dibutuhkan
 import {
   generateForuSignature,
   NEXT_PUBLIC_API_PRIVATE_KEY,
   API_BASE_URL,
-} from "../../../../lib/crypto-utils.js";
+} from "../../../../../lib/crypto-utils.js";
 
-import { showCustomNotification } from "../user_tab/index.js";
+import { showCustomNotification } from "../../user_tab/index.js";
 
 interface UserProfileData {
   name?: string;

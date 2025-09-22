@@ -61,10 +61,12 @@ async function initializeInjectScripts() {
       await import('../panel/profile/profile/index');
       await import('../panel/profile/badges/index');
       await import('../panel/user/user_tab/index');
-      await import('../panel/user/user_profile_card/index');
-      await import('../panel/user/user_referral_section/index');
-      await import('../panel/user/user_metrics_card/index');
-      await import('../panel/user/user_badges_section/index');
+      await import('../panel/user/authenticated/profile_header/index');
+      await import('../panel/user/authenticated/referral/index');
+      await import('../panel/user/authenticated/identifi_score_breakdown/index');
+      await import('../panel/user/authenticated/user_digital_dna/index');
+      await import('../panel/user/authenticated/current_level/index');
+      await import('../panel/user/authenticated/collected_badges/index');
       console.log('[Inject Scripts] Profile and user scripts loaded');
     } catch (error) {
       console.warn('[Inject Scripts] Failed to load profile/user scripts:', error);

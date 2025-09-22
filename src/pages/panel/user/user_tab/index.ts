@@ -1,8 +1,8 @@
 // src/user/user_tab/index.ts
 
 // Impor fungsi-fungsi komponen UI dari file terpisah
-import { renderUserProfileCard } from "../user_profile_card/index.js";
-import { renderReferralDetails } from "../user_referral_section/index.js";
+import { renderUserProfileCard } from "../authenticated/profile_header/index.js";
+import { renderReferralDetails } from "../authenticated/referral/index.js";
 import { generateForuSignature, NEXT_PUBLIC_API_PRIVATE_KEY, API_BASE_URL } from '../../../../lib/crypto-utils.js';
 
 // Import new modular components

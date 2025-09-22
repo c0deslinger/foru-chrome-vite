@@ -1,15 +1,16 @@
-// src/user/user_profile_card/index.ts
+// src/pages/panel/user/authenticated/profile_header/index.ts
 
 // Import fungsi yang dibutuhkan
 import {
   generateForuSignature,
   NEXT_PUBLIC_API_PRIVATE_KEY,
   API_BASE_URL,
-} from "../../../../lib/crypto-utils.js";
+} from "../../../../../lib/crypto-utils.js";
 
-import { showCustomNotification } from "../user_tab/index.js";
-import { renderUserMetricsCard } from "../user_metrics_card/index.js";
-import { renderUserBadgesSection } from "../user_badges_section/index.js";
+import { showCustomNotification } from "../../user_tab/index.js";
+import { renderIdentifiScoreBreakdown } from "../identifi_score_breakdown/index";
+import { renderUserDigitalDna } from "../user_digital_dna/index";
+import { renderUserBadgesSection } from "../collected_badges/index.js";
 
 interface UserProfileData {
   name?: string;
@@ -218,7 +219,7 @@ async function renderUserProfileCard(
 
     // Animate the level progress ring
     setTimeout(() => {
-      const ringPath = document.getElementById("ringFg") as SVGPathElement;
+      const ringPath = document.getElementById("ringFg") as SVGPathElement | null;
       if (ringPath && typeof ringPath.getTotalLength === "function") {
         try {
           const length = ringPath.getTotalLength();
@@ -244,8 +245,26 @@ async function renderUserProfileCard(
     const badgesContainer = document.getElementById("user-badges-display-area");
     
     if (metricsContainer && storedData.accessToken) {
-      await renderUserMetricsCard(
-        metricsContainer,
+      // Create separate containers for score breakdown and digital DNA
+      const scoreContainer = document.createElement('div');
+      scoreContainer.id = 'identifi-score-container';
+      const dnaContainer = document.createElement('div');
+      dnaContainer.id = 'digital-dna-container';
+      
+      // Clear and append containers
+      metricsContainer.innerHTML = '';
+      metricsContainer.appendChild(scoreContainer);
+      metricsContainer.appendChild(dnaContainer);
+      
+      // Render both sections
+      await renderIdentifiScoreBreakdown(
+        scoreContainer,
+        storedData.accessToken,
+        forceRefresh
+      );
+      
+      await renderUserDigitalDna(
+        dnaContainer,
         storedData.accessToken,
         forceRefresh,
         userProfileData

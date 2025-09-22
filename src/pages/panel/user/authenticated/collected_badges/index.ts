@@ -1,10 +1,10 @@
-// src/user/user_badges_section/index.ts
+// src/pages/panel/user/authenticated/collected_badges/index.ts
 
 import {
   generateForuSignature,
   NEXT_PUBLIC_API_PRIVATE_KEY,
   API_BASE_URL,
-} from "../../../../lib/crypto-utils.js";
+} from "../../../../../lib/crypto-utils.js";
 
 /**
  * Fetches user badges from the API
