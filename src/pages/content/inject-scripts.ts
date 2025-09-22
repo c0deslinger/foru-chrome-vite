@@ -60,7 +60,6 @@ async function initializeInjectScripts() {
     try {
       await import('../panel/profile/profile/index');
       await import('../panel/profile/badges/index');
-      await import('../panel/profile/quests/index');
       await import('../panel/user/user_tab/index');
       await import('../panel/user/user_profile_card/index');
       await import('../panel/user/user_referral_section/index');

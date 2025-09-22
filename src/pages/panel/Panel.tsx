@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import '@pages/panel/Panel.css';
+// import '@pages/panel/Panel.css';
 import './sidepanel.css';
 
 export default function Panel() {
