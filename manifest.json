@@ -7,9 +7,6 @@
     "privateKey": "7886064592c4c35255318389dbe15226de78f16a46f809a29218bc43ea0f8684",
     "apiBaseUrl": "https://api-social.foruai.io"
   },
-  "options_ui": {
-    "page": "src/pages/options/index.html"
-  },
   "action": {
     "default_popup": "src/pages/popup/index.html",
     "default_icon": {
