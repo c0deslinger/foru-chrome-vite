@@ -1,5 +1,5 @@
-/* src/profile/collected_badges/index.css */
-/* Collected Badges Styles */
+/* src/pages/panel/global/collected_badges/index.css */
+/* Global Collected Badges Styles */
 
 /* Badge Grid Styles */
 .badges {
@@ -59,6 +59,22 @@
   line-height: 1.2;
   word-wrap: break-word;
   max-width: 100%;
+}
+
+/* Shimmer loading effect */
+.badge-item.shimmer {
+  background: linear-gradient(90deg, #1f1b2b 25%, #2a2535 50%, #1f1b2b 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
 }
 
 /* Badge Dialog Styles */

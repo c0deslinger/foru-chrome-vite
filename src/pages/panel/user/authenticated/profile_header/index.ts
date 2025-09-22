@@ -8,9 +8,9 @@ import {
 } from "../../../../../lib/crypto-utils.js";
 
 import { showCustomNotification } from "../../user_tab/index.js";
-import { renderIdentifiScoreBreakdown } from "../identifi_score_breakdown/index";
-import { renderUserDigitalDna } from "../user_digital_dna/index";
-import { renderUserBadgesSection } from "../collected_badges/index.js";
+import { renderIdentifiScoreBreakdownForUserTab } from "../../../global/identifi_score_breakdown/index.js";
+import { renderUserDigitalDnaForUserTab } from "../../../global/user_digital_dna/index.js";
+import { renderUserBadgesSection } from "../../../global/collected_badges/index.js";
 
 interface UserProfileData {
   name?: string;
@@ -257,13 +257,13 @@ async function renderUserProfileCard(
       metricsContainer.appendChild(dnaContainer);
       
       // Render both sections
-      await renderIdentifiScoreBreakdown(
+      await renderIdentifiScoreBreakdownForUserTab(
         scoreContainer,
         storedData.accessToken,
         forceRefresh
       );
       
-      await renderUserDigitalDna(
+      await renderUserDigitalDnaForUserTab(
         dnaContainer,
         storedData.accessToken,
         forceRefresh,

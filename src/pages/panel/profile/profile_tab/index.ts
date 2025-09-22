@@ -2,10 +2,10 @@
 
 import { generateForuSignature, buildForuHeaders, API_BASE_URL } from '../../../../lib/crypto-utils.js';
 import { renderProfileHeader } from '../profile_header/index.js';
-import { renderCurrentLevel } from '../current_level/index.js';
-import { renderIdentifiScoreBreakdown } from '../identifi_score_breakdown/index.js';
-import { renderUserDigitalDna } from '../user_digital_dna/index.js';
-import { renderCollectedBadges, addBadgeEventListeners } from '../collected_badges/index.js';
+import { renderCurrentLevel, CurrentLevelApiConfig } from '../../global/current_level/index.js';
+import { renderIdentifiScoreBreakdown, IdentifiScoreBreakdownApiConfig } from '../../global/identifi_score_breakdown/index.js';
+import { renderUserDigitalDna, UserDigitalDnaApiConfig } from '../../global/user_digital_dna/index.js';
+import { renderCollectedBadges, addBadgeEventListeners, BadgeApiConfig } from '../../global/collected_badges/index.js';
 
 /**
  * This function runs in the page context.
@@ -46,10 +46,35 @@ export async function renderProfileSectionOnPage(): Promise<string> {
 
   // --- Render all components ---
   const profileHeaderHtml = await renderProfileHeader();
-  const currentLevelHtml = await renderCurrentLevel(username);
-  const scoreBreakdownHtml = await renderIdentifiScoreBreakdown(username, followersCount, impressionScore);
-  const digitalDnaHtml = await renderUserDigitalDna(username);
-  const badgesHtml = await renderCollectedBadges(username);
+  // Render current level using global component with profile configuration
+  const currentLevelConfig: CurrentLevelApiConfig = {
+    type: 'public',
+    username: username,
+    style: 'profile'
+  };
+  const currentLevelHtml = await renderCurrentLevel(currentLevelConfig);
+  // Render score breakdown using global component with public configuration
+  const scoreBreakdownConfig: IdentifiScoreBreakdownApiConfig = {
+    type: 'public',
+    username: username,
+    followersCount: followersCount,
+    impressionScore: impressionScore
+  };
+  const scoreBreakdownHtml = await renderIdentifiScoreBreakdown(scoreBreakdownConfig);
+  // Render digital DNA using global component with public configuration
+  const digitalDnaConfig: UserDigitalDnaApiConfig = {
+    type: 'public',
+    username: username,
+    title: 'Digital DNA'
+  };
+  const digitalDnaHtml = await renderUserDigitalDna(digitalDnaConfig);
+  // Render collected badges using global component with public configuration
+  const badgesConfig: BadgeApiConfig = {
+    type: 'public',
+    username: username,
+    title: 'Collected Badges'
+  };
+  const badgesHtml = await renderCollectedBadges(badgesConfig);
 
   // --- Assemble final HTML from components ---
   const html = `

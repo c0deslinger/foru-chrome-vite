@@ -1,0 +1,164 @@
+/* src/pages/panel/global/current_level/index.css */
+/* Global Current Level Styles */
+
+/* Profile Style - Current Level Section */
+.profile-current-level-section {
+  margin-top: 12px;
+  background-color: #1f1b2b;
+  border-radius: 12px;
+  padding: 12px;
+}
+
+.level-progress {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.level-progress-ring {
+  flex-shrink: 0;
+}
+
+.level-info {
+  flex: 1;
+}
+
+.level-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.current-level-text {
+  font-size: 12px;
+  color: #aeb0b6;
+  font-weight: 400;
+}
+
+.level-number {
+  font-size: 18px;
+  color: #ececf1;
+  font-weight: 700;
+}
+
+.xp-info {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.xp-coin-img {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+}
+
+.xp-current {
+  font-size: 14px;
+  color: #ececf1;
+  font-weight: 600;
+}
+
+.xp-total {
+  font-size: 12px;
+  color: #aeb0b6;
+}
+
+/* User Tab Style - Current Level Container */
+.current-level-container {
+  margin: 16px 0;
+}
+
+.current-level-container h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #ececf1;
+  margin-bottom: 12px;
+}
+
+.level-card {
+  background: #1f1b2b;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 12px;
+}
+
+.level-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.level-number {
+  font-size: 20px;
+  font-weight: 700;
+  color: #ececf1;
+}
+
+.level-name {
+  font-size: 12px;
+  color: #aeb0b6;
+  font-weight: 500;
+}
+
+.level-progress {
+  margin-top: 8px;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  background: #2a2535;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #FFB005 0%, #FF8800 100%);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.progress-text {
+  font-size: 12px;
+  color: #aeb0b6;
+  text-align: center;
+}
+
+.level-description {
+  text-align: center;
+}
+
+.level-description p {
+  font-size: 12px;
+  color: #aeb0b6;
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .level-progress {
+    flex-direction: column;
+    gap: 8px;
+    text-align: center;
+  }
+  
+  .level-info {
+    flex-direction: column;
+    gap: 8px;
+    text-align: center;
+  }
+  
+  .level-card {
+    padding: 12px;
+  }
+  
+  .level-number {
+    font-size: 18px;
+  }
+}

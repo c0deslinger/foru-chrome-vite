@@ -3,10 +3,10 @@
 
 /* Import component styles */
 @import url('../profile_header/index.css');
-@import url('../current_level/index.css');
-@import url('../identifi_score_breakdown/index.css');
-@import url('../user_digital_dna/index.css');
-@import url('../collected_badges/index.css');
+@import url('../../global/current_level/index.css');
+@import url('../../global/identifi_score_breakdown/index.css');
+@import url('../../global/user_digital_dna/index.css');
+@import url('../../global/collected_badges/index.css');
 
 /* Tooltip Styles */
 .foru-tooltip {
