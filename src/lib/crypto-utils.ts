@@ -12,7 +12,26 @@ const getManifest = () => {
 };
 
 const manifest = getManifest();
-const foruConfig = manifest && (manifest as any).foruConfig;
+const manifestAny = manifest as any;
+
+// Get environment and select appropriate config
+const environment = manifestAny?.environment || "prod";
+let foruConfig: any = null;
+
+switch (environment) {
+  case "prod":
+    foruConfig = manifestAny?.foruConfigProd;
+    break;
+  case "staging":
+    foruConfig = manifestAny?.foruConfigStaging;
+    break;
+  case "dev":
+    foruConfig = manifestAny?.foruConfigDev;
+    break;
+  default:
+    foruConfig = manifestAny?.foruConfigProd; // fallback to prod
+}
+
 const NEXT_PUBLIC_API_SECRET_KEY = foruConfig?.secretKey || "";
 const NEXT_PUBLIC_API_PRIVATE_KEY = foruConfig?.privateKey || "";
 const API_BASE_URL = foruConfig?.apiBaseUrl || "";

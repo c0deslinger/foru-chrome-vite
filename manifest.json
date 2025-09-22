@@ -2,11 +2,22 @@
   "manifest_version": 3,
   "name": "ForU AI",
   "description": "A new way to exist on-chain.",
-  "foruConfig": {
+  "foruConfigProd": {
     "secretKey": "5452ea6c10f23d4e5b83d1eb393f99d53705951d7b43acc90eadf17ecc839623",
     "privateKey": "7886064592c4c35255318389dbe15226de78f16a46f809a29218bc43ea0f8684",
     "apiBaseUrl": "https://api-social.foruai.io"
   },
+  "foruConfigStaging": {
+    "secretKey": "9f1c8792622196d8d607acba3c7a117ab30ad381b88424f6ed5ca7c72b048364",
+    "privateKey": "6587e29c8bf629eab6d29eaf1009450d10f05dd35b2ed9d9eb2b60c65b78638b",
+    "apiBaseUrl": "https://api-social-demo.foruai.io"
+  },
+  "foruConfigDev": {
+    "secretKey": "9f1c8792622196d8d607acba3c7a117ab30ad381b88424f6ed5ca7c72b048364",
+    "privateKey": "6587e29c8bf629eab6d29eaf1009450d10f05dd35b2ed9d9eb2b60c65b78638b",
+    "apiBaseUrl": "https://api-social-dev.foruai.io"
+  },
+  "environment": "dev",
   "action": {
     "default_icon": {
       "16": "icon-16.png",
