@@ -1,6 +1,7 @@
 // src/inject/score_profile_picture.ts
 
-import { generateForuSignature, API_BASE_URL, NEXT_PUBLIC_API_PRIVATE_KEY } from '../../../lib/crypto-utils.js';
+import { API_BASE_URL } from '../../../lib/crypto-utils.js';
+import { httpClient } from '../../../lib/http-client.js';
 
 console.log("[ForU Score Profile Picture] Script loading...");
 
@@ -45,36 +46,26 @@ console.log("[ForU Score Profile Picture] Script loading...");
    * Local fallback function to get identifi_score
    */
   async function getIdentifiScoreLocal(username: string): Promise<number> {
-    const ts = Date.now().toString();
-    const sig = generateForuSignature("GET", "", ts);
     const url = `${API_BASE_URL}/v1/public/user/metrics/${username}`;
 
     try {
-      const res = await fetch(url, {
-        method: "GET",
-        headers: {
-          accept: "application/json",
-          "x-foru-apikey": NEXT_PUBLIC_API_PRIVATE_KEY,
-          "x-foru-timestamp": ts,
-          "x-foru-signature": sig,
-        },
+      const json = await httpClient.get(url, {
+        requireAuth: true,
+        cache: true,
+        cacheTTL: 600000 // 10 minutes cache for user metrics
       });
 
-      const json = await res.json();
-
-      if (res.ok && json.data) {
+      if (json.data) {
         return json.data.identifi_score || 0;
-      } else {
-        // Ignore 404 errors silently
-        if (res.status !== 404) {
-          console.error(
-            `[ForU Profile Picture Local] API error for ${username}:`,
-            json
-          );
-        }
       }
     } catch (error) {
       // Ignore network errors silently for cleaner console
+      if (error instanceof Error && !error.message.includes('404')) {
+        console.error(
+          `[ForU Profile Picture Local] API error for ${username}:`,
+          error.message
+        );
+      }
     }
 
     return 0;

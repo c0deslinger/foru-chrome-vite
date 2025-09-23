@@ -21,35 +21,24 @@ declare global {
   }
 }
 
-import { generateForuSignature, API_BASE_URL, NEXT_PUBLIC_API_PRIVATE_KEY } from '../../../lib/crypto-utils.js';
+import { API_BASE_URL } from '../../../lib/crypto-utils.js';
+import { httpClient } from '../../../lib/http-client.js';
 import { renderBadges, createBadgeDialog } from '../collected_badges/index.js';
-
-// Use different variable names to avoid conflict
-const API_BASE_URL_CRED = API_BASE_URL;
-const NEXT_PUBLIC_API_PRIVATE_KEY_CRED = NEXT_PUBLIC_API_PRIVATE_KEY;
 
 /**
  * Local fallback function to fetch metrics
  */
 async function fetchUserMetricsLocal(username: string): Promise<any> {
-  const ts = Date.now().toString();
-  const sig = generateForuSignature("GET", "", ts);
-  const url = `${API_BASE_URL_CRED}/v1/public/user/metrics/${username}`;
+  const url = `${API_BASE_URL}/v1/public/user/metrics/${username}`;
 
   try {
-    const res = await fetch(url, {
-      method: "GET",
-      headers: {
-        accept: "application/json",
-        "x-foru-apikey": NEXT_PUBLIC_API_PRIVATE_KEY_CRED,
-        "x-foru-timestamp": ts,
-        "x-foru-signature": sig,
-      },
+    const json = await httpClient.get(url, {
+      requireAuth: true,
+      cache: true,
+      cacheTTL: 600000 // 10 minutes cache for user metrics
     });
 
-    const json = await res.json();
-
-    if (res.ok && json.data) {
+    if (json.data) {
       return {
         identifi_score: json.data.identifi_score || 0,
         reach_score: json.data.reach_score || 0,
@@ -57,16 +46,15 @@ async function fetchUserMetricsLocal(username: string): Promise<any> {
         engagement_score: json.data.engagement_score || 0,
         on_chain_score: json.data.on_chain_score || 0,
       };
-    } else {
-      if (res.status !== 404) {
-        console.error(
-          `[ForU Score Credibility Local] API error for ${username}:`,
-          json
-        );
-      }
     }
   } catch (error) {
     // Ignore network errors silently for cleaner console
+    if (error instanceof Error && !error.message.includes('404')) {
+      console.error(
+        `[ForU Score Credibility Local] API error for ${username}:`,
+        error.message
+      );
+    }
   }
 
   return {

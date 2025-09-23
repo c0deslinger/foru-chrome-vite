@@ -1,5 +1,7 @@
 // src/pages/content/button_view_profile/index.ts
 
+import { httpClient } from '../../../lib/http-client.js';
+
 /**
  * Inserts the "View Profile" icon button next to the Follow/Following button.
  * Updates on every navigation.
@@ -19,9 +21,12 @@ async function injectStyles() {
     return;
   }
 
-  // Load CSS content
-  const cssResponse = await fetch(chrome.runtime.getURL('src/pages/content/button_view_profile/index.css'));
-  const cssContent = await cssResponse.text();
+  // Load CSS content using httpClient
+  const cssUrl = chrome.runtime.getURL('src/pages/content/button_view_profile/index.css');
+  const cssContent = await httpClient.get(cssUrl, {
+    cache: true,
+    cacheTTL: 3600000 // 1 hour cache for CSS files
+  });
 
   const styleElement = document.createElement('style');
   styleElement.id = 'foru-view-profile-styles';

@@ -2,38 +2,22 @@
 
 console.log("[ForU Collected Badges] Script loading...");
 
-import { generateForuSignature, API_BASE_URL, NEXT_PUBLIC_API_PRIVATE_KEY } from '../../../lib/crypto-utils.js';
-
-// Use different variable names to avoid conflict
-const API_BASE_URL_BADGES = API_BASE_URL;
-const NEXT_PUBLIC_API_PRIVATE_KEY_BADGES = NEXT_PUBLIC_API_PRIVATE_KEY;
+import { API_BASE_URL } from '../../../lib/crypto-utils.js';
+import { httpClient } from '../../../lib/http-client.js';
 
 /**
  * Fetch badges from API for a given username
  */
 export async function fetchPublicBadges(username: string): Promise<any[]> {
   try {
-    const currentTimestamp = Date.now().toString();
-    const signature = generateForuSignature("GET", "status=unlocked", currentTimestamp);
+    const url = `${API_BASE_URL}/v1/badge-public/twitter/${username}?status=unlocked`;
+    
+    const data = await httpClient.get(url, {
+      requireAuth: true,
+      cache: true,
+      cacheTTL: 300000 // 5 minutes cache for badges
+    });
 
-    const response = await fetch(
-      `${API_BASE_URL_BADGES}/v1/badge-public/twitter/${username}?status=unlocked`,
-      {
-        method: "GET",
-        headers: {
-          accept: "application/json",
-          "x-foru-apikey": NEXT_PUBLIC_API_PRIVATE_KEY_BADGES,
-          "x-foru-timestamp": currentTimestamp,
-          "x-foru-signature": signature,
-        },
-      }
-    );
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    const data = await response.json();
     if (data?.code === 200 && data.data) {
       const unlockedBadges: any[] = [];
       data.data.forEach((partner: any) => {
