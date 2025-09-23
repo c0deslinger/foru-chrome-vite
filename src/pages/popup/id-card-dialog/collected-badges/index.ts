@@ -141,12 +141,12 @@ export async function drawCollectedBadgesCard(
         await drawRealBadgeWithTitle(ctx, badgeX, badgeY, badgeSize, badge);
       } else {
         console.warn(`⚠️ Badge "${badge.name}" has invalid image URL: "${badge.image}", using fallback`);
-        drawBadgeFallbackWithTitle(ctx, badgeX, badgeY, badgeSize, badge.name);
+        await drawBadgeFallbackWithTitle(ctx, badgeX, badgeY, badgeSize, badge.name);
       }
     } else {
       // Draw empty badge placeholder with title
       console.log(`🎨 Drawing empty badge placeholder ${i + 1} at position (${badgeX}, ${badgeY})`);
-      drawEmptyBadgeWithTitle(ctx, badgeX, badgeY, badgeSize);
+      await drawEmptyBadgeWithTitle(ctx, badgeX, badgeY, badgeSize);
     }
   }
 }
@@ -157,14 +157,7 @@ export async function drawCollectedBadgesCard(
 async function drawRealBadgeWithTitle(ctx: CanvasRenderingContext2D, x: number, y: number, size: number, badge: BadgeData): Promise<void> {
   console.log(`🎨 Drawing badge with title: ${badge.name} with image: ${badge.image}`);
   
-  // Draw badge background first
-  ctx.fillStyle = '#2a2535';
-  ctx.fillRect(x, y, size, size);
-
-  // Draw badge border
-  ctx.strokeStyle = '#3a3545';
-  ctx.lineWidth = 1;
-  ctx.strokeRect(x, y, size, size);
+  // No background or border - just draw the image directly
 
   try {
     // Try to load and draw the badge image
@@ -197,10 +190,7 @@ async function drawRealBadgeWithTitle(ctx: CanvasRenderingContext2D, x: number, 
     drawBadgeFallbackContent(ctx, x, y, size, badge.name);
   }
 
-  // Add subtle glow effect
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
-  ctx.lineWidth = 1;
-  ctx.strokeRect(x + 1, y + 1, size - 2, size - 2);
+  // No glow effect - clean image only
 
   // Draw badge title below
   drawBadgeTitle(ctx, x, y + size + 2, size, badge.name);
@@ -209,20 +199,13 @@ async function drawRealBadgeWithTitle(ctx: CanvasRenderingContext2D, x: number, 
 /**
  * Draw badge fallback with title
  */
-function drawBadgeFallbackWithTitle(ctx: CanvasRenderingContext2D, x: number, y: number, size: number, badgeName: string): void {
+async function drawBadgeFallbackWithTitle(ctx: CanvasRenderingContext2D, x: number, y: number, size: number, badgeName: string): Promise<void> {
   console.log(`🔄 Drawing fallback badge with title: ${badgeName}`);
   
-  // Badge background
-  ctx.fillStyle = '#2a2535';
-  ctx.fillRect(x, y, size, size);
-
-  // Badge border
-  ctx.strokeStyle = '#3a3545';
-  ctx.lineWidth = 1;
-  ctx.strokeRect(x, y, size, size);
+  // No background or border - just draw the fallback content
 
   // Draw fallback content
-  drawBadgeFallbackContent(ctx, x, y, size, badgeName);
+  await drawBadgeFallbackContent(ctx, x, y, size, badgeName);
 
   // Draw badge title below
   drawBadgeTitle(ctx, x, y + size + 2, size, badgeName);
@@ -231,25 +214,36 @@ function drawBadgeFallbackWithTitle(ctx: CanvasRenderingContext2D, x: number, y:
 /**
  * Draw empty badge placeholder with title
  */
-function drawEmptyBadgeWithTitle(ctx: CanvasRenderingContext2D, x: number, y: number, size: number): void {
-  // Empty badge background
-  ctx.fillStyle = '#2a2535';
-  ctx.fillRect(x, y, size, size);
-
-  // Empty badge border
-  ctx.strokeStyle = '#5D5D5DFF';
-  ctx.lineWidth = 1;
-  ctx.strokeRect(x, y, size, size);
-
-  // Plus icon
-  ctx.strokeStyle = '#5D5D5DFF';
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.moveTo(x + size/2, y + 8);
-  ctx.lineTo(x + size/2, y + size - 8);
-  ctx.moveTo(x + 8, y + size/2);
-  ctx.lineTo(x + size - 8, y + size/2);
-  ctx.stroke();
+async function drawEmptyBadgeWithTitle(ctx: CanvasRenderingContext2D, x: number, y: number, size: number): Promise<void> {
+  // Load and draw badge_empty.png image
+  try {
+    const emptyBadgeImage = await loadEmptyBadgeImage();
+    if (emptyBadgeImage) {
+      // Draw the empty badge image
+      const padding = 2;
+      const imageSize = size - (padding * 2);
+      
+      // Create a temporary canvas to handle the image
+      const tempCanvas = document.createElement('canvas');
+      const tempCtx = tempCanvas.getContext('2d')!;
+      tempCanvas.width = imageSize;
+      tempCanvas.height = imageSize;
+      
+      // Draw image to temp canvas first
+      tempCtx.drawImage(emptyBadgeImage, 0, 0, imageSize, imageSize);
+      
+      // Draw temp canvas to main canvas
+      ctx.drawImage(tempCanvas, x + padding, y + padding);
+      
+      console.log(`✅ Successfully drew empty badge image`);
+    } else {
+      console.warn(`⚠️ Failed to load empty badge image, using fallback`);
+      drawEmptyBadgeFallback(ctx, x, y, size);
+    }
+  } catch (error) {
+    console.error(`❌ Error drawing empty badge:`, error);
+    drawEmptyBadgeFallback(ctx, x, y, size);
+  }
 
   // Draw "No badges" title below
   drawBadgeTitle(ctx, x, y + size + 2, size, "No badges");
@@ -282,9 +276,44 @@ function drawBadgeTitle(ctx: CanvasRenderingContext2D, x: number, y: number, bad
 }
 
 /**
- * Draw badge fallback content (icon/emoji)
+ * Draw badge fallback content using badge_empty.png
  */
-function drawBadgeFallbackContent(ctx: CanvasRenderingContext2D, x: number, y: number, size: number, badgeName: string): void {
+async function drawBadgeFallbackContent(ctx: CanvasRenderingContext2D, x: number, y: number, size: number, badgeName: string): Promise<void> {
+  // Try to load and draw badge_empty.png image
+  try {
+    const emptyBadgeImage = await loadEmptyBadgeImage();
+    if (emptyBadgeImage) {
+      // Draw the empty badge image
+      const padding = 2;
+      const imageSize = size - (padding * 2);
+      
+      // Create a temporary canvas to handle the image
+      const tempCanvas = document.createElement('canvas');
+      const tempCtx = tempCanvas.getContext('2d')!;
+      tempCanvas.width = imageSize;
+      tempCanvas.height = imageSize;
+      
+      // Draw image to temp canvas first
+      tempCtx.drawImage(emptyBadgeImage, 0, 0, imageSize, imageSize);
+      
+      // Draw temp canvas to main canvas
+      ctx.drawImage(tempCanvas, x + padding, y + padding);
+      
+      console.log(`✅ Successfully drew fallback badge image for: ${badgeName}`);
+    } else {
+      console.warn(`⚠️ Failed to load empty badge image for fallback: ${badgeName}, using emoji`);
+      drawBadgeFallbackEmoji(ctx, x, y, size, badgeName);
+    }
+  } catch (error) {
+    console.error(`❌ Error drawing fallback badge for ${badgeName}:`, error);
+    drawBadgeFallbackEmoji(ctx, x, y, size, badgeName);
+  }
+}
+
+/**
+ * Draw badge fallback emoji (legacy fallback)
+ */
+function drawBadgeFallbackEmoji(ctx: CanvasRenderingContext2D, x: number, y: number, size: number, badgeName: string): void {
   // Badge icon (first letter of badge name or emoji)
   const icon = badgeName.charAt(0).toUpperCase() || '🏆';
   
@@ -319,14 +348,7 @@ function drawBadgeFallbackContent(ctx: CanvasRenderingContext2D, x: number, y: n
 async function drawRealBadge(ctx: CanvasRenderingContext2D, x: number, y: number, size: number, badge: BadgeData): Promise<void> {
   console.log(`🎨 Drawing badge: ${badge.name} with image: ${badge.image}`);
   
-  // Draw badge background first
-  ctx.fillStyle = '#2a2535';
-  ctx.fillRect(x, y, size, size);
-
-  // Draw badge border
-  ctx.strokeStyle = '#3a3545';
-  ctx.lineWidth = 1;
-  ctx.strokeRect(x, y, size, size);
+  // No background or border - just draw the image directly
 
   try {
     // Try to load and draw the badge image
@@ -352,17 +374,65 @@ async function drawRealBadge(ctx: CanvasRenderingContext2D, x: number, y: number
       console.log(`✅ Successfully drew badge image: ${badge.name}`);
     } else {
       console.warn(`⚠️ Failed to load badge image, using fallback: ${badge.name}`);
-      drawBadgeFallback(ctx, x, y, size, badge.name);
+      await drawBadgeFallbackContent(ctx, x, y, size, badge.name);
     }
   } catch (error) {
     console.error(`❌ Error drawing badge ${badge.name}:`, error);
-    drawBadgeFallback(ctx, x, y, size, badge.name);
+    await drawBadgeFallbackContent(ctx, x, y, size, badge.name);
   }
 
-  // Add subtle glow effect
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
-  ctx.lineWidth = 1;
-  ctx.strokeRect(x + 1, y + 1, size - 2, size - 2);
+  // No glow effect - clean image only
+}
+
+/**
+ * Load empty badge image from extension assets
+ */
+async function loadEmptyBadgeImage(): Promise<HTMLImageElement | null> {
+  try {
+    const emptyBadgeUrl = chrome.runtime.getURL('images/badge_empty.png');
+    console.log(`🔄 Loading empty badge image: ${emptyBadgeUrl}`);
+    
+    return new Promise((resolve) => {
+      const img = new Image();
+      
+      const timeout = setTimeout(() => {
+        console.warn(`⏰ Timeout loading empty badge image: ${emptyBadgeUrl}`);
+        resolve(null);
+      }, 3000);
+      
+      img.onload = () => {
+        clearTimeout(timeout);
+        console.log(`✅ Empty badge image loaded successfully: ${emptyBadgeUrl}`);
+        resolve(img);
+      };
+      
+      img.onerror = () => {
+        clearTimeout(timeout);
+        console.warn(`❌ Failed to load empty badge image: ${emptyBadgeUrl}`);
+        resolve(null);
+      };
+      
+      img.src = emptyBadgeUrl;
+    });
+  } catch (error) {
+    console.warn(`❌ Error loading empty badge image:`, error);
+    return null;
+  }
+}
+
+/**
+ * Draw empty badge fallback (legacy fallback)
+ */
+function drawEmptyBadgeFallback(ctx: CanvasRenderingContext2D, x: number, y: number, size: number): void {
+  // Plus icon
+  ctx.strokeStyle = '#5D5D5DFF';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(x + size/2, y + 8);
+  ctx.lineTo(x + size/2, y + size - 8);
+  ctx.moveTo(x + 8, y + size/2);
+  ctx.lineTo(x + size - 8, y + size/2);
+  ctx.stroke();
 }
 
 /**
@@ -616,25 +686,36 @@ function drawBadgeFallback(ctx: CanvasRenderingContext2D, x: number, y: number, 
 }
 
 /**
- * Draw empty badge placeholder
+ * Draw empty badge placeholder (legacy function)
  */
-function drawEmptyBadge(ctx: CanvasRenderingContext2D, x: number, y: number, size: number): void {
-  // Empty badge background
-  ctx.fillStyle = '#2a2535';
-  ctx.fillRect(x, y, size, size);
-
-  // Empty badge border
-  ctx.strokeStyle = '#5D5D5DFF';
-  ctx.lineWidth = 1;
-  ctx.strokeRect(x, y, size, size);
-
-  // Plus icon
-  ctx.strokeStyle = '#5D5D5DFF';
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.moveTo(x + size/2, y + 8);
-  ctx.lineTo(x + size/2, y + size - 8);
-  ctx.moveTo(x + 8, y + size/2);
-  ctx.lineTo(x + size - 8, y + size/2);
-  ctx.stroke();
+async function drawEmptyBadge(ctx: CanvasRenderingContext2D, x: number, y: number, size: number): Promise<void> {
+  // Try to load and draw badge_empty.png image
+  try {
+    const emptyBadgeImage = await loadEmptyBadgeImage();
+    if (emptyBadgeImage) {
+      // Draw the empty badge image
+      const padding = 2;
+      const imageSize = size - (padding * 2);
+      
+      // Create a temporary canvas to handle the image
+      const tempCanvas = document.createElement('canvas');
+      const tempCtx = tempCanvas.getContext('2d')!;
+      tempCanvas.width = imageSize;
+      tempCanvas.height = imageSize;
+      
+      // Draw image to temp canvas first
+      tempCtx.drawImage(emptyBadgeImage, 0, 0, imageSize, imageSize);
+      
+      // Draw temp canvas to main canvas
+      ctx.drawImage(tempCanvas, x + padding, y + padding);
+      
+      console.log(`✅ Successfully drew empty badge image (legacy)`);
+    } else {
+      console.warn(`⚠️ Failed to load empty badge image (legacy), using fallback`);
+      drawEmptyBadgeFallback(ctx, x, y, size);
+    }
+  } catch (error) {
+    console.error(`❌ Error drawing empty badge (legacy):`, error);
+    drawEmptyBadgeFallback(ctx, x, y, size);
+  }
 }

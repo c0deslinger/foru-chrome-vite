@@ -489,7 +489,7 @@ class IdCardDialog {
       const badgesHeight = (columnHeight - 20) / 2;
 
       // 3. Your Digital DNA (Top Right)
-      drawDigitalDnaCard(ctx, startX + columnWidth + 20, startY, columnWidth, dnaHeight);
+      await drawDigitalDnaCard(ctx, startX + columnWidth + 20, startY, columnWidth, dnaHeight, data.accessToken);
 
       // 4. Your Collected Badges (Bottom Right)
       await drawCollectedBadgesCard(ctx, startX + columnWidth + 20, startY + dnaHeight + 20, columnWidth, badgesHeight, data.accessToken);
