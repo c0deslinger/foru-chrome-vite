@@ -29,6 +29,13 @@ async function initializeInjectScripts() {
     }
     
     try {
+      await import('../popup/id-card-dialog/index');
+      console.log('[Inject Scripts] Loaded id-card-dialog');
+    } catch (error) {
+      console.warn('[Inject Scripts] Failed to load id-card-dialog:', error);
+    }
+    
+    try {
       await import('./tweet-analyze-buttons/index');
       console.log('[Inject Scripts] Loaded tweet-analyze-buttons');
     } catch (error) {

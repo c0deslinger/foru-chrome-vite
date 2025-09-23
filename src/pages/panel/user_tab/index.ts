@@ -269,6 +269,10 @@ async function renderReferralSection(forceRefresh = false): Promise<void> {
         <div class="version-container">
           <p class="version-text">v.1.2.0</p>
         </div>
+        <button id="generate-id-card-btn" class="logout-button">
+          Generate ID Card
+        </button>
+        <br>
         <button id="logout-btn" class="logout-button">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
@@ -379,6 +383,34 @@ async function renderReferralSection(forceRefresh = false): Promise<void> {
         }
       });
       popupOverlay.setAttribute("data-listener-added", "true");
+    }
+
+    // Event listener for generate ID card button
+    const generateIdCardBtn = document.getElementById("generate-id-card-btn");
+    if (generateIdCardBtn && !generateIdCardBtn.hasAttribute("data-listener-added")) {
+      generateIdCardBtn.addEventListener("click", () => {
+        console.log("Generate ID Card button clicked");
+        
+        // Send message to content script to show ID card dialog on web page
+        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+          if (tabs && tabs[0] && tabs[0].id) {
+            chrome.tabs.sendMessage(tabs[0].id, {
+              action: 'showIdCardDialog',
+              idCardData: {
+                title: "Your ForU ID Card",
+                subtitle: "Image Generated"
+              }
+            }, (response) => {
+              if (chrome.runtime.lastError) {
+                console.error('Error sending message to content script:', chrome.runtime.lastError);
+              } else {
+                console.log('Message sent to content script, response:', response);
+              }
+            });
+          }
+        });
+      });
+      generateIdCardBtn.setAttribute("data-listener-added", "true");
     }
   } else {
     // User belum login: tampilkan tombol login
