@@ -17,7 +17,7 @@
     "privateKey": "6587e29c8bf629eab6d29eaf1009450d10f05dd35b2ed9d9eb2b60c65b78638b",
     "apiBaseUrl": "https://api-social-dev.foruai.io"
   },
-  "environment": "dev",
+  "environment": "prod",
   "action": {
     "default_icon": {
       "16": "icon-16.png",

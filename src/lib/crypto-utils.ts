@@ -93,6 +93,27 @@ export async function buildForuHeaders(method: string, payload: any = "", access
 }
 
 /**
+ * Check if current environment is staging or dev (for showing debug features)
+ * @returns boolean indicating if environment is staging or dev
+ */
+export function isDebugEnvironment(): boolean {
+  const manifest = getManifest();
+  const manifestAny = manifest as any;
+  const environment = manifestAny?.environment || "prod";
+  return environment === "staging" || environment === "dev";
+}
+
+/**
+ * Get current environment
+ * @returns string indicating current environment
+ */
+export function getCurrentEnvironment(): string {
+  const manifest = getManifest();
+  const manifestAny = manifest as any;
+  return manifestAny?.environment || "prod";
+}
+
+/**
  * Export configuration constants
  */
 export {
