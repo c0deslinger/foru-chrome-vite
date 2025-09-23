@@ -1,6 +1,7 @@
 // src/pages/popup/tweet-analysis-dialog/index.ts
 
 import { generateForuSignature, API_BASE_URL, NEXT_PUBLIC_API_PRIVATE_KEY } from '../../../lib/crypto-utils';
+import { dialogManager } from '../../../lib/dialog-manager';
 
 /**
  * TweetAnalysisDialog - Class for displaying tweet analysis popup dialogs
@@ -448,15 +449,12 @@ class TweetAnalysisDialog {
     // Ensure styles are injected
     this.injectStyles();
 
+    // Close all existing dialogs before opening new one
+    dialogManager.closeAllDialogs();
+
     // Prevent multiple dialogs
     if (this.isDialogOpen) {
       this.close();
-    }
-
-    // Remove existing dialog if any
-    const existingDialog = document.querySelector('.foru-tweet-analysis-overlay');
-    if (existingDialog) {
-      existingDialog.remove();
     }
 
     const overlay = document.createElement('div');

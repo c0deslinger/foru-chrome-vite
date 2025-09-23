@@ -1,5 +1,7 @@
 // src/pages/popup/dna-dialog/index.ts
 
+import { dialogManager } from '../../../lib/dialog-manager';
+
 /**
  * DnaDialog - Shared class for displaying DNA popup dialogs
  * Can be used by score_credibility.ts, profile.ts, and user_digital_dna.ts
@@ -59,6 +61,9 @@ class DnaDialog {
    */
   show(dna: DnaData, userProfileData: UserProfileData | null = null) {
     console.log('DnaDialog.show called with:', dna, 'userProfileData:', userProfileData);
+    
+    // Close all existing dialogs before opening new one
+    dialogManager.closeAllDialogs();
     
     // Remove existing dialog if any
     this.hide();

@@ -116,7 +116,7 @@ function insertCustomViewProfileButton() {
       icon.style.objectFit = "contain";
       viewBtn.append(icon);
 
-      followButtonPlacementDiv.insertAdjacentElement("afterend", viewBtn);
+      followButtonPlacementDiv?.insertAdjacentElement("afterend", viewBtn);
       console.log(
         "ForU: View Profile icon button inserted right after placementTracking div."
       );

@@ -174,7 +174,7 @@ console.log("[ForU Score Profile Picture] Script loading...");
 
       // always half avatar width
       const avatarWidth = container.getBoundingClientRect().width;
-      badge.style.setProperty("width", `${avatarWidth / 2}px`, "important");
+      badge.style.setProperty("width", `${avatarWidth * 0.75}px`, "important");
 
       // override if inline style height: 40px
       const inlineStyle = container.getAttribute("style") || "";

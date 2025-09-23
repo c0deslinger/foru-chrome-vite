@@ -1,5 +1,7 @@
 // src/pages/popup/badge-dialog/index.ts
 
+import { dialogManager } from '../../../lib/dialog-manager';
+
 /**
  * BadgeDialog - Shared class for displaying badge popup dialogs
  * Can be used by score_credibility.ts, profile.ts, and badges.ts
@@ -62,15 +64,12 @@ class BadgeDialog {
     // Ensure styles are injected
     this.injectStyles();
 
+    // Close all existing dialogs before opening new one
+    dialogManager.closeAllDialogs();
+
     // Prevent multiple dialogs
     if (this.isDialogOpen) {
       this.close();
-    }
-
-    // Remove existing dialog if any
-    const existingDialog = document.querySelector('.foru-badge-dialog-overlay');
-    if (existingDialog) {
-      existingDialog.remove();
     }
 
     const overlay = document.createElement('div');
