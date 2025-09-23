@@ -50,6 +50,13 @@ async function initializeInjectScripts() {
     }
     
     try {
+      await import('./collected_badges/index');
+      console.log('[Inject Scripts] Loaded collected_badges');
+    } catch (error) {
+      console.warn('[Inject Scripts] Failed to load collected_badges:', error);
+    }
+    
+    try {
       await import('./score_credibility/index');
       console.log('[Inject Scripts] Loaded score_credibility');
     } catch (error) {
