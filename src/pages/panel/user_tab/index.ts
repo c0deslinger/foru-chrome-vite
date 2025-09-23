@@ -159,9 +159,10 @@ async function renderReferralSection(forceRefresh = false): Promise<void> {
         container.innerHTML = "";
         clearTimeout(renderTimeout);
         (container as any).dataset.rendering = 'false';
-        // Prevent recursive call by using a small delay
+        isRenderingUserTab = false;
+        // Directly transition to login state instead of calling renderReferralSection
         setTimeout(() => {
-          renderReferralSection();
+          renderState(UserTabState.LOGIN);
         }, 100);
         return;
       }

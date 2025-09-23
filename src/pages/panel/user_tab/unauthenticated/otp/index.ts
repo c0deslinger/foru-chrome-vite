@@ -101,8 +101,8 @@ export function setupOtpHandlers(
   }
 
   setupOtpInputHandlers();
-  setupOtpVerifyHandler(onVerificationSuccess);
-  setupResendHandler();
+  setupOtpVerifyHandler(onVerificationSuccess, onBackToEmail);
+  setupResendHandler(onBackToEmail);
   setupBackToEmailHandler(onBackToEmail);
   
   // Start countdown
@@ -218,7 +218,7 @@ function setupOtpInputHandlers(): void {
 /**
  * Setup OTP verification handler
  */
-function setupOtpVerifyHandler(onSuccess: () => void): void {
+function setupOtpVerifyHandler(onSuccess: () => void, onBackToEmail: () => void): void {
   const otpVerifyBtn = document.getElementById("otp-verify-btn");
   if (otpVerifyBtn) {
     otpVerifyBtn.addEventListener("click", async () => {
@@ -238,6 +238,10 @@ function setupOtpVerifyHandler(onSuccess: () => void): void {
         } else {
           console.error('[ForU OTP] No email found in state or localStorage');
           showCustomNotification("Session expired, please start again", true);
+          // Call the back to email callback to return to login state
+          setTimeout(() => {
+            onBackToEmail();
+          }, 1000);
           return;
         }
       }
@@ -300,7 +304,7 @@ function setupOtpVerifyHandler(onSuccess: () => void): void {
 /**
  * Setup resend OTP handler
  */
-function setupResendHandler(): void {
+function setupResendHandler(onBackToEmail: () => void): void {
   const resendBtn = document.getElementById("resend-otp-btn");
   if (resendBtn) {
     resendBtn.addEventListener("click", async () => {
@@ -320,6 +324,10 @@ function setupResendHandler(): void {
         } else {
           console.error('[ForU OTP] No email found for resend');
           showCustomNotification("Session expired, please start again", true);
+          // Call the back to email callback to return to login state
+          setTimeout(() => {
+            onBackToEmail();
+          }, 1000);
           return;
         }
       }
