@@ -492,7 +492,7 @@ class IdCardDialog {
       drawDigitalDnaCard(ctx, startX + columnWidth + 20, startY, columnWidth, dnaHeight);
 
       // 4. Your Collected Badges (Bottom Right)
-      drawCollectedBadgesCard(ctx, startX + columnWidth + 20, startY + dnaHeight + 20, columnWidth, badgesHeight);
+      await drawCollectedBadgesCard(ctx, startX + columnWidth + 20, startY + dnaHeight + 20, columnWidth, badgesHeight, data.accessToken);
 
       // Convert to image
       const imageUrl = canvas.toDataURL('image/png');

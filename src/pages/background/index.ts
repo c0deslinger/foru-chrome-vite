@@ -50,12 +50,56 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     );
     sendResponse({ isVisible: isVisible });
     return true;
+  } else if (message?.action === "fetchImage") {
+    // Handle image fetching to bypass CORS
+    const imageUrl = message.url;
+    console.log(`[Background] Fetching image: ${imageUrl}`);
+    
+    fetch(imageUrl, {
+      method: 'GET',
+      headers: {
+        'Accept': 'image/*',
+        'Cache-Control': 'no-cache'
+      }
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      return response.blob();
+    })
+    .then(blob => {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
+    })
+    .then(dataUrl => {
+      console.log(`[Background] Successfully fetched image: ${imageUrl}`);
+      sendResponse({ 
+        success: true, 
+        dataUrl: dataUrl,
+        url: imageUrl
+      });
+    })
+    .catch(error => {
+      console.error(`[Background] Failed to fetch image: ${imageUrl}`, error);
+      sendResponse({ 
+        success: false, 
+        error: error.message,
+        url: imageUrl
+      });
+    });
+    
+    return true; // Keep message channel open for async response
   }
 });
 
 // Deteksi ketika Side Panel dibuka/ditutup
-if (chrome.sidePanel && chrome.sidePanel.onVisibilityChanged) {
-  chrome.sidePanel.onVisibilityChanged.addListener((changeInfo) => {
+if (chrome.sidePanel && (chrome.sidePanel as any).onVisibilityChanged) {
+  (chrome.sidePanel as any).onVisibilityChanged.addListener((changeInfo: any) => {
     const isVisible = changeInfo.isVisible;
     const windowId = changeInfo.windowId;
 

@@ -48,7 +48,9 @@
     "*://*.twitter.com/*",
     "*://twitter.com/*",
     "*://*.x.com/*",
-    "*://x.com/*"
+    "*://x.com/*",
+    "*://storage.googleapis.com/*",
+    "*://*.foruai.io/*"
   ],
   "side_panel": {
     "default_path": "src/pages/panel/index.html",
