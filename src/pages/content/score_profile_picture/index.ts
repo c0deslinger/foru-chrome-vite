@@ -13,7 +13,7 @@ console.log("[ForU Score Profile Picture] Script loading...");
   const POINT_CLASS = "credibility-badge-point";
   const ICON_CLASS = "credibility-badge-icon";
 
-  const ICON_URL = chrome.runtime.getURL("icon-128.png");
+  const ICON_URL = chrome.runtime.getURL("images/old_icon.png");
   let observer: MutationObserver;
 
   /**
