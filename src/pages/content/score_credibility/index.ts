@@ -18,7 +18,6 @@ declare global {
     };
     badgeDialog: any;
     dnaDialog: any;
-    idCardDialog: any;
   }
 }
 
@@ -236,6 +235,20 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
           } else {
             console.error('IdCardDialog not available in content script');
             sendResponse({ success: false, message: 'IdCardDialog not available' });
+          }
+          return true;
+        }
+
+        if (message.action === 'showIdCardPublicDialog') {
+          console.log('Showing ID card public dialog from sidepanel message');
+          const idCardData = message.idCardData || {};
+          
+          if (window.idCardPublicDialog) {
+            window.idCardPublicDialog.show(idCardData);
+            sendResponse({ success: true, message: 'ID card public dialog shown' });
+          } else {
+            console.error('IdCardPublicDialog not available in content script');
+            sendResponse({ success: false, message: 'IdCardPublicDialog not available' });
           }
           return true;
         }

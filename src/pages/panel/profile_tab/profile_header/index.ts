@@ -103,6 +103,23 @@ export async function renderProfileHeader(): Promise<string> {
       }</div>
       <div style="color:#aeb0b6;">👥 ${followersCount} Followers · ${followingCount} Following</div>
     </div>
+
+    <div style="margin-top: 16px; text-align: center;">
+      <button id="generate-id-card-public-btn" class="generate-id-card-btn" style="
+        background: linear-gradient(135deg, #FFB005, #FF8800);
+        border: none;
+        border-radius: 8px;
+        padding: 12px 24px;
+        color: white;
+        font-weight: 600;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        min-width: 160px;
+      ">
+        Generate ID Card
+      </button>
+    </div>
   `;
 
   return html;

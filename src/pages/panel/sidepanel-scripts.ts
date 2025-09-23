@@ -13,7 +13,7 @@ declare global {
 /**
  * Run a function in the context of the active Twitter/X tab
  */
-function runOnPage(pageFunction: Function, args: any[] = []): Promise<any> {
+function runOnPage(pageFunction: (...args: any[]) => any, args: any[] = []): Promise<any> {
   return new Promise((resolve, reject) => {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       if (!tabs || tabs.length === 0) {
@@ -184,6 +184,54 @@ function setupProfileEventListeners(container: HTMLElement) {
       }
     });
   });
+
+  // Setup generate ID card button listener
+  const generateIdCardBtn = container.querySelector('#generate-id-card-public-btn');
+  if (generateIdCardBtn && !generateIdCardBtn.hasAttribute("data-listener-added")) {
+    generateIdCardBtn.addEventListener('click', async () => {
+      console.log("Generate ID Card button clicked");
+      
+      // Get current tab URL to extract username
+      chrome.tabs.query({ active: true, currentWindow: true }, async (tabs) => {
+        if (tabs && tabs[0] && tabs[0].url) {
+          const url = tabs[0].url;
+          const urlParts = url.split('/');
+          const usernameIndex = urlParts.findIndex(part => part === 'twitter.com' || part === 'x.com');
+          let username = '';
+          
+          if (usernameIndex !== -1 && urlParts[usernameIndex + 1]) {
+            username = urlParts[usernameIndex + 1];
+          }
+          
+          if (username) {
+            // Send message to content script to show ID card public dialog
+            chrome.tabs.sendMessage(tabs[0].id!, {
+              action: 'showIdCardPublicDialog',
+              idCardData: {
+                title: "ForU ID Card",
+                subtitle: "Image Generated",
+                username: username
+              }
+            }, (response) => {
+              if (chrome.runtime.lastError) {
+                console.error('Error sending ID card public dialog message:', chrome.runtime.lastError);
+                alert('Please refresh the page and try again. The ID card dialog will appear on the web page.');
+              } else {
+                console.log('ID card public dialog message sent successfully, response:', response);
+              }
+            });
+          } else {
+            console.warn('Could not extract username from URL:', url);
+            alert('Please make sure you are on a Twitter/X profile page.');
+          }
+        } else {
+          console.warn('No active tab found');
+          alert('No active tab found. Please open a web page and try again.');
+        }
+      });
+    });
+    generateIdCardBtn.setAttribute("data-listener-added", "true");
+  }
 }
 
 // State for the User tab

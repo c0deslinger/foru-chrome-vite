@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ForU ID Card - Public</title>
+    <link rel="stylesheet" href="index.css">
+</head>
+<body>
+    <div class="foru-id-card-public-dialog-overlay" id="idCardPublicDialogOverlay">
+        <div class="foru-id-card-public-dialog">
+            <div class="foru-id-card-public-dialog-content-wrapper">
+                <div class="foru-id-card-public-dialog-header">
+                    <button class="foru-id-card-public-dialog-close" id="closeIdCardPublicDialog">
+                        <img src="../../../../public/images/badge-dialog/close-icon.svg" alt="Close">
+                    </button>
+                </div>
+                <div class="foru-id-card-public-dialog-content">
+                    <h1 class="foru-id-card-public-dialog-title">Your ForU ID Card</h1>
+                    <p class="foru-id-card-public-dialog-subtitle">Image Generated</p>
+                    
+                    <div class="foru-id-card-public-dialog-preview">
+                        <div class="foru-id-card-public-dialog-shimmer" id="idCardPublicShimmer">
+                            <div class="shimmer-box"></div>
+                        </div>
+                        <canvas id="idCardPublicCanvas" style="display: none;"></canvas>
+                    </div>
+                    
+                    <div class="foru-id-card-public-dialog-actions">
+                        <button class="foru-id-card-public-dialog-download" id="downloadIdCardPublicImage" disabled>
+                            <span>Download Image</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
