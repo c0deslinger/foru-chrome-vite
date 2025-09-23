@@ -12,6 +12,7 @@ interface IdCardData {
   generatedAt?: Date;
   userProfileData?: UserProfileData;
   identifiScore?: number;
+  accessToken?: string;
 }
 
 class IdCardDialog {
@@ -481,7 +482,7 @@ class IdCardDialog {
       drawProfileSection(ctx, startX, startY, columnWidth, profileHeight, data.userProfileData, data.identifiScore);
 
       // 2. IdentiFi Score Breakdown (Bottom Left)
-      drawScoreBreakdownCard(ctx, startX, startY + profileHeight + 20, columnWidth, scoreHeight);
+      await drawScoreBreakdownCard(ctx, startX, startY + profileHeight + 20, columnWidth, scoreHeight, data.accessToken);
 
       // Column 2: Digital DNA + Collected Badges
       const dnaHeight = (columnHeight - 20) / 2;

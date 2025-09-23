@@ -434,7 +434,8 @@ async function renderReferralSection(forceRefresh = false): Promise<void> {
                   title: "Your ForU ID Card",
                   subtitle: "Image Generated",
                   userProfileData: userProfileData,
-                  identifiScore: identifiScore
+                  identifiScore: identifiScore,
+                  accessToken: storedData.accessToken
                 }
               }, (response) => {
                 if (chrome.runtime.lastError) {
