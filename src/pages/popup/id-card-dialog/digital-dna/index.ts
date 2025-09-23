@@ -1,0 +1,60 @@
+// src/pages/popup/id-card-dialog/digital-dna/index.ts
+
+/**
+ * Draw Digital DNA card
+ */
+export function drawDigitalDnaCard(ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number): void {
+  // Card background
+  ctx.fillStyle = '#1f1b2b';
+  ctx.fillRect(x, y, width, height);
+  ctx.strokeStyle = '#2a2535';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(x, y, width, height);
+
+  // Title
+  ctx.fillStyle = '#ececf1';
+  ctx.font = 'bold 14px Arial';
+  ctx.textAlign = 'left';
+  ctx.fillText('Your Digital DNA', x + 15, y + 25);
+
+  // DNA items
+  const dnaItems = [
+    { label: 'Social Activity', value: '85%', color: '#ff6b6b' },
+    { label: 'Engagement Rate', value: '72%', color: '#4ecdc4' },
+    { label: 'Content Quality', value: '91%', color: '#45b7d1' },
+    { label: 'Network Strength', value: '68%', color: '#96ceb4' }
+  ];
+
+  const itemHeight = 25;
+  const startY = y + 40;
+
+  dnaItems.forEach((item, index) => {
+    drawDnaItem(ctx, x + 15, startY + (index * itemHeight), width - 30, itemHeight, item);
+  });
+}
+
+/**
+ * Draw individual DNA item
+ */
+function drawDnaItem(ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number, item: any): void {
+  // Label
+  ctx.fillStyle = '#aeb0b6';
+  ctx.font = '11px Arial';
+  ctx.textAlign = 'left';
+  ctx.fillText(item.label, x, y + 15);
+
+  // Value
+  ctx.fillStyle = item.color;
+  ctx.font = 'bold 11px Arial';
+  ctx.textAlign = 'right';
+  ctx.fillText(item.value, x + width, y + 15);
+
+  // Progress bar background
+  ctx.fillStyle = '#2a2535';
+  ctx.fillRect(x, y + 18, width, 4);
+
+  // Progress bar fill
+  const progress = parseInt(item.value) / 100;
+  ctx.fillStyle = item.color;
+  ctx.fillRect(x, y + 18, width * progress, 4);
+}

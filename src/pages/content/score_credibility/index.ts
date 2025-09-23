@@ -219,19 +219,26 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     return true;
   }
   
-  if (message.action === 'showIdCardDialog') {
-    console.log('Showing ID card dialog from sidepanel message');
-    const idCardData = message.idCardData || {};
-    
-    if (window.idCardDialog) {
-      window.idCardDialog.show(idCardData);
-      sendResponse({ success: true, message: 'ID card dialog shown' });
-    } else {
-      console.error('IdCardDialog not available in content script');
-      sendResponse({ success: false, message: 'IdCardDialog not available' });
-    }
-    return true;
-  }
+        if (message.action === 'ping') {
+          // Respond to ping to indicate content script is ready
+          console.log('Content script ping received');
+          sendResponse({ success: true, message: 'Content script ready' });
+          return true;
+        }
+
+        if (message.action === 'showIdCardDialog') {
+          console.log('Showing ID card dialog from sidepanel message');
+          const idCardData = message.idCardData || {};
+          
+          if (window.idCardDialog) {
+            window.idCardDialog.show(idCardData);
+            sendResponse({ success: true, message: 'ID card dialog shown' });
+          } else {
+            console.error('IdCardDialog not available in content script');
+            sendResponse({ success: false, message: 'IdCardDialog not available' });
+          }
+          return true;
+        }
 });
 
 export default insertCustomProfileScores;

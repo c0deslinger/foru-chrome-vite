@@ -388,25 +388,73 @@ async function renderReferralSection(forceRefresh = false): Promise<void> {
     // Event listener for generate ID card button
     const generateIdCardBtn = document.getElementById("generate-id-card-btn");
     if (generateIdCardBtn && !generateIdCardBtn.hasAttribute("data-listener-added")) {
-      generateIdCardBtn.addEventListener("click", () => {
+      generateIdCardBtn.addEventListener("click", async () => {
         console.log("Generate ID Card button clicked");
+        
+        // Fetch IdentiFi score for the ID card
+        let identifiScore = 0;
+        if (storedData.accessToken) {
+          try {
+            const currentTimestamp = Date.now().toString();
+            const signature = generateForuSignature("GET", "", currentTimestamp);
+            
+            const response = await fetch(`${API_BASE_URL}/v1/user/metrics`, {
+              method: "GET",
+              headers: {
+                accept: "application/json",
+                "x-foru-apikey": `foru-private-${NEXT_PUBLIC_API_PRIVATE_KEY}`,
+                "x-foru-timestamp": currentTimestamp,
+                "x-foru-signature": signature,
+                "Authorization": `Bearer ${storedData.accessToken}`,
+              },
+            });
+            
+            if (response.ok) {
+              const data = await response.json();
+              if (data && data.code === 200 && data.data) {
+                identifiScore = data.data.identifi_score || 0;
+                console.log("IdentiFi score for ID card:", identifiScore);
+              }
+            }
+          } catch (error) {
+            console.error("Error fetching IdentiFi score for ID card:", error);
+          }
+        }
         
         // Send message to content script to show ID card dialog on web page
         chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-          if (tabs && tabs[0] && tabs[0].id) {
-            chrome.tabs.sendMessage(tabs[0].id, {
-              action: 'showIdCardDialog',
-              idCardData: {
-                title: "Your ForU ID Card",
-                subtitle: "Image Generated"
-              }
-            }, (response) => {
-              if (chrome.runtime.lastError) {
-                console.error('Error sending message to content script:', chrome.runtime.lastError);
-              } else {
-                console.log('Message sent to content script, response:', response);
-              }
-            });
+          if (tabs && tabs[0] && tabs[0].id !== undefined) {
+            const tabId = tabs[0].id;
+            
+            // Send message to content script with retry mechanism
+            const sendMessageWithRetry = (retryCount = 0) => {
+              chrome.tabs.sendMessage(tabId, {
+                action: 'showIdCardDialog',
+                idCardData: {
+                  title: "Your ForU ID Card",
+                  subtitle: "Image Generated",
+                  userProfileData: userProfileData,
+                  identifiScore: identifiScore
+                }
+              }, (response) => {
+                if (chrome.runtime.lastError) {
+                  if (retryCount < 3) {
+                    console.log(`Retrying to send message to content script (attempt ${retryCount + 1}/3)...`);
+                    setTimeout(() => sendMessageWithRetry(retryCount + 1), 1000);
+                  } else {
+                    console.error('Error sending ID card dialog message after retries:', chrome.runtime.lastError);
+                    showCustomNotification('Please refresh the page and try again. The ID card dialog will appear on the web page.', true);
+                  }
+                } else {
+                  console.log('ID card dialog message sent successfully, response:', response);
+                }
+              });
+            };
+            
+            sendMessageWithRetry();
+          } else {
+            console.warn('No active tab found');
+            showCustomNotification('No active tab found. Please open a web page and try again.', true);
           }
         });
       });
@@ -574,6 +622,7 @@ export function handleTabSwitch(): void {
     }, 100);
   }
 }
+
 
 // Expose everything under window.Foru
 (window as any).Foru = (window as any).Foru || {};

@@ -1,10 +1,17 @@
 // src/pages/popup/id-card-dialog/index.ts
 
+import { drawProfileSection, UserProfileData } from './profile/index.js';
+import { drawDigitalDnaCard } from './digital-dna/index.js';
+import { drawScoreBreakdownCard } from './score-breakdown/index.js';
+import { drawCollectedBadgesCard } from './collected-badges/index.js';
+
 interface IdCardData {
   imageUrl?: string;
   title?: string;
   subtitle?: string;
   generatedAt?: Date;
+  userProfileData?: UserProfileData;
+  identifiScore?: number;
 }
 
 class IdCardDialog {
@@ -456,27 +463,35 @@ class IdCardDialog {
       ctx.textAlign = 'left';
       ctx.fillText('ForU ID Card', 40, 40);
 
-      // Grid layout: 2x2
+      // Layout: 2 columns
       const gridWidth = canvas.width - 80;
       const gridHeight = canvas.height - 100;
-      const cardWidth = (gridWidth - 20) / 2;
-      const cardHeight = (gridHeight - 20) / 2;
+      const columnWidth = (gridWidth - 20) / 2;
+      const columnHeight = gridHeight;
 
       // Position calculations
       const startX = 40;
       const startY = 70;
 
-      // 1. IdentiFi Score Breakdown (Top Left)
-      this.drawScoreBreakdownCard(ctx, startX, startY, cardWidth, cardHeight);
+      // Column 1: Profile + IdentiFi Score Breakdown
+      const profileHeight = 120;
+      const scoreHeight = columnHeight - profileHeight - 20;
+      
+      // 1. Profile Section (Top Left)
+      drawProfileSection(ctx, startX, startY, columnWidth, profileHeight, data.userProfileData, data.identifiScore);
 
-      // 2. Your Digital DNA (Top Right)
-      this.drawDigitalDnaCard(ctx, startX + cardWidth + 20, startY, cardWidth, cardHeight);
+      // 2. IdentiFi Score Breakdown (Bottom Left)
+      drawScoreBreakdownCard(ctx, startX, startY + profileHeight + 20, columnWidth, scoreHeight);
 
-      // 3. Your Collected Badges (Bottom Left)
-      this.drawCollectedBadgesCard(ctx, startX, startY + cardHeight + 20, cardWidth, cardHeight);
+      // Column 2: Digital DNA + Collected Badges
+      const dnaHeight = (columnHeight - 20) / 2;
+      const badgesHeight = (columnHeight - 20) / 2;
 
-      // 4. Empty slot (Bottom Right) - for future use
-      this.drawEmptyCard(ctx, startX + cardWidth + 20, startY + cardHeight + 20, cardWidth, cardHeight);
+      // 3. Your Digital DNA (Top Right)
+      drawDigitalDnaCard(ctx, startX + columnWidth + 20, startY, columnWidth, dnaHeight);
+
+      // 4. Your Collected Badges (Bottom Right)
+      drawCollectedBadgesCard(ctx, startX + columnWidth + 20, startY + dnaHeight + 20, columnWidth, badgesHeight);
 
       // Convert to image
       const imageUrl = canvas.toDataURL('image/png');
@@ -502,309 +517,35 @@ class IdCardDialog {
   }
 
   /**
-   * Draw IdentiFi Score Breakdown card
-   */
-  private drawScoreBreakdownCard(ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number): void {
-    // Card background
-    ctx.fillStyle = '#1f1b2b';
-    ctx.fillRect(x, y, width, height);
-    ctx.strokeStyle = '#2a2535';
-    ctx.lineWidth = 1;
-    ctx.strokeRect(x, y, width, height);
-
-    // Title
-    ctx.fillStyle = '#ececf1';
-    ctx.font = 'bold 14px Arial';
-    ctx.textAlign = 'left';
-    ctx.fillText('IdentiFi Score Breakdown', x + 12, y + 20);
-
-    // Score grid (2x2)
-    const scoreWidth = (width - 36) / 2;
-    const scoreHeight = (height - 50) / 2;
-    const scoreStartX = x + 12;
-    const scoreStartY = y + 30;
-
-    // Social
-    this.drawScoreCard(ctx, scoreStartX, scoreStartY, scoreWidth, scoreHeight, 'Social', '207', '177 followers & 30 impressions');
-    
-    // Reputation
-    this.drawScoreCard(ctx, scoreStartX + scoreWidth + 12, scoreStartY, scoreWidth, scoreHeight, 'Reputation', '173', '0 avg likes, 0 avg replies, 173 avg retweets');
-    
-    // On Chain
-    this.drawScoreCard(ctx, scoreStartX, scoreStartY + scoreHeight + 12, scoreWidth, scoreHeight, 'On Chain', '2', '0 badges minted, 3 quests solved, 0 referrals');
-    
-    // Governance
-    this.drawScoreCard(ctx, scoreStartX + scoreWidth + 12, scoreStartY + scoreHeight + 12, scoreWidth, scoreHeight, 'Governance', '-', 'Coming soon');
-  }
-
-  /**
-   * Draw individual score card
-   */
-  private drawScoreCard(ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number, label: string, value: string, details: string): void {
-    // Card background
-    ctx.fillStyle = '#2a2535';
-    ctx.fillRect(x, y, width, height);
-    ctx.strokeStyle = '#3a3545';
-    ctx.lineWidth = 1;
-    ctx.strokeRect(x, y, width, height);
-
-    // Label
-    ctx.fillStyle = '#aeb0b6';
-    ctx.font = '10px Arial';
-    ctx.textAlign = 'center';
-    ctx.fillText(label.toUpperCase(), x + width/2, y + 12);
-
-    // Value
-    ctx.fillStyle = '#ececf1';
-    ctx.font = 'bold 20px Arial';
-    ctx.fillText(value, x + width/2, y + 32);
-
-    // Details
-    ctx.fillStyle = '#aeb0b6';
-    ctx.font = '8px Arial';
-    const words = details.split(' ');
-    let line = '';
-    let lineY = y + 45;
-    
-    for (let i = 0; i < words.length; i++) {
-      const testLine = line + words[i] + ' ';
-      const metrics = ctx.measureText(testLine);
-      if (metrics.width > width - 8 && i > 0) {
-        ctx.fillText(line, x + width/2, lineY);
-        line = words[i] + ' ';
-        lineY += 10;
-      } else {
-        line = testLine;
-      }
-    }
-    ctx.fillText(line, x + width/2, lineY);
-  }
-
-  /**
-   * Draw Digital DNA card
-   */
-  private drawDigitalDnaCard(ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number): void {
-    // Card background
-    ctx.fillStyle = '#1f1b2b';
-    ctx.fillRect(x, y, width, height);
-    ctx.strokeStyle = '#2a2535';
-    ctx.lineWidth = 1;
-    ctx.strokeRect(x, y, width, height);
-
-    // Title
-    ctx.fillStyle = '#ececf1';
-    ctx.font = 'bold 14px Arial';
-    ctx.textAlign = 'left';
-    ctx.fillText('Your Digital DNA', x + 12, y + 20);
-
-    // DNA items (2x2 grid)
-    const itemWidth = (width - 36) / 2;
-    const itemHeight = (height - 50) / 2;
-    const itemStartX = x + 12;
-    const itemStartY = y + 30;
-
-    // Somnia Ecosystem
-    this.drawDnaItem(ctx, itemStartX, itemStartY, itemWidth, itemHeight, 'Somnia Ecosystem', '35%', '#00d4aa');
-    
-    // Software Development
-    this.drawDnaItem(ctx, itemStartX + itemWidth + 12, itemStartY, itemWidth, itemHeight, 'Software Development', '20%', '#ff8800');
-    
-    // Emerging Tech & AI
-    this.drawDnaItem(ctx, itemStartX, itemStartY + itemHeight + 12, itemWidth, itemHeight, 'Emerging Tech & AI', '15%', '#0066ff');
-    
-    // Web3 Information & Rewards
-    this.drawDnaItem(ctx, itemStartX + itemWidth + 12, itemStartY + itemHeight + 12, itemWidth, itemHeight, 'Web3 Information & Rewards', '10%', '#9c4dcc');
-  }
-
-  /**
-   * Draw individual DNA item
-   */
-  private drawDnaItem(ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number, title: string, percentage: string, color: string): void {
-    // Item background
-    ctx.fillStyle = '#2a2535';
-    ctx.fillRect(x, y, width, height);
-    ctx.strokeStyle = '#3a3545';
-    ctx.lineWidth = 1;
-    ctx.strokeRect(x, y, width, height);
-
-    // Icon placeholder (simple circle)
-    ctx.fillStyle = color;
-    ctx.beginPath();
-    ctx.arc(x + 16, y + 16, 8, 0, 2 * Math.PI);
-    ctx.fill();
-
-    // Title
-    ctx.fillStyle = '#ececf1';
-    ctx.font = '10px Arial';
-    ctx.textAlign = 'left';
-    ctx.fillText(title, x + 30, y + 12);
-
-    // Progress bar background
-    ctx.fillStyle = '#3a3545';
-    ctx.fillRect(x + 8, y + 20, width - 16, 4);
-
-    // Progress bar fill
-    const progress = parseInt(percentage) / 100;
-    ctx.fillStyle = color;
-    ctx.fillRect(x + 8, y + 20, (width - 16) * progress, 4);
-
-    // Percentage
-    ctx.fillStyle = '#aeb0b6';
-    ctx.font = '8px Arial';
-    ctx.textAlign = 'right';
-    ctx.fillText(percentage, x + width - 8, y + 18);
-  }
-
-  /**
-   * Draw Collected Badges card
-   */
-  private drawCollectedBadgesCard(ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number): void {
-    // Card background
-    ctx.fillStyle = '#1f1b2b';
-    ctx.fillRect(x, y, width, height);
-    ctx.strokeStyle = '#2a2535';
-    ctx.lineWidth = 1;
-    ctx.strokeRect(x, y, width, height);
-
-    // Title
-    ctx.fillStyle = '#ececf1';
-    ctx.font = 'bold 14px Arial';
-    ctx.textAlign = 'left';
-    ctx.fillText('Your Collected Badges', x + 12, y + 20);
-
-    // Badge grid (3x2)
-    const badgeSize = 32;
-    const badgeSpacing = 8;
-    const badgeStartX = x + 12;
-    const badgeStartY = y + 30;
-    const badgesPerRow = 3;
-
-    // Draw 6 badges (3 collected, 3 empty)
-    for (let i = 0; i < 6; i++) {
-      const badgeX = badgeStartX + (i % badgesPerRow) * (badgeSize + badgeSpacing);
-      const badgeY = badgeStartY + Math.floor(i / badgesPerRow) * (badgeSize + badgeSpacing);
-
-      if (i < 3) {
-        // Collected badges with shimmer effect
-        this.drawBadgeWithShimmer(ctx, badgeX, badgeY, badgeSize, i);
-      } else {
-        // Empty badges
-        this.drawEmptyBadge(ctx, badgeX, badgeY, badgeSize);
-      }
-    }
-  }
-
-  /**
-   * Draw badge with shimmer effect
-   */
-  private drawBadgeWithShimmer(ctx: CanvasRenderingContext2D, x: number, y: number, size: number, index: number): void {
-    // Badge background with gradient
-    const gradient = ctx.createLinearGradient(x, y, x + size, y + size);
-    const colors = ['#7246ce', '#9c4dcc', '#ff8800', '#00d4aa'];
-    gradient.addColorStop(0, colors[index % colors.length]);
-    gradient.addColorStop(1, colors[(index + 1) % colors.length]);
-    
-    ctx.fillStyle = gradient;
-    ctx.fillRect(x, y, size, size);
-    
-    // Badge border
-    ctx.strokeStyle = '#ffffff';
-    ctx.lineWidth = 1;
-    ctx.strokeRect(x, y, size, size);
-
-    // Shimmer effect (simple diagonal line)
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.moveTo(x, y);
-    ctx.lineTo(x + size, y + size);
-    ctx.stroke();
-
-    // Badge icon (simple geometric shape)
-    ctx.fillStyle = '#ffffff';
-    ctx.font = '12px Arial';
-    ctx.textAlign = 'center';
-    ctx.fillText('★', x + size/2, y + size/2 + 4);
-  }
-
-  /**
-   * Draw empty badge
-   */
-  private drawEmptyBadge(ctx: CanvasRenderingContext2D, x: number, y: number, size: number): void {
-    // Empty badge background
-    ctx.fillStyle = '#2a2535';
-    ctx.fillRect(x, y, size, size);
-    ctx.strokeStyle = '#3a3545';
-    ctx.lineWidth = 1;
-    ctx.strokeRect(x, y, size, size);
-
-    // Empty badge icon
-    ctx.strokeStyle = '#aeb0b6';
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(x + 8, y + 8);
-    ctx.lineTo(x + size - 8, y + size - 8);
-    ctx.moveTo(x + size - 8, y + 8);
-    ctx.lineTo(x + 8, y + size - 8);
-    ctx.stroke();
-  }
-
-  /**
-   * Draw empty card (for future use)
-   */
-  private drawEmptyCard(ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number): void {
-    // Card background
-    ctx.fillStyle = '#1f1b2b';
-    ctx.fillRect(x, y, width, height);
-    ctx.strokeStyle = '#2a2535';
-    ctx.lineWidth = 1;
-    ctx.strokeRect(x, y, width, height);
-
-    // Coming soon text
-    ctx.fillStyle = '#aeb0b6';
-    ctx.font = '12px Arial';
-    ctx.textAlign = 'center';
-    ctx.fillText('Coming Soon', x + width/2, y + height/2);
-  }
-
-  /**
    * Download the generated image
    */
   private downloadImage(): void {
-    if (!this.overlay) return;
+    const downloadBtn = this.overlay?.querySelector('.foru-id-card-download-btn') as HTMLButtonElement;
+    if (!downloadBtn || downloadBtn.disabled) return;
 
-    const downloadBtn = this.overlay.querySelector('.foru-id-card-download-btn') as HTMLButtonElement;
     const imageUrl = downloadBtn.getAttribute('data-image-url');
+    if (!imageUrl) return;
 
-    if (!imageUrl) {
-      console.error('No image URL found for download');
-      return;
-    }
-
-    try {
-      // Create download link
-      const link = document.createElement('a');
-      link.href = imageUrl;
-      link.download = `foru-id-card-${new Date().toISOString().split('T')[0]}.png`;
-      
-      // Trigger download
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-
-      console.log('ID card downloaded successfully');
-    } catch (error) {
-      console.error('Error downloading ID card:', error);
-    }
+    // Create download link
+    const link = document.createElement('a');
+    link.href = imageUrl;
+    link.download = `foru-id-card-${new Date().toISOString().split('T')[0]}.png`;
+    
+    // Trigger download
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   }
 }
 
-// Create singleton instance
-const idCardDialog = new IdCardDialog();
+// Export the dialog instance
+export const idCardDialog = new IdCardDialog();
 
-// Export for use in other components
-export { IdCardDialog, idCardDialog };
-export default idCardDialog;
+// Make it globally available
+declare global {
+  interface Window {
+    idCardDialog: IdCardDialog;
+  }
+}
 
-// Expose globally for backward compatibility
-(window as any).idCardDialog = idCardDialog;
+window.idCardDialog = idCardDialog;
