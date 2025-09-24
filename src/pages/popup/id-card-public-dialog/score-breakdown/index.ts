@@ -137,19 +137,19 @@ function drawScoreCard(ctx: CanvasRenderingContext2D, x: number, y: number, widt
   ctx.lineWidth = 1;
   ctx.strokeRect(x, y, width, height);
 
-  // Label
+  // Label - Top left corner
   ctx.fillStyle = '#aeb0b6';
   ctx.font = '10px Arial';
   ctx.textAlign = 'left';
-  ctx.fillText(label, x + 8, y + 12);
+  ctx.fillText(label, x + 8, y + 16);
 
-  // Value
+  // Value - Center of card
   ctx.fillStyle = '#FFB005';
   ctx.font = 'bold 16px Arial';
   ctx.textAlign = 'center';
-  ctx.fillText(value, x + width/2, y + 30);
+  ctx.fillText(value, x + width/2, y + height/2);
 
-  // Details (wrapped text)
+  // Details - Bottom left of card (wrapped text)
   ctx.fillStyle = '#8a8d93';
   ctx.font = '8px Arial';
   ctx.textAlign = 'left';
@@ -157,8 +157,27 @@ function drawScoreCard(ctx: CanvasRenderingContext2D, x: number, y: number, widt
   const maxWidth = width - 16;
   const words = details.split(' ');
   let line = '';
-  let lineY = y + 40;
+  let lineY = y + height - 5; // Start from bottom with minimal padding
   
+  // Calculate how many lines we need and work backwards
+  let detailsLines = 1;
+  for (let i = 0; i < words.length; i++) {
+    const testLine = line + words[i] + ' ';
+    const metrics = ctx.measureText(testLine);
+    
+    if (metrics.width > maxWidth && i > 0) {
+      line = words[i] + ' ';
+      detailsLines++;
+    } else {
+      line = testLine;
+    }
+  }
+  
+  // Adjust starting Y position based on number of lines - move closer to bottom
+  lineY = y + height - (detailsLines * 10) ;
+  
+  // Draw details text
+  line = '';
   for (let i = 0; i < words.length; i++) {
     const testLine = line + words[i] + ' ';
     const metrics = ctx.measureText(testLine);

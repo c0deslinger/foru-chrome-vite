@@ -97,7 +97,7 @@ export async function drawDigitalDnaCard(
   ctx.fillStyle = '#ececf1';
   ctx.font = 'bold 10px Arial';
   ctx.textAlign = 'left';
-  ctx.fillText('Your Digital DNA', x + 12, y + 16);
+  ctx.fillText('Digital DNA', x + 12, y + 16);
 
   // Fetch real data from API
   let dnaItems: DnaData[] = [];

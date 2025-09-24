@@ -85,7 +85,7 @@ export async function drawCollectedBadgesCard(
   ctx.fillStyle = '#ececf1';
   ctx.font = 'bold 10px Arial';
   ctx.textAlign = 'left';
-  ctx.fillText('Your Collected Badges', x + 12, y + 16);
+  ctx.fillText('Collected Badges', x + 12, y + 16);
 
   // Fetch real data from API
   let badges: BadgeData[] = [];
