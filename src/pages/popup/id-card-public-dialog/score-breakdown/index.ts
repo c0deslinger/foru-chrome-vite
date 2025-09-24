@@ -73,11 +73,12 @@ export async function drawScoreBreakdownCard(
   username?: string
 ): Promise<void> {
   // Card background
-  ctx.fillStyle = '#1f1b2b';
-  ctx.fillRect(x, y, width, height);
-  ctx.strokeStyle = '#2a2535';
-  ctx.lineWidth = 1;
-  ctx.strokeRect(x, y, width, height);
+  // ctx.fillStyle = '#1f1b2b';
+  // ctx.fillRect(x, y, width, height);
+  // ctx.strokeStyle = '#2a2535';
+  // ctx.lineWidth = 1;
+  // ctx.strokeRect(x, y, width, height);
+  // No background or border - clean container
 
   // Title
   ctx.fillStyle = '#ececf1';
