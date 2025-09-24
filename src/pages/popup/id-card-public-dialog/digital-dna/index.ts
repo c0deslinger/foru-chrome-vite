@@ -84,7 +84,8 @@ export async function drawDigitalDnaCard(
   y: number, 
   width: number, 
   height: number,
-  username?: string
+  username?: string,
+  scaleFactor: number = 1
 ): Promise<void> {
   // Card background
   // ctx.fillStyle = '#1f1b2b';
@@ -94,11 +95,11 @@ export async function drawDigitalDnaCard(
   // ctx.strokeRect(x, y, width, height);
   // No background or border - clean container
 
-  // Title (smaller font)
+  // Title (smaller font) - scaled
   ctx.fillStyle = '#ececf1';
-  ctx.font = 'bold 10px Arial';
+  ctx.font = `bold ${10 * scaleFactor}px Arial`; // Scale font size
   ctx.textAlign = 'left';
-  ctx.fillText('Digital DNA', x + 12, y + 16);
+  ctx.fillText('Digital DNA', x + (12 * scaleFactor), y + (16 * scaleFactor));
 
   // Fetch real data from API
   let dnaItems: DnaData[] = [];
@@ -118,13 +119,13 @@ export async function drawDigitalDnaCard(
     console.log('🧬 No username provided for DNA');
   }
 
-  // DNA grid (5x2) - same layout as badges
-  const dnaSize = 40; // Same as badge size
-  const dnaSpacing = 36; // Same as badge spacing
-  const titleHeight = 24; // Same as badge title height
-  const rowSpacing = 5; // Same as badge row spacing
-  const startX = x + 12;
-  const startY = y + 30; // Same as badge start Y
+  // DNA grid (5x2) - scaled layout
+  const dnaSize = 40 * scaleFactor; // Scale DNA size
+  const dnaSpacing = 36 * scaleFactor; // Scale DNA spacing
+  const titleHeight = 24 * scaleFactor; // Scale title height
+  const rowSpacing = 5 * scaleFactor; // Scale row spacing
+  const startX = x + (12 * scaleFactor);
+  const startY = y + (30 * scaleFactor); // Scale start Y
   const dnaPerRow = 5;
   const totalDnaItems = 10; // 5x2 grid
 
@@ -144,15 +145,15 @@ export async function drawDigitalDnaCard(
       
       // Check if DNA has valid image URL
       if (dnaItem.image && dnaItem.image.trim() && dnaItem.image !== 'null' && dnaItem.image !== 'undefined') {
-        await drawRealDnaItemWithTitle(ctx, dnaX, dnaY, dnaSize, dnaItem);
+        await drawRealDnaItemWithTitle(ctx, dnaX, dnaY, dnaSize, dnaItem, scaleFactor);
       } else {
         console.warn(`⚠️ DNA "${dnaItem.title}" has invalid image URL: "${dnaItem.image}", using fallback`);
-        drawDnaFallbackWithTitle(ctx, dnaX, dnaY, dnaSize, dnaItem);
+        drawDnaFallbackWithTitle(ctx, dnaX, dnaY, dnaSize, dnaItem, scaleFactor);
       }
     } else {
       // Draw empty DNA placeholder with title
       console.log(`🎨 Drawing empty DNA placeholder ${i + 1} at position (${dnaX}, ${dnaY})`);
-      drawEmptyDnaWithTitle(ctx, dnaX, dnaY, dnaSize);
+      drawEmptyDnaWithTitle(ctx, dnaX, dnaY, dnaSize, scaleFactor);
     }
   }
 }
@@ -160,7 +161,7 @@ export async function drawDigitalDnaCard(
 /**
  * Draw real DNA item with image and title
  */
-async function drawRealDnaItemWithTitle(ctx: CanvasRenderingContext2D, x: number, y: number, size: number, dnaItem: DnaData): Promise<void> {
+async function drawRealDnaItemWithTitle(ctx: CanvasRenderingContext2D, x: number, y: number, size: number, dnaItem: DnaData, scaleFactor: number = 1): Promise<void> {
   console.log(`🎨 Drawing DNA item with title: ${dnaItem.title} with image: ${dnaItem.image}`);
 
   try {
@@ -168,8 +169,8 @@ async function drawRealDnaItemWithTitle(ctx: CanvasRenderingContext2D, x: number
     const imageLoaded = await loadDnaImage(dnaItem.image!);
     
     if (imageLoaded) {
-      // Draw the loaded image
-      const padding = 2;
+      // Draw the loaded image - scaled
+      const padding = 2 * scaleFactor;
       const imageSize = size - (padding * 2);
       
       // Create a temporary canvas to handle the image
@@ -187,34 +188,34 @@ async function drawRealDnaItemWithTitle(ctx: CanvasRenderingContext2D, x: number
       console.log(`✅ Successfully drew DNA image: ${dnaItem.title}`);
     } else {
       console.warn(`⚠️ Failed to load DNA image, using fallback: ${dnaItem.title}`);
-      drawDnaFallbackContent(ctx, x, y, size, dnaItem);
+      drawDnaFallbackContent(ctx, x, y, size, dnaItem, scaleFactor);
     }
   } catch (error) {
     console.error(`❌ Error drawing DNA ${dnaItem.title}:`, error);
-    drawDnaFallbackContent(ctx, x, y, size, dnaItem);
+    drawDnaFallbackContent(ctx, x, y, size, dnaItem, scaleFactor);
   }
 
   // Draw DNA title below
-  drawDnaTitle(ctx, x, y + size + 2, size, dnaItem.title);
+  drawDnaTitle(ctx, x, y + size + (2 * scaleFactor), size, dnaItem.title, scaleFactor);
 }
 
 /**
  * Draw DNA fallback with title
  */
-function drawDnaFallbackWithTitle(ctx: CanvasRenderingContext2D, x: number, y: number, size: number, dnaItem: DnaData): void {
+function drawDnaFallbackWithTitle(ctx: CanvasRenderingContext2D, x: number, y: number, size: number, dnaItem: DnaData, scaleFactor: number = 1): void {
   console.log(`🔄 Drawing fallback DNA with title: ${dnaItem.title}`);
   
   // Draw fallback content
-  drawDnaFallbackContent(ctx, x, y, size, dnaItem);
+  drawDnaFallbackContent(ctx, x, y, size, dnaItem, scaleFactor);
 
   // Draw DNA title below
-  drawDnaTitle(ctx, x, y + size + 2, size, dnaItem.title);
+  drawDnaTitle(ctx, x, y + size + (2 * scaleFactor), size, dnaItem.title, scaleFactor);
 }
 
 /**
  * Draw empty DNA placeholder with title
  */
-function drawEmptyDnaWithTitle(ctx: CanvasRenderingContext2D, x: number, y: number, size: number): void {
+function drawEmptyDnaWithTitle(ctx: CanvasRenderingContext2D, x: number, y: number, size: number, scaleFactor: number = 1): void {
 
   // DNA molecule icon
   ctx.fillStyle = '#5D5D5DFF';
@@ -229,9 +230,9 @@ function drawEmptyDnaWithTitle(ctx: CanvasRenderingContext2D, x: number, y: numb
 /**
  * Draw DNA title below the DNA item
  */
-function drawDnaTitle(ctx: CanvasRenderingContext2D, x: number, y: number, dnaWidth: number, title: string): void {
+function drawDnaTitle(ctx: CanvasRenderingContext2D, x: number, y: number, dnaWidth: number, title: string, scaleFactor: number = 1): void {
   ctx.fillStyle = '#aeb0b6';
-  ctx.font = '10px Arial'; // Same as badge title
+  ctx.font = `${10 * scaleFactor}px Arial`; // Scale font size
   ctx.textAlign = 'center';
   
   // Truncate title if too long
@@ -255,7 +256,7 @@ function drawDnaTitle(ctx: CanvasRenderingContext2D, x: number, y: number, dnaWi
 /**
  * Draw DNA fallback content (icon/emoji)
  */
-function drawDnaFallbackContent(ctx: CanvasRenderingContext2D, x: number, y: number, size: number, dnaItem: DnaData): void {
+function drawDnaFallbackContent(ctx: CanvasRenderingContext2D, x: number, y: number, size: number, dnaItem: DnaData, scaleFactor: number = 1): void {
   // DNA icon based on title or default
   let icon = '🧬'; // Default DNA molecule
   

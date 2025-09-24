@@ -266,11 +266,14 @@ class IdCardPublicDialog {
     if (!canvas || !preview || !shimmer || !downloadBtn) return;
 
     try {
-      // Set canvas size
-      const cardWidth = 800;
-      const cardHeight = 450;
+      // Set canvas size - increased for larger generated image
+      const cardWidth = 1200; // 50% larger than original 800px
+      const cardHeight = 675; // 50% larger than original 450px (maintaining 16:9 ratio)
       canvas.width = cardWidth;
       canvas.height = cardHeight;
+      
+      // Scale factor for proportional scaling of all elements
+      const scaleFactor = cardWidth / 800; // 1.5x scale factor
 
       const ctx = canvas.getContext('2d');
       if (!ctx) return;
@@ -282,8 +285,8 @@ class IdCardPublicDialog {
       ctx.fillStyle = '#1a1625';
       ctx.fillRect(0, 0, cardWidth, cardHeight);
 
-      // Header section
-      const headerHeight = 80;
+      // Header section - scaled proportionally
+      const headerHeight = 80 * scaleFactor; // Scale header height
       ctx.fillStyle = '#2a2535';
       ctx.fillRect(0, 0, cardWidth, headerHeight);
 
@@ -294,38 +297,39 @@ class IdCardPublicDialog {
       ctx.fillStyle = headerGradient;
       ctx.fillRect(0, 0, cardWidth, headerHeight);
 
-      // Header text - centered vertically
+      // Header text - centered vertically, scaled font size
       ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 24px Arial';
+      ctx.font = `bold ${24 * scaleFactor}px Arial`; // Scale font size
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText('ForU ID Card', cardWidth / 2, headerHeight / 2 - 8);
+      ctx.fillText('ForU ID Card', cardWidth / 2, headerHeight / 2 - (8 * scaleFactor));
 
-      // Subtitle - centered vertically
-      ctx.font = '14px Arial';
+      // Subtitle - centered vertically, scaled font size
+      ctx.font = `${14 * scaleFactor}px Arial`; // Scale font size
       ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
-      ctx.fillText('Your Digital Identity', cardWidth / 2, headerHeight / 2 + 12);
+      ctx.fillText('Your Digital Identity', cardWidth / 2, headerHeight / 2 + (12 * scaleFactor));
 
-      // Main content area
-      const contentY = headerHeight + 20;
-      const contentHeight = cardHeight - headerHeight - 40;
-      const columnWidth = (cardWidth - 60) / 2; // Two columns with spacing
+      // Main content area - scaled proportionally
+      const contentY = headerHeight + (20 * scaleFactor);
+      const contentHeight = cardHeight - headerHeight - (40 * scaleFactor);
+      const columnSpacing = 20 * scaleFactor; // Reduced spacing between columns
+      const columnWidth = (cardWidth - (40 * scaleFactor) - columnSpacing) / 2; // Two columns with reduced spacing
 
-      // Column 1: Profile + IdentiFi Score Breakdown
-      const profileHeight = 120;
-      const scoreHeight = contentHeight - profileHeight - 20;
+      // Column 1: Profile + IdentiFi Score Breakdown - scaled heights
+      const profileHeight = 120 * scaleFactor;
+      const scoreHeight = contentHeight - profileHeight - (20 * scaleFactor);
 
       // Extract Twitter profile data in real-time
       const twitterProfileData = extractTwitterProfileData();
-      await drawProfileSection(ctx, 20, contentY, columnWidth, profileHeight, twitterProfileData, data.identifiScore);
-      await drawScoreBreakdownCard(ctx, 20, contentY + profileHeight + 20, columnWidth, scoreHeight, data.username);
+      await drawProfileSection(ctx, 20 * scaleFactor, contentY, columnWidth, profileHeight, twitterProfileData, data.identifiScore, scaleFactor);
+      await drawScoreBreakdownCard(ctx, 20 * scaleFactor, contentY + profileHeight + (20 * scaleFactor), columnWidth, scoreHeight, data.username, scaleFactor);
 
-      // Column 2: Digital DNA + Collected Badges
-      const dnaHeight = (contentHeight - 20) / 2;
-      const badgesHeight = (contentHeight - 20) / 2;
+      // Column 2: Digital DNA + Collected Badges - scaled heights
+      const dnaHeight = (contentHeight - (20 * scaleFactor)) / 2;
+      const badgesHeight = (contentHeight - (20 * scaleFactor)) / 2;
 
-      await drawDigitalDnaCard(ctx, 20 + columnWidth + 20, contentY, columnWidth, dnaHeight, data.username);
-      await drawCollectedBadgesCard(ctx, 20 + columnWidth + 20, contentY + dnaHeight + 20, columnWidth, badgesHeight, data.username);
+      await drawDigitalDnaCard(ctx, (20 * scaleFactor) + columnWidth + columnSpacing, contentY, columnWidth, dnaHeight, data.username, scaleFactor);
+      await drawCollectedBadgesCard(ctx, (20 * scaleFactor) + columnWidth + columnSpacing, contentY + dnaHeight + (20 * scaleFactor), columnWidth, badgesHeight, data.username, scaleFactor);
 
       // Convert canvas to image
       const imageDataUrl = canvas.toDataURL('image/png');

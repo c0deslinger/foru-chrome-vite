@@ -82,7 +82,8 @@ export async function drawScoreBreakdownCard(
   y: number, 
   width: number, 
   height: number,
-  username?: string
+  username?: string,
+  scaleFactor: number = 1
 ): Promise<void> {
   // Card background
   // ctx.fillStyle = '#1f1b2b';
@@ -92,11 +93,11 @@ export async function drawScoreBreakdownCard(
   // ctx.strokeRect(x, y, width, height);
   // No background or border - clean container
 
-  // Title
+  // Title - scaled
   ctx.fillStyle = '#ececf1';
-  ctx.font = 'bold 12px Arial';
+  ctx.font = `bold ${12 * scaleFactor}px Arial`; // Scale font size
   ctx.textAlign = 'left';
-  ctx.fillText('IdentiFi Score Breakdown', x + 12, y + 16);
+  ctx.fillText('IdentiFi Score Breakdown', x + (12 * scaleFactor), y + (16 * scaleFactor));
 
   // Fetch real data from API
   let metricsData: MetricsData = {};
@@ -123,26 +124,26 @@ export async function drawScoreBreakdownCard(
   const followersCount = metricsData.followers_count || 0;
   const impressionScore = metricsData.impression_score || 0;
 
-  // Score grid (2x2) - same layout as panel
-  const scoreWidth = (width - 36) / 2;
-  const scoreHeight = (height - 50) / 2;
-  const scoreStartX = x + 12;
-  const scoreStartY = y + 30;
+  // Score grid (2x2) - scaled layout
+  const scoreWidth = (width - (36 * scaleFactor)) / 2;
+  const scoreHeight = (height - (50 * scaleFactor)) / 2;
+  const scoreStartX = x + (12 * scaleFactor);
+  const scoreStartY = y + (30 * scaleFactor);
 
   // Social
-  drawScoreCard(ctx, scoreStartX, scoreStartY, scoreWidth, scoreHeight, 'Social', reachScore.toString(), `${followersCount} followers & ${impressionScore} impressions`);
+  drawScoreCard(ctx, scoreStartX, scoreStartY, scoreWidth, scoreHeight, 'Social', reachScore.toString(), `${followersCount} followers & ${impressionScore} impressions`, scaleFactor);
   
   // Reputation
-  drawScoreCard(ctx, scoreStartX + scoreWidth + 12, scoreStartY, scoreWidth, scoreHeight, 'Reputation', engagementScore.toString(), `${avgLikes} avg likes, ${avgReplies} avg replies, ${avgReposts} avg retweets`);
+  drawScoreCard(ctx, scoreStartX + scoreWidth + (12 * scaleFactor), scoreStartY, scoreWidth, scoreHeight, 'Reputation', engagementScore.toString(), `${avgLikes} avg likes, ${avgReplies} avg replies, ${avgReposts} avg retweets`, scaleFactor);
   
   // On Chain
-  drawScoreCard(ctx, scoreStartX, scoreStartY + scoreHeight + 12, scoreWidth, scoreHeight, 'On Chain', onchainScore.toString(), `${badgesMinted} badges minted, ${questCompleted} quests solved, ${referralCount} referrals`);
+  drawScoreCard(ctx, scoreStartX, scoreStartY + scoreHeight + (12 * scaleFactor), scoreWidth, scoreHeight, 'On Chain', onchainScore.toString(), `${badgesMinted} badges minted, ${questCompleted} quests solved, ${referralCount} referrals`, scaleFactor);
   
   // Governance
-  drawScoreCard(ctx, scoreStartX + scoreWidth + 12, scoreStartY + scoreHeight + 12, scoreWidth, scoreHeight, 'Governance', '-', 'Coming soon');
+  drawScoreCard(ctx, scoreStartX + scoreWidth + (12 * scaleFactor), scoreStartY + scoreHeight + (12 * scaleFactor), scoreWidth, scoreHeight, 'Governance', '-', 'Coming soon', scaleFactor);
 }
 
-function drawScoreCard(ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number, label: string, value: string, details: string): void {
+function drawScoreCard(ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number, label: string, value: string, details: string, scaleFactor: number = 1): void {
   // Score card background
   ctx.fillStyle = '#2a2535';
   ctx.fillRect(x, y, width, height);
@@ -150,28 +151,28 @@ function drawScoreCard(ctx: CanvasRenderingContext2D, x: number, y: number, widt
   ctx.lineWidth = 1;
   ctx.strokeRect(x, y, width, height);
 
-  // Label - Top left corner
+  // Label - Top left corner - scaled
   ctx.fillStyle = '#aeb0b6';
-  ctx.font = '10px Arial';
+  ctx.font = `${10 * scaleFactor}px Arial`; // Scale font size
   ctx.textAlign = 'left';
-  ctx.fillText(label, x + 8, y + 16);
+  ctx.fillText(label, x + (8 * scaleFactor), y + (16 * scaleFactor));
 
-  // Value - Center of card (white color with comma formatting)
+  // Value - Center of card (white color with comma formatting) - scaled
   ctx.fillStyle = '#ffffff';
-  ctx.font = 'bold 16px Arial';
+  ctx.font = `bold ${16 * scaleFactor}px Arial`; // Scale font size
   ctx.textAlign = 'center';
   const formattedValue = formatNumberWithCommas(value);
   ctx.fillText(formattedValue, x + width/2, y + height/2);
 
-  // Details - Bottom left of card (wrapped text)
+  // Details - Bottom left of card (wrapped text) - scaled
   ctx.fillStyle = '#8a8d93';
-  ctx.font = '8px Arial';
+  ctx.font = `${8 * scaleFactor}px Arial`; // Scale font size
   ctx.textAlign = 'left';
   
-  const maxWidth = width - 16;
+  const maxWidth = width - (16 * scaleFactor);
   const words = details.split(' ');
   let line = '';
-  let lineY = y + height - 5; // Start from bottom with minimal padding
+  let lineY = y + height - (5 * scaleFactor); // Start from bottom with scaled padding
   
   // Calculate how many lines we need and work backwards
   let detailsLines = 1;
@@ -187,8 +188,8 @@ function drawScoreCard(ctx: CanvasRenderingContext2D, x: number, y: number, widt
     }
   }
   
-  // Adjust starting Y position based on number of lines - move closer to bottom
-  lineY = y + height - (detailsLines * 10) ;
+  // Adjust starting Y position based on number of lines - move closer to bottom, scaled
+  lineY = y + height - (detailsLines * 10 * scaleFactor);
   
   // Draw details text
   line = '';
@@ -197,12 +198,12 @@ function drawScoreCard(ctx: CanvasRenderingContext2D, x: number, y: number, widt
     const metrics = ctx.measureText(testLine);
     
     if (metrics.width > maxWidth && i > 0) {
-      ctx.fillText(line, x + 8, lineY);
+      ctx.fillText(line, x + (8 * scaleFactor), lineY);
       line = words[i] + ' ';
-      lineY += 10;
+      lineY += (10 * scaleFactor);
     } else {
       line = testLine;
     }
   }
-  ctx.fillText(line, x + 8, lineY);
+  ctx.fillText(line, x + (8 * scaleFactor), lineY);
 }

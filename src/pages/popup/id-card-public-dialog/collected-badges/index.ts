@@ -72,7 +72,8 @@ export async function drawCollectedBadgesCard(
   y: number, 
   width: number, 
   height: number,
-  username?: string
+  username?: string,
+  scaleFactor: number = 1
 ): Promise<void> {
   // Card background
   // ctx.fillStyle = '#1f1b2b';
@@ -82,11 +83,11 @@ export async function drawCollectedBadgesCard(
   // ctx.strokeRect(x, y, width, height);
   // No background or border - clean container
 
-  // Title (even smaller font)
+  // Title (even smaller font) - scaled
   ctx.fillStyle = '#ececf1';
-  ctx.font = 'bold 10px Arial';
+  ctx.font = `bold ${10 * scaleFactor}px Arial`; // Scale font size
   ctx.textAlign = 'left';
-  ctx.fillText('Collected Badges', x + 12, y + 16);
+  ctx.fillText('Collected Badges', x + (12 * scaleFactor), y + (16 * scaleFactor));
 
   // Fetch real data from API
   let badges: BadgeData[] = [];
@@ -104,13 +105,13 @@ export async function drawCollectedBadgesCard(
     console.log('🔖 No username provided for badges');
   }
 
-  // Badge grid (5x2) - 2x larger badges with reduced vertical spacing
-  const badgeSize = 40; // 25 * 2 = 50
-  const badgeSpacing = 36; // 8 * 2 = 16
-  const titleHeight = 24; // 12 * 2 = 24
-  const rowSpacing = 5; // Reduced from 30 to 20 for tighter vertical spacing
-  const startX = x + 12;
-  const startY = y + 30; // Increased from 22 to 30 for more space after title
+  // Badge grid (5x2) - scaled badges with reduced vertical spacing
+  const badgeSize = 40 * scaleFactor; // Scale badge size
+  const badgeSpacing = 36 * scaleFactor; // Scale badge spacing
+  const titleHeight = 24 * scaleFactor; // Scale title height
+  const rowSpacing = 5 * scaleFactor; // Scale row spacing
+  const startX = x + (12 * scaleFactor);
+  const startY = y + (30 * scaleFactor); // Scale start Y
   const badgesPerRow = 5;
   const totalBadges = 10; // 5x2 grid
 
@@ -127,14 +128,14 @@ export async function drawCollectedBadgesCard(
       console.log(`🎨 Badge image URL: "${badge.image}"`);
       
       if (badge.image && badge.image.trim() && badge.image !== 'null' && badge.image !== 'undefined') {
-        await drawRealBadgeWithTitle(ctx, badgeX, badgeY, badgeSize, badge);
+        await drawRealBadgeWithTitle(ctx, badgeX, badgeY, badgeSize, badge, scaleFactor);
       } else {
         console.warn(`⚠️ Badge "${badge.name}" has invalid image URL: "${badge.image}", using fallback`);
-        await drawBadgeFallbackWithTitle(ctx, badgeX, badgeY, badgeSize, badge.name);
+        await drawBadgeFallbackWithTitle(ctx, badgeX, badgeY, badgeSize, badge.name, scaleFactor);
       }
     } else {
       console.log(`🎨 Drawing empty badge placeholder ${i + 1} at position (${badgeX}, ${badgeY})`);
-      await drawEmptyBadgeWithTitle(ctx, badgeX, badgeY, badgeSize);
+      await drawEmptyBadgeWithTitle(ctx, badgeX, badgeY, badgeSize, scaleFactor);
     }
   }
 }
@@ -142,7 +143,7 @@ export async function drawCollectedBadgesCard(
 /**
  * Draw real badge with image and title
  */
-async function drawRealBadgeWithTitle(ctx: CanvasRenderingContext2D, x: number, y: number, size: number, badge: BadgeData): Promise<void> {
+async function drawRealBadgeWithTitle(ctx: CanvasRenderingContext2D, x: number, y: number, size: number, badge: BadgeData, scaleFactor: number = 1): Promise<void> {
   console.log(`🎨 Drawing badge with title: ${badge.name} with image: ${badge.image}`);
   // No background or border - just draw the image directly
   try {
@@ -172,17 +173,17 @@ async function drawRealBadgeWithTitle(ctx: CanvasRenderingContext2D, x: number, 
 /**
  * Draw badge fallback with title
  */
-async function drawBadgeFallbackWithTitle(ctx: CanvasRenderingContext2D, x: number, y: number, size: number, badgeName: string): Promise<void> {
+async function drawBadgeFallbackWithTitle(ctx: CanvasRenderingContext2D, x: number, y: number, size: number, badgeName: string, scaleFactor: number = 1): Promise<void> {
   console.log(`🔄 Drawing fallback badge with title: ${badgeName}`);
   // No background or border - just draw the fallback content
   await drawBadgeFallbackContent(ctx, x, y, size, badgeName);
-  drawBadgeTitle(ctx, x, y + size + 2, size, badgeName);
+  drawBadgeTitle(ctx, x, y + size + (2 * scaleFactor), size, badgeName, scaleFactor);
 }
 
 /**
  * Draw empty badge placeholder with title
  */
-async function drawEmptyBadgeWithTitle(ctx: CanvasRenderingContext2D, x: number, y: number, size: number): Promise<void> {
+async function drawEmptyBadgeWithTitle(ctx: CanvasRenderingContext2D, x: number, y: number, size: number, scaleFactor: number = 1): Promise<void> {
   // Load and draw badge_empty.png image
   try {
     const emptyBadgeImage = await loadEmptyBadgeImage();
@@ -220,9 +221,9 @@ async function drawEmptyBadgeWithTitle(ctx: CanvasRenderingContext2D, x: number,
 /**
  * Draw badge title below the badge
  */
-function drawBadgeTitle(ctx: CanvasRenderingContext2D, x: number, y: number, badgeWidth: number, title: string): void {
+function drawBadgeTitle(ctx: CanvasRenderingContext2D, x: number, y: number, badgeWidth: number, title: string, scaleFactor: number = 1): void {
   ctx.fillStyle = '#aeb0b6';
-  ctx.font = '10px Arial'; // Increased from 8px to 10px for larger badges
+  ctx.font = `${10 * scaleFactor}px Arial`; // Scale font size
   ctx.textAlign = 'center';
   const maxWidth = badgeWidth*1.5;
   let displayTitle = title;
