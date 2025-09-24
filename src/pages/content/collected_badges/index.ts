@@ -4,6 +4,42 @@ console.log("[ForU Collected Badges] Script loading...");
 
 import { API_BASE_URL } from '../../../lib/crypto-utils.js';
 import { httpClient } from '../../../lib/http-client.js';
+import { getBodyBackgroundColor, isLightColor } from '../../../lib/body-color-utils.js';
+
+/**
+ * Get dynamic badge colors based on body background color
+ * If background is light, return light theme colors; if dark, return current colors
+ */
+function getDynamicBadgeColors(): { backgroundColor: string; fontColor: string; emptyFontColor: string } {
+  try {
+    const bodyColor = getBodyBackgroundColor();
+    const isLight = isLightColor(bodyColor);
+    
+    if (isLight) {
+      // Light background: use light theme colors
+      return {
+        backgroundColor: '#e4e7eb',
+        fontColor: '#000000',
+        emptyFontColor: '#666666'
+      };
+    } else {
+      // Dark background: use current colors
+      return {
+        backgroundColor: '#1f1b2b',
+        fontColor: '#ececf1',
+        emptyFontColor: '#80818b'
+      };
+    }
+  } catch (error) {
+    console.warn('[ForU Collected Badges] Error getting dynamic badge colors:', error);
+    // Fallback to current colors
+    return {
+      backgroundColor: '#1f1b2b',
+      fontColor: '#ececf1',
+      emptyFontColor: '#80818b'
+    };
+  }
+}
 
 /**
  * Fetch badges from API for a given username
@@ -66,6 +102,9 @@ export async function renderBadges(container: HTMLElement, username: string) {
   try {
     const unlockedBadges = await fetchPublicBadges(username);
     
+    // Get dynamic badge colors based on body background
+    const badgeColors = getDynamicBadgeColors();
+    
     // Always display exactly 6 badges
     for (let i = 0; i < 6; i++) {
       if (i < unlockedBadges.length) {
@@ -74,7 +113,7 @@ export async function renderBadges(container: HTMLElement, username: string) {
         const item = document.createElement("div");
         Object.assign(item.style, {
           display: "flex", flexDirection: "column", alignItems: "center", position: "relative",
-          cursor: "default", padding: "12px", borderRadius: "8px", backgroundColor: "#1f1b2b",
+          cursor: "default", padding: "12px", borderRadius: "8px", backgroundColor: badgeColors.backgroundColor,
           border: "1px solid rgba(255, 255, 255, 0.1)", transition: "background 0.3s ease",
           minWidth: "80px", minHeight: "60px",
         });
@@ -88,13 +127,19 @@ export async function renderBadges(container: HTMLElement, username: string) {
         item.appendChild(img);
         const name = document.createElement("div");
         Object.assign(name.style, {
-          fontSize: "10px", color: "#ececf1", marginTop: "2px", textAlign: "center", maxWidth: "60px",
+          fontSize: "10px", color: badgeColors.fontColor, marginTop: "2px", textAlign: "center", maxWidth: "60px",
           overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
         });
         name.textContent = badge.name;
         item.appendChild(name);
-        item.addEventListener("mouseenter", () => { item.style.background = "linear-gradient(135deg, #667eea 0%, #764ba2 100%)"; });
-        item.addEventListener("mouseleave", () => { item.style.background = "#1f1b2b"; });
+        item.addEventListener("mouseenter", () => { 
+          item.style.background = "linear-gradient(135deg, #667eea 0%, #764ba2 100%)";
+          name.style.color = "#ffffff"; // Always white font on hover
+        });
+        item.addEventListener("mouseleave", () => { 
+          item.style.background = badgeColors.backgroundColor;
+          name.style.color = badgeColors.fontColor; // Restore dynamic font color
+        });
         item.addEventListener("click", () => createBadgeDialog(badge));
         item.style.cursor = "pointer";
         row.appendChild(item);
@@ -104,11 +149,14 @@ export async function renderBadges(container: HTMLElement, username: string) {
         Object.assign(emptyItem.style, {
           display: "flex", flexDirection: "column", alignItems: "center", position: "relative",
           cursor: "default", opacity: "0.5", padding: "12px", borderRadius: "8px",
-          backgroundColor: "#1f1b2b", border: "1px solid rgba(255, 255, 255, 0.1)",
+          backgroundColor: badgeColors.backgroundColor, border: "1px solid rgba(255, 255, 255, 0.1)",
           minWidth: "80px", minHeight: "60px",
         });
         const img = document.createElement("img");
-        img.src = chrome.runtime.getURL("images/badge_empty.png");
+        // Use light version of empty badge for light backgrounds
+        const bodyColor = getBodyBackgroundColor();
+        const isLight = isLightColor(bodyColor);
+        img.src = chrome.runtime.getURL(isLight ? "images/badge_empty_light.png" : "images/badge_empty.png");
         img.alt = "No Badges";
         Object.assign(img.style, {
           width: "32px", height: "32px", objectFit: "contain", marginBottom: "4px",
@@ -116,7 +164,7 @@ export async function renderBadges(container: HTMLElement, username: string) {
         emptyItem.appendChild(img);
         const name = document.createElement("div");
         Object.assign(name.style, {
-          fontSize: "10px", color: "#80818b", marginTop: "2px",
+          fontSize: "10px", color: badgeColors.emptyFontColor, marginTop: "2px",
         });
         name.textContent = "No badges";
         emptyItem.appendChild(name);

@@ -69,7 +69,34 @@ class IdCardPublicDialog {
         }
       }, 5000);
       
-      img.src = chrome.runtime.getURL('images/card_header.png');
+      img.src = chrome.runtime.getURL('images/card_header_2.png');
+    });
+  }
+
+  private async loadLogoImage(): Promise<HTMLImageElement | null> {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      
+      img.onload = () => {
+        console.log('✅ Logo image loaded successfully');
+        resolve(img);
+      };
+      
+      img.onerror = (error) => {
+        console.error('❌ Error loading logo image:', error);
+        resolve(null);
+      };
+      
+      // Set timeout to prevent hanging
+      setTimeout(() => {
+        if (!img.complete) {
+          console.warn('⚠️ Logo image loading timeout');
+          resolve(null);
+        }
+      }, 5000);
+      
+      img.src = chrome.runtime.getURL('images/foruaI_title_logo.png');
     });
   }
 
@@ -342,17 +369,58 @@ class IdCardPublicDialog {
         console.error('❌ Error loading header image, using gradient fallback:', error);
       }
 
-      // Header text - centered vertically, scaled font size
-      ctx.fillStyle = '#ffffff';
-      ctx.font = `bold ${24 * scaleFactor}px Arial`; // Scale font size
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText('ForU ID Card', cardWidth / 2, headerHeight / 2 - (8 * scaleFactor));
+      // Load and draw logo image - centered vertically and horizontally
+      try {
+        const logoImage = await this.loadLogoImage();
+        if (logoImage) {
+          // Calculate logo dimensions to fit nicely in header
+          const logoMaxWidth = cardWidth * 0.6; // 60% of card width
+          const logoMaxHeight = headerHeight * 0.6; // 60% of header height
+          
+          // Calculate aspect ratio to maintain logo proportions
+          const logoAspectRatio = logoImage.width / logoImage.height;
+          let logoWidth = logoMaxWidth;
+          let logoHeight = logoWidth / logoAspectRatio;
+          
+          // If height exceeds max height, scale down by height
+          if (logoHeight > logoMaxHeight) {
+            logoHeight = logoMaxHeight;
+            logoWidth = logoHeight * logoAspectRatio;
+          }
+          
+          // Center the logo in the header
+          const logoX = (cardWidth - logoWidth) / 2;
+          const logoY = (headerHeight - logoHeight) / 2;
+          
+          // Draw the logo
+          ctx.drawImage(logoImage, logoX, logoY, logoWidth, logoHeight);
+          console.log('✅ Logo drawn successfully');
+        } else {
+          // Fallback to text if logo fails to load
+          ctx.fillStyle = '#ffffff';
+          ctx.font = `bold ${24 * scaleFactor}px Arial`;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText('ForU ID Card', cardWidth / 2, headerHeight / 2 - (8 * scaleFactor));
 
-      // Subtitle - centered vertically, scaled font size
-      ctx.font = `${14 * scaleFactor}px Arial`; // Scale font size
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
-      ctx.fillText('Digital Identity', cardWidth / 2, headerHeight / 2 + (12 * scaleFactor));
+          ctx.font = `${14 * scaleFactor}px Arial`;
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+          ctx.fillText('Digital Identity', cardWidth / 2, headerHeight / 2 + (12 * scaleFactor));
+          console.log('⚠️ Logo failed to load, using text fallback');
+        }
+      } catch (error) {
+        // Fallback to text if logo loading fails
+        ctx.fillStyle = '#ffffff';
+        ctx.font = `bold ${24 * scaleFactor}px Arial`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('ForU ID Card', cardWidth / 2, headerHeight / 2 - (8 * scaleFactor));
+
+        ctx.font = `${14 * scaleFactor}px Arial`;
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+        ctx.fillText('Digital Identity', cardWidth / 2, headerHeight / 2 + (12 * scaleFactor));
+        console.error('❌ Error loading logo, using text fallback:', error);
+      }
 
       // Main content area - scaled proportionally
       const contentY = headerHeight + (20 * scaleFactor);
