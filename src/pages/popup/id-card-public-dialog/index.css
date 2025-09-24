@@ -111,6 +111,9 @@
   justify-content: center;
   position: relative;
   overflow: hidden;
+  transform-style: preserve-3d;
+  transition: transform 0.1s ease;
+  cursor: pointer;
 }
 
 .foru-id-card-public-dialog-preview img {
@@ -158,6 +161,21 @@
   height: 100%;
   object-fit: cover;
   border-radius: 14px;
+}
+
+/* VanillaTilt Glare Effect */
+.foru-id-card-public-dialog-preview .js-tilt-glare {
+  border-radius: 16px;
+}
+
+.foru-id-card-public-dialog-preview .js-tilt-glare-inner {
+  background: linear-gradient(45deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.3));
+  border-radius: 16px;
+}
+
+/* Enhanced 3D Effect */
+.foru-id-card-public-dialog-preview:hover {
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
 }
 
 /* Placeholder Content */

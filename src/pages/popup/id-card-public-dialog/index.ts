@@ -4,6 +4,7 @@ import { drawProfileSection, UserProfileData, extractTwitterProfileData } from '
 import { drawDigitalDnaCard } from './digital-dna/index.js';
 import { drawScoreBreakdownCard } from './score-breakdown/index.js';
 import { drawCollectedBadgesCard } from './collected-badges/index.js';
+import VanillaTilt from 'vanilla-tilt';
 
 interface IdCardPublicData {
   imageUrl?: string;
@@ -18,6 +19,7 @@ interface IdCardPublicData {
 class IdCardPublicDialog {
   private dialog: HTMLElement | null = null;
   private isVisible = false;
+  private tiltInstance: any = null;
 
   constructor() {
     this.loadStyles();
@@ -56,6 +58,12 @@ class IdCardPublicDialog {
   }
 
   public hide(): void {
+    // Clean up VanillaTilt instance
+    if (this.tiltInstance) {
+      this.tiltInstance.destroy();
+      this.tiltInstance = null;
+    }
+    
     if (this.dialog) {
       this.dialog.remove();
       this.dialog = null;
@@ -85,7 +93,7 @@ class IdCardPublicDialog {
             <p class="foru-id-card-public-dialog-subtitle">Image Generated</p>
             
             <div class="foru-id-card-public-dialog-preview-container">
-              <div class="foru-id-card-public-dialog-preview shimmer" id="idCardPublicPreview">
+              <div class="foru-id-card-public-dialog-preview shimmer" id="idCardPublicPreview" data-tilt>
                 <div class="foru-id-card-public-dialog-shimmer" id="idCardPublicShimmer">
                   <div class="shimmer-box"></div>
                 </div>
@@ -104,6 +112,120 @@ class IdCardPublicDialog {
     `;
 
     document.body.appendChild(this.dialog);
+    
+    // Initialize VanillaTilt after dialog is created
+    this.initializeVanillaTilt();
+  }
+
+  private initializeVanillaTilt(): void {
+    try {
+      const previewElement = this.dialog?.querySelector('#idCardPublicPreview') as HTMLElement;
+      if (previewElement) {
+        // Destroy existing instance if any
+        if (this.tiltInstance) {
+          this.tiltInstance.destroy();
+          this.tiltInstance = null;
+        }
+        
+        // Initialize new VanillaTilt instance
+        this.tiltInstance = VanillaTilt.init(previewElement, {
+          max: 15,
+          speed: 400,
+          glare: true,
+          'max-glare': 0.3,
+          scale: 1.05,
+          perspective: 1000
+        });
+        console.log('✅ VanillaTilt initialized successfully');
+      } else {
+        console.warn('⚠️ Preview element not found, using fallback CSS effects');
+        this.addFallbackTiltEffect();
+      }
+    } catch (error) {
+      console.error('❌ Error initializing VanillaTilt:', error);
+      this.addFallbackTiltEffect();
+    }
+  }
+
+
+  private startCornerTiltAnimation(): void {
+    const previewElement = this.dialog?.querySelector('#idCardPublicPreview') as HTMLElement;
+    if (!previewElement) return;
+
+    // Temporarily disable VanillaTilt during animation
+    if (this.tiltInstance) {
+      this.tiltInstance.destroy();
+      this.tiltInstance = null;
+    }
+
+    // Set up animation styles for smooth continuous movement
+    previewElement.style.transition = 'transform 0.8s cubic-bezier(0.4, 0.0, 0.2, 1)';
+    previewElement.style.transformStyle = 'preserve-3d';
+
+    // Define corner positions for smooth movement
+    const corners = [
+      { name: 'top-right', rotateX: -12, rotateY: 12 },
+      { name: 'top-left', rotateX: -12, rotateY: -12 },
+      { name: 'bottom-left', rotateX: 12, rotateY: -12 },
+      { name: 'bottom-right', rotateX: 12, rotateY: 12 },
+      { name: 'center', rotateX: 0, rotateY: 0 }
+    ];
+
+    // Start from center
+    previewElement.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale(1)';
+
+    // Animate smoothly through each corner
+    let currentIndex = 0;
+    
+    const animateToNextCorner = () => {
+      if (currentIndex < corners.length) {
+        const corner = corners[currentIndex];
+        previewElement.style.transform = `perspective(1000px) rotateX(${corner.rotateX}deg) rotateY(${corner.rotateY}deg) scale(1.05)`;
+        console.log(`🎬 Moving to: ${corner.name}`);
+        
+        currentIndex++;
+        
+        // Continue to next corner after animation duration
+        setTimeout(animateToNextCorner, 800);
+      } else {
+        // Animation completed, return to normal state
+        previewElement.style.transition = 'transform 0.1s ease';
+        
+        // Re-enable VanillaTilt after animation completes
+        setTimeout(() => {
+          this.initializeVanillaTilt();
+          console.log('✅ Smooth corner animation completed, VanillaTilt re-enabled');
+        }, 100);
+      }
+    };
+
+    // Start the smooth animation sequence
+    setTimeout(animateToNextCorner, 200);
+  }
+
+  private addFallbackTiltEffect(): void {
+    const previewElement = this.dialog?.querySelector('#idCardPublicPreview') as HTMLElement;
+    if (!previewElement) return;
+
+    // Add CSS-only tilt effect as fallback
+    previewElement.style.transition = 'transform 0.1s ease';
+    previewElement.addEventListener('mousemove', (e) => {
+      const rect = previewElement.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      const centerX = rect.width / 2;
+      const centerY = rect.height / 2;
+      const rotateX = (y - centerY) / 10;
+      const rotateY = (centerX - x) / 10;
+      
+      previewElement.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.05)`;
+    });
+
+    previewElement.addEventListener('mouseleave', () => {
+      previewElement.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale(1)';
+    });
+
+    console.log('✅ Fallback tilt effect added');
   }
 
   private addEventListeners(): void {
@@ -168,8 +290,8 @@ class IdCardPublicDialog {
 
       // Header gradient
       const headerGradient = ctx.createLinearGradient(0, 0, cardWidth, 0);
-      headerGradient.addColorStop(0, 'rgba(255, 176, 5, 0.1)');
-      headerGradient.addColorStop(1, 'rgba(255, 136, 0, 0.1)');
+      headerGradient.addColorStop(0, 'rgba(114, 70, 206, 0.3)');
+      headerGradient.addColorStop(1, 'rgba(156, 77, 204, 0.3)');
       ctx.fillStyle = headerGradient;
       ctx.fillRect(0, 0, cardWidth, headerHeight);
 
@@ -212,6 +334,12 @@ class IdCardPublicDialog {
       preview.classList.remove('shimmer');
       shimmer.style.display = 'none';
       canvas.style.display = 'block';
+      
+      // Re-initialize VanillaTilt after generation
+      this.initializeVanillaTilt();
+      
+      // Start corner tilt animation sequence
+      this.startCornerTiltAnimation();
       
       // Enable download button
       downloadBtn.disabled = false;
