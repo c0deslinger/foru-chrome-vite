@@ -269,10 +269,6 @@ async function renderReferralSection(forceRefresh = false): Promise<void> {
         <div class="version-container">
           <p class="version-text">v.1.2.0</p>
         </div>
-        <button id="generate-id-card-btn" class="logout-button">
-          Generate ID Card
-        </button>
-        <br>
         <button id="logout-btn" class="logout-button">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>

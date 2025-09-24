@@ -90,7 +90,7 @@ function loadProfileTab() {
     if (typeof (window as any).renderProfileSectionOnPage === 'function') {
       return (window as any).renderProfileSectionOnPage();
     }
-    return '<p>Profile loading...</p>';
+    return '<p>Profile not loaded, try to reload the page...</p>';
   })
     .then((html) => {
       container.innerHTML = html;
