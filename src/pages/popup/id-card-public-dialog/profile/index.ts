@@ -1,5 +1,39 @@
 // src/pages/popup/id-card-public-dialog/profile/index.ts
 
+import { buildForuHeaders, API_BASE_URL } from '../../../../lib/crypto-utils.js';
+
+/**
+ * Get IdentiFi score for a username using public API
+ */
+async function getIdentifiScore(username: string): Promise<number> {
+  try {
+    if (!username) {
+      console.log("🔵 No username available for IdentiFi score");
+      return 0;
+    }
+
+    console.log("🔵 About to fetch IdentiFi score for", username);
+    const headers = await buildForuHeaders("GET", "", undefined);
+    console.log("🟡 Headers built", headers);
+    const url = `${API_BASE_URL}/v1/public/user/metrics/${username}`;
+    console.log("➡️ Fetching from", url);
+    const resp = await fetch(url, { headers });
+    console.log("⬅️ Status", resp.status);
+    const json = await resp.json();
+    console.log("📊 JSON", json);
+    
+    if (json.code === 200 && json.data) {
+      const score = json.data.identifi_score || 0;
+      console.log(`✅ Got IdentiFi score for ${username}:`, score);
+      return score;
+    }
+  } catch (e) {
+    console.error("🔴 Failed to fetch IdentiFi score", e);
+  }
+
+  return 0;
+}
+
 /**
  * Extract profile data from Twitter page
  */
@@ -186,54 +220,55 @@ export async function drawProfileSection(ctx: CanvasRenderingContext2D, x: numbe
   // ctx.lineWidth = 1;
   // ctx.strokeRect(x, y, width, height);
 
-  // Profile photo
-  const photoSize = 60;
+  // Profile photo - increased size
+  const photoSize = 80; // Increased from 60 to 80
   const photoX = x + 12;
   const photoY = y + 12;
+  
+  // Get real IdentiFi score if not provided
+  let realIdentifiScore = identifiScore;
+  if (realIdentifiScore === undefined && userProfileData?.twitter_account?.username) {
+    realIdentifiScore = await getIdentifiScore(userProfileData.twitter_account.username);
+  }
   
   // Try to load real Twitter profile photo
   if (userProfileData?.twitter_account?.profile_picture_url) {
     try {
-      await drawRealProfilePhoto(ctx, photoX, photoY, photoSize, userProfileData.twitter_account.profile_picture_url);
+      await drawRealProfilePhotoWithBadge(ctx, photoX, photoY, photoSize, userProfileData.twitter_account.profile_picture_url, realIdentifiScore || 0);
     } catch (error) {
       console.warn('Failed to load profile photo, using placeholder:', error);
-      drawProfilePhotoPlaceholder(ctx, photoX, photoY, photoSize);
+      drawProfilePhotoPlaceholderWithBadge(ctx, photoX, photoY, photoSize, realIdentifiScore || 0);
     }
   } else {
-    drawProfilePhotoPlaceholder(ctx, photoX, photoY, photoSize);
+    drawProfilePhotoPlaceholderWithBadge(ctx, photoX, photoY, photoSize, realIdentifiScore || 0);
   }
 
-  // Display Name (from Twitter profile)
+  // Display Name (from Twitter profile) - adjusted for larger photo
   ctx.fillStyle = '#ececf1';
   ctx.font = 'bold 18px Arial';
   ctx.textAlign = 'left';
   const displayName = userProfileData?.displayName || 'Unknown User';
-  ctx.fillText(displayName, photoX + photoSize + 12, photoY + 20);
+  ctx.fillText(displayName, photoX + photoSize + 12, photoY + 25);
 
-  // Username (from Twitter handle)
+  // Username (from Twitter handle) - adjusted for larger photo
   ctx.font = '14px Arial';
   ctx.fillStyle = '#aeb0b6';
   const username = userProfileData?.twitter_account?.username ? `@${userProfileData.twitter_account.username}` : '';
   if (username) {
-    ctx.fillText(username, photoX + photoSize + 12, photoY + 40);
+    ctx.fillText(username, photoX + photoSize + 12, photoY + 45);
   }
 
-  // Bio (from Twitter bio - multi-line support)
+  // Bio (from Twitter bio - multi-line support) - adjusted for larger photo
   if (userProfileData?.bio) {
     ctx.font = '10px Arial';
     ctx.fillStyle = '#ececf1';
     const bio = userProfileData.bio;
     const maxWidth = width - (photoX + photoSize + 12) - 12;
-    drawWrappedText(ctx, bio, photoX + photoSize + 12, photoY + 60, maxWidth, 14, 3); // Max 3 lines, reduced line height
+    drawWrappedText(ctx, bio, photoX + photoSize + 12, photoY + 65, maxWidth, 14, 3); // Max 3 lines, reduced line height
   }
 
-  // IdentiFi Score
-  if (identifiScore !== undefined) {
-    ctx.font = 'bold 14px Arial';
-    ctx.fillStyle = '#FFB005';
-    ctx.textAlign = 'right';
-    ctx.fillText(`IdentiFi Score: ${identifiScore}`, x + width - 12, photoY + 20);
-  }
+  // IdentiFi Score - removed since it's now shown in the badge
+  // The score is now displayed in the badge on the profile picture
 }
 
 export async function drawRealProfilePhoto(ctx: CanvasRenderingContext2D, x: number, y: number, size: number, imageUrl: string): Promise<void> {
@@ -266,6 +301,42 @@ export async function drawRealProfilePhoto(ctx: CanvasRenderingContext2D, x: num
   } catch (error) {
     console.error('❌ Error drawing real profile photo:', error);
     drawProfilePhotoPlaceholder(ctx, x, y, size);
+  }
+}
+
+export async function drawRealProfilePhotoWithBadge(ctx: CanvasRenderingContext2D, x: number, y: number, size: number, imageUrl: string, identifiScore: number): Promise<void> {
+  try {
+    const img = await loadProfileImage(imageUrl);
+    if (img) {
+      // Create circular clipping path
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(x + size/2, y + size/2, size/2, 0, Math.PI * 2);
+      ctx.clip();
+      
+      // Draw the image
+      ctx.drawImage(img, x, y, size, size);
+      
+      // Restore context
+      ctx.restore();
+      
+      // Draw border with purple color like in score_profile_picture
+      ctx.strokeStyle = '#7349C0';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.arc(x + size/2, y + size/2, size/2, 0, Math.PI * 2);
+      ctx.stroke();
+      
+      // Draw IdentiFi badge
+      drawIdentifiBadge(ctx, x, y, size, identifiScore);
+      
+      console.log('✅ Successfully drew real profile photo with badge');
+    } else {
+      throw new Error('Failed to load image');
+    }
+  } catch (error) {
+    console.error('❌ Error drawing real profile photo with badge:', error);
+    drawProfilePhotoPlaceholderWithBadge(ctx, x, y, size, identifiScore);
   }
 }
 
@@ -344,4 +415,58 @@ export function drawProfilePhotoPlaceholder(ctx: CanvasRenderingContext2D, x: nu
   ctx.font = `${size * 0.4}px Arial`;
   ctx.textAlign = 'center';
   ctx.fillText('👤', x + size/2, y + size/2 + size * 0.15);
+}
+
+export function drawProfilePhotoPlaceholderWithBadge(ctx: CanvasRenderingContext2D, x: number, y: number, size: number, identifiScore: number): void {
+  // Profile photo background
+  ctx.fillStyle = '#2a2535';
+  ctx.fillRect(x, y, size, size);
+  
+  // Profile photo border with purple color
+  ctx.strokeStyle = '#7349C0';
+  ctx.lineWidth = 3;
+  ctx.strokeRect(x, y, size, size);
+  
+  // Profile photo icon
+  ctx.fillStyle = '#aeb0b6';
+  ctx.font = `${size * 0.4}px Arial`;
+  ctx.textAlign = 'center';
+  ctx.fillText('👤', x + size/2, y + size/2 + size * 0.15);
+  
+  // Draw IdentiFi badge
+  drawIdentifiBadge(ctx, x, y, size, identifiScore);
+}
+
+function drawIdentifiBadge(ctx: CanvasRenderingContext2D, x: number, y: number, size: number, identifiScore: number): void {
+  // Badge dimensions - positioned below profile photo
+  const badgeWidth = size; // 100% of avatar width
+  const badgeHeight = size * 0.3; // 30% of avatar height
+  const badgeX = x + (size - badgeWidth) / 2; // Center horizontally
+  const badgeY = y + size + 8; // Position below profile photo with 8px margin
+  
+  // Create rounded rectangle path for badge background (50% border radius)
+  const radius = badgeHeight / 2; // 50% border radius for fully rounded ends
+  ctx.beginPath();
+  ctx.roundRect(badgeX, badgeY, badgeWidth, badgeHeight, radius);
+  
+  // Badge background (purple like in score_profile_picture)
+  ctx.fillStyle = '#7349C0';
+  ctx.fill();
+  
+  // // Badge border (black like in score_profile_picture)
+  // ctx.strokeStyle = '#000000';
+  // ctx.lineWidth = 2;
+  // ctx.stroke();
+  
+  // Badge text (white)
+  ctx.fillStyle = '#ffffff';
+  ctx.font = `${badgeHeight * 0.6}px Arial`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  
+  // Format score with commas
+  const formattedScore = identifiScore.toLocaleString();
+  ctx.fillText(formattedScore, badgeX + badgeWidth/2, badgeY + badgeHeight/2);
+  
+  console.log(`✅ Drew IdentiFi badge below profile photo with score: ${formattedScore}`);
 }
