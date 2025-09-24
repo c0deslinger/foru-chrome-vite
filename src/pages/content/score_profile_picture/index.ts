@@ -2,6 +2,7 @@
 
 import { API_BASE_URL } from '../../../lib/crypto-utils.js';
 import { httpClient } from '../../../lib/http-client.js';
+import { getBodyBackgroundColor } from '../../../lib/body-color-utils.js';
 
 console.log("[ForU Score Profile Picture] Script loading...");
 
@@ -15,6 +16,8 @@ console.log("[ForU Score Profile Picture] Script loading...");
 
   const ICON_URL = chrome.runtime.getURL("images/old_icon.png");
   let observer: MutationObserver;
+  let bodyObserver: MutationObserver;
+
 
   /**
    * Get identifi_score for a username using shared utility or local fallback
@@ -73,6 +76,11 @@ console.log("[ForU Score Profile Picture] Script loading...");
 
   function injectStyles() {
     if (document.getElementById(STYLE_ID)) return;
+    
+    // Get dynamic body background color
+    const bodyBackgroundColor = getBodyBackgroundColor();
+    console.log('[ForU Profile Picture] Using body background color for border:', bodyBackgroundColor);
+    
     const css = `
         .${BORDER_CLASS} {
           border: 2px solid #7349C0 !important;
@@ -103,7 +111,7 @@ console.log("[ForU Score Profile Picture] Script loading...");
           overflow: hidden !important;
           padding: 0 !important;
           margin: 0 auto !important;
-          box-shadow: inset 0 0 0 2px #000 !important;
+          box-shadow: inset 0 0 0 2px ${bodyBackgroundColor} !important;
         }
         .${ICON_CLASS} {
           width: 16px !important;
@@ -229,15 +237,58 @@ console.log("[ForU Score Profile Picture] Script loading...");
     observer.observe(document.body, { childList: true, subtree: true });
   }
 
+  function observeBodyStyle() {
+    if (bodyObserver) return;
+    
+    bodyObserver = new MutationObserver((mutations) => {
+      let shouldUpdate = false;
+      
+      mutations.forEach((mutation) => {
+        if (mutation.type === 'attributes' && 
+            mutation.attributeName === 'style' && 
+            mutation.target === document.body) {
+          shouldUpdate = true;
+        }
+      });
+      
+      if (shouldUpdate) {
+        updateStyles();
+      }
+    });
+    
+    // Observe body element for style attribute changes
+    if (document.body) {
+      bodyObserver.observe(document.body, { 
+        attributes: true, 
+        attributeFilter: ['style'] 
+      });
+    }
+  }
+
   function init() {
     injectStyles();
     observeDOM();
+    observeBodyStyle();
     decorateAvatars();
   }
 
   function updateBadges() {
     removeExistingBadges();
     decorateAvatars();
+  }
+
+  function updateStyles() {
+    // Remove existing styles
+    const existingStyle = document.getElementById(STYLE_ID);
+    if (existingStyle) {
+      existingStyle.remove();
+    }
+    
+    // Re-inject styles with updated body background color
+    injectStyles();
+    
+    // Re-decorate avatars to apply new styles
+    updateBadges();
   }
 
   // re-run on SPA navigation or side-panel toggle

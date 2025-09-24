@@ -24,6 +24,25 @@ declare global {
 import { API_BASE_URL } from '../../../lib/crypto-utils.js';
 import { httpClient } from '../../../lib/http-client.js';
 import { renderBadges, createBadgeDialog } from '../collected_badges/index.js';
+import { getBodyBackgroundColor, isLightColor } from '../../../lib/body-color-utils.js';
+
+/**
+ * Get dynamic font color based on body background color
+ * If background is light, return black; if dark, return white
+ */
+function getDynamicFontColor(): string {
+  try {
+    const bodyColor = getBodyBackgroundColor();
+    const isLight = isLightColor(bodyColor);
+    const fontColor = isLight ? '#000000' : 'rgb(231,233,237)';
+    
+    console.log('[ForU Score Credibility] Body color:', bodyColor, 'Is light:', isLight, 'Font color:', fontColor);
+    return fontColor;
+  } catch (error) {
+    console.warn('[ForU Score Credibility] Error getting dynamic font color:', error);
+    return 'rgb(231,233,237)'; // fallback to light gray
+  }
+}
 
 /**
  * Local fallback function to fetch metrics
@@ -124,6 +143,9 @@ function insertCustomProfileScores() {
         engagement_score, reach_score, impression_score, on_chain_score,
       } = metrics;
 
+      // Get dynamic font color based on body background
+      const dynamicFontColor = getDynamicFontColor();
+
       const foruContainer = document.createElement("div");
       foruContainer.id = "foru-profile-injection-container";
       Object.assign(foruContainer.style, {
@@ -143,16 +165,16 @@ function insertCustomProfileScores() {
       });
       metricsSpan.innerHTML = `
         <span style="display: flex; align-items: center; white-space: nowrap; gap: 4px;">
-          <span style="font-weight:700;color:rgb(231,233,237);">${reach_score.toLocaleString()}</span>Social
+          <span style="font-weight:700;color:${dynamicFontColor};">${reach_score.toLocaleString()}</span>Social
         </span>
         <span style="display: flex; align-items: center; white-space: nowrap; gap: 4px;">
-          <span style="font-weight:700;color:rgb(231,233,237);">${engagement_score.toLocaleString()}</span>Reputation
+          <span style="font-weight:700;color:${dynamicFontColor};">${engagement_score.toLocaleString()}</span>Reputation
         </span>
         <span style="display: flex; align-items: center; white-space: nowrap; gap: 4px;">
-          <span style="font-weight:700;color:rgb(231,233,237);">${impression_score.toLocaleString()}</span>Impression
+          <span style="font-weight:700;color:${dynamicFontColor};">${impression_score.toLocaleString()}</span>Impression
         </span>
         <span style="display: flex; align-items: center; white-space: nowrap; gap: 4px;">
-          <span style="font-weight:700;color:rgb(231,233,237);">${on_chain_score.toLocaleString()}</span>On Chain
+          <span style="font-weight:700;color:${dynamicFontColor};">${on_chain_score.toLocaleString()}</span>On Chain
         </span>
       `;
       

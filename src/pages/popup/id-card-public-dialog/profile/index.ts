@@ -1,6 +1,7 @@
 // src/pages/popup/id-card-public-dialog/profile/index.ts
 
 import { buildForuHeaders, API_BASE_URL } from '../../../../lib/crypto-utils.js';
+import { getBodyBackgroundColor, getBodyBackgroundColorWithContext } from '../../../../lib/body-color-utils.js';
 
 /**
  * Get IdentiFi score for a username using public API
@@ -213,6 +214,17 @@ export interface UserProfileData {
 }
 
 export async function drawProfileSection(ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number, userProfileData?: UserProfileData, identifiScore?: number, scaleFactor: number = 1): Promise<void> {
+  // Example usage of body color utility (for demonstration purposes)
+  // This shows how the utility function can be used by other classes
+  try {
+    const bodyColor = getBodyBackgroundColor();
+    const bodyColorContext = getBodyBackgroundColorWithContext();
+    console.log('[ID Card Profile] Body background color:', bodyColor);
+    console.log('[ID Card Profile] Body color context:', bodyColorContext);
+  } catch (error) {
+    console.warn('[ID Card Profile] Could not get body color (expected in canvas context):', error);
+  }
+
   // // Profile background
   // ctx.fillStyle = '#1f1b2b';
   // ctx.fillRect(x, y, width, height);
