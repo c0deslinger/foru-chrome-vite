@@ -144,12 +144,19 @@ export async function drawScoreBreakdownCard(
 }
 
 function drawScoreCard(ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number, label: string, value: string, details: string, scaleFactor: number = 1): void {
-  // Score card background
+  // Score card background with rounded corners
+  const borderRadius = 8 * scaleFactor; // Scale border radius
   ctx.fillStyle = '#2a2535';
-  ctx.fillRect(x, y, width, height);
+  ctx.beginPath();
+  ctx.roundRect(x, y, width, height, borderRadius);
+  ctx.fill();
+  
+  // Score card border with rounded corners
   ctx.strokeStyle = '#3a3545';
   ctx.lineWidth = 1;
-  ctx.strokeRect(x, y, width, height);
+  ctx.beginPath();
+  ctx.roundRect(x, y, width, height, borderRadius);
+  ctx.stroke();
 
   // Label - Top left corner - scaled
   ctx.fillStyle = '#aeb0b6';

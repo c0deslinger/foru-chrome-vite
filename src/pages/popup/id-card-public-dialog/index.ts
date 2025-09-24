@@ -46,6 +46,33 @@ class IdCardPublicDialog {
     }
   }
 
+  private async loadHeaderImage(): Promise<HTMLImageElement | null> {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      
+      img.onload = () => {
+        console.log('✅ Header image loaded successfully');
+        resolve(img);
+      };
+      
+      img.onerror = (error) => {
+        console.error('❌ Error loading header image:', error);
+        resolve(null);
+      };
+      
+      // Set timeout to prevent hanging
+      setTimeout(() => {
+        if (!img.complete) {
+          console.warn('⚠️ Header image loading timeout');
+          resolve(null);
+        }
+      }, 5000);
+      
+      img.src = chrome.runtime.getURL('images/card_header.png');
+    });
+  }
+
   public show(data: IdCardPublicData): void {
     if (this.isVisible) {
       this.hide();
@@ -95,6 +122,7 @@ class IdCardPublicDialog {
               <div class="foru-id-card-public-dialog-preview shimmer" id="idCardPublicPreview" data-tilt>
                 <div class="foru-id-card-public-dialog-shimmer" id="idCardPublicShimmer">
                   <div class="shimmer-box"></div>
+                  <div class="shimmer-text">Generating ID Card...</div>
                 </div>
                 <canvas id="idCardPublicCanvas" style="display: none;"></canvas>
               </div>
@@ -287,15 +315,32 @@ class IdCardPublicDialog {
 
       // Header section - scaled proportionally
       const headerHeight = 80 * scaleFactor; // Scale header height
-      ctx.fillStyle = '#2a2535';
-      ctx.fillRect(0, 0, cardWidth, headerHeight);
-
-      // Header gradient - same as download button (not dark)
-      const headerGradient = ctx.createLinearGradient(0, 0, cardWidth, 0);
-      headerGradient.addColorStop(0, '#7246ce');
-      headerGradient.addColorStop(1, '#9c4dcc');
-      ctx.fillStyle = headerGradient;
-      ctx.fillRect(0, 0, cardWidth, headerHeight);
+      
+      // Load and draw header background image
+      try {
+        const headerImage = await this.loadHeaderImage();
+        if (headerImage) {
+          // Draw header background image
+          ctx.drawImage(headerImage, 0, 0, cardWidth, headerHeight);
+          console.log('✅ Header background image loaded successfully');
+        } else {
+          // Fallback to gradient if image fails to load
+          const headerGradient = ctx.createLinearGradient(0, 0, cardWidth, 0);
+          headerGradient.addColorStop(0, '#7246ce');
+          headerGradient.addColorStop(1, '#9c4dcc');
+          ctx.fillStyle = headerGradient;
+          ctx.fillRect(0, 0, cardWidth, headerHeight);
+          console.log('⚠️ Header image failed to load, using gradient fallback');
+        }
+      } catch (error) {
+        // Fallback to gradient if image loading fails
+        const headerGradient = ctx.createLinearGradient(0, 0, cardWidth, 0);
+        headerGradient.addColorStop(0, '#7246ce');
+        headerGradient.addColorStop(1, '#9c4dcc');
+        ctx.fillStyle = headerGradient;
+        ctx.fillRect(0, 0, cardWidth, headerHeight);
+        console.error('❌ Error loading header image, using gradient fallback:', error);
+      }
 
       // Header text - centered vertically, scaled font size
       ctx.fillStyle = '#ffffff';
@@ -307,7 +352,7 @@ class IdCardPublicDialog {
       // Subtitle - centered vertically, scaled font size
       ctx.font = `${14 * scaleFactor}px Arial`; // Scale font size
       ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
-      ctx.fillText('Your Digital Identity', cardWidth / 2, headerHeight / 2 + (12 * scaleFactor));
+      ctx.fillText('Digital Identity', cardWidth / 2, headerHeight / 2 + (12 * scaleFactor));
 
       // Main content area - scaled proportionally
       const contentY = headerHeight + (20 * scaleFactor);

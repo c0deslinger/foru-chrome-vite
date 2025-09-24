@@ -136,6 +136,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
 }
 
 .shimmer-box {
@@ -145,6 +146,20 @@
   background-size: 200% 100%;
   animation: shimmer 2s infinite;
   border-radius: 8px;
+}
+
+.shimmer-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #A9A9A9FF;
+  font-size: 16px;
+  font-weight: 500;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  z-index: 10;
+  text-align: center;
+  pointer-events: none;
 }
 
 @keyframes shimmer {
