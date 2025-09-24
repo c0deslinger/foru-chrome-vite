@@ -138,6 +138,18 @@ async function fetchAuthenticatedMetrics(accessToken: string): Promise<MetricsDa
 }
 
 /**
+ * Format number with commas (e.g., 121555 -> 121,555)
+ */
+function formatNumberWithCommas(value: number | string): string {
+  if (value === '-' || value === '') return String(value);
+  
+  const num = typeof value === 'number' ? value : parseInt(String(value));
+  if (isNaN(num)) return String(value);
+  
+  return num.toLocaleString();
+}
+
+/**
  * Render score grid HTML
  */
 function renderScoreGrid(metricsData: MetricsData, config: IdentifiScoreBreakdownApiConfig): string {
@@ -165,22 +177,22 @@ function renderScoreGrid(metricsData: MetricsData, config: IdentifiScoreBreakdow
     <div class="score-grid">
       <div class="score-card" style="cursor: pointer;" onclick="showTooltip('This score reflects how widely your content is seen. It\\'s driven by impressions and how your audience is expanding.', event)">
         <div class="label">Social</div>
-        <div class="value">${reachScore}</div>
-        <div class="details">${finalFollowersCount} followers & ${finalImpressionScore} impressions</div>
+        <div class="value" style="color: #ffffff;">${formatNumberWithCommas(reachScore)}</div>
+        <div class="details">${formatNumberWithCommas(finalFollowersCount)} followers & ${formatNumberWithCommas(finalImpressionScore)} impressions</div>
       </div>
       <div class="score-card" style="cursor: pointer;" onclick="showTooltip('This score reflects how widely your content is seen. It\\'s driven by impressions and how your audience is expanding.', event)">
         <div class="label">Reputation</div>
-        <div class="value">${engagementScore}</div>
-        <div class="details">${avgLikes} avg likes, ${avgReplies} avg replies, ${avgReposts} avg retweets</div>
+        <div class="value" style="color: #ffffff;">${formatNumberWithCommas(engagementScore)}</div>
+        <div class="details">${formatNumberWithCommas(avgLikes)} avg likes, ${formatNumberWithCommas(avgReplies)} avg replies, ${formatNumberWithCommas(avgReposts)} avg retweets</div>
       </div>
       <div class="score-card" style="cursor: pointer;" onclick="showTooltip('This score reflects how widely your content is seen. It\\'s driven by impressions and how your audience is expanding.', event)">
         <div class="label">On Chain</div>
-        <div class="value">${onchainScore}</div>
-        <div class="details">${badgesMinted} badges minted, ${questCompleted} quests solved, ${referralCount} referrals</div>
+        <div class="value" style="color: #ffffff;">${formatNumberWithCommas(onchainScore)}</div>
+        <div class="details">${formatNumberWithCommas(badgesMinted)} badges minted, ${formatNumberWithCommas(questCompleted)} quests solved, ${formatNumberWithCommas(referralCount)} referrals</div>
       </div>
       <div class="score-card" style="cursor: not-allowed; opacity: 0.6;">
         <div class="label">Governance</div>
-        <div class="value">-</div>
+        <div class="value" style="color: #ffffff;">-</div>
         <div class="details">Coming soon</div>
       </div>
     </div>

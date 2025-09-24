@@ -92,6 +92,16 @@ export async function renderProfileHeader(): Promise<string> {
     jobText = "",
     urlText = "",
     joinDateText = "";
+  
+  // First try: Get location from UserLocation testid
+  const locationElem = document.querySelector('[data-testid="UserLocation"]');
+  if (locationElem) {
+    const locationSpan = locationElem.querySelector('span span');
+    if (locationSpan) {
+      locationText = locationSpan.textContent?.trim() || "";
+    }
+  }
+  
   const items = document.querySelector(
     'div[data-testid="UserProfileHeader_Items"]'
   );
@@ -106,10 +116,18 @@ export async function renderProfileHeader(): Promise<string> {
       (s) => !s.textContent?.trim().startsWith("Joined ")
     );
     if (others.length >= 2) {
-      locationText = others[0].textContent?.trim() || "";
+      // If location not found from UserLocation, try from first span
+      if (!locationText) {
+        locationText = others[0].textContent?.trim() || "";
+      }
       jobText = others[1].textContent?.trim() || "";
     } else if (others.length === 1) {
-      jobText = others[0].textContent?.trim() || "";
+      // If location not found from UserLocation, try from first span
+      if (!locationText) {
+        locationText = others[0].textContent?.trim() || "";
+      } else {
+        jobText = others[0].textContent?.trim() || "";
+      }
     }
   }
 
@@ -128,7 +146,7 @@ export async function renderProfileHeader(): Promise<string> {
 
   // --- 6) Assemble HTML ---
   const html = `
-    <div class="profile-header">
+    <div class="profile-header" style="position: relative;">
       <img src="${avatarUrl}" alt="avatar" />
       <div class="info">
         <div style="font-weight: bold; font-size: 16px; color: #ececf1; margin-bottom: 4px;">
@@ -138,37 +156,46 @@ export async function renderProfileHeader(): Promise<string> {
           ${handle}${jobText ? ` - ${jobText || locationText}` : ''}
         </div>
       </div>
+      <button id="generate-id-card-public-btn" class="generate-id-card-btn" style="
+        position: absolute;
+        top: 0;
+        right: 0;
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 8px;
+        padding: 6px 12px;
+        color: #ececf1;
+        font-weight: 500;
+        font-size: 12px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        min-width: 60px;
+        height: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10;
+      ">
+        ID Card
+      </button>
     </div>
 
     <p class="profile-bio">${bioText}</p>
 
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;">
+      <div style="color:#aeb0b6;">👥 ${followersCount} Followers · ${followingCount} Following</div>
+      <div style="color:#aeb0b6;">${
+        joinDateText ? `📅 ${joinDateText}` : ""
+      }</div>
       <div style="color:#aeb0b6;">${
         urlText
           ? `🔗 <a href="${urlText}" target="_blank" style="color:#6c4cb3;text-decoration:underline;">${urlText}</a>`
           : ""
       }</div>
       <div style="color:#aeb0b6;">${
-        joinDateText ? `📅 ${joinDateText}` : ""
+        locationText ? `📍 ${locationText}` : ""
       }</div>
-      <div style="color:#aeb0b6;">👥 ${followersCount} Followers · ${followingCount} Following</div>
-    </div>
-
-    <div style="margin-top: 16px; text-align: center;">
-      <button id="generate-id-card-public-btn" class="generate-id-card-btn" style="
-        background: linear-gradient(135deg, #FFB005, #FF8800);
-        border: none;
-        border-radius: 8px;
-        padding: 12px 24px;
-        color: white;
-        font-weight: 600;
-        font-size: 14px;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        min-width: 160px;
-      ">
-        Generate ID Card
-      </button>
     </div>
   `;
 

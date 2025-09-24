@@ -179,12 +179,12 @@ export interface UserProfileData {
 }
 
 export async function drawProfileSection(ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number, userProfileData?: UserProfileData, identifiScore?: number): Promise<void> {
-  // Profile background
-  ctx.fillStyle = '#1f1b2b';
-  ctx.fillRect(x, y, width, height);
-  ctx.strokeStyle = '#2a2535';
-  ctx.lineWidth = 1;
-  ctx.strokeRect(x, y, width, height);
+  // // Profile background
+  // ctx.fillStyle = '#1f1b2b';
+  // ctx.fillRect(x, y, width, height);
+  // ctx.strokeStyle = '#2a2535';
+  // ctx.lineWidth = 1;
+  // ctx.strokeRect(x, y, width, height);
 
   // Profile photo
   const photoSize = 60;

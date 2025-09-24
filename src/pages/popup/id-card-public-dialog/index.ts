@@ -89,8 +89,7 @@ class IdCardPublicDialog {
             </button>
           </div>
           <div class="foru-id-card-public-dialog-content">
-            <h1 class="foru-id-card-public-dialog-title">Your ForU ID Card</h1>
-            <p class="foru-id-card-public-dialog-subtitle">Image Generated</p>
+            <br>
             
             <div class="foru-id-card-public-dialog-preview-container">
               <div class="foru-id-card-public-dialog-preview shimmer" id="idCardPublicPreview" data-tilt>
@@ -288,23 +287,24 @@ class IdCardPublicDialog {
       ctx.fillStyle = '#2a2535';
       ctx.fillRect(0, 0, cardWidth, headerHeight);
 
-      // Header gradient
+      // Header gradient - same as download button (not dark)
       const headerGradient = ctx.createLinearGradient(0, 0, cardWidth, 0);
-      headerGradient.addColorStop(0, 'rgba(114, 70, 206, 0.3)');
-      headerGradient.addColorStop(1, 'rgba(156, 77, 204, 0.3)');
+      headerGradient.addColorStop(0, '#7246ce');
+      headerGradient.addColorStop(1, '#9c4dcc');
       ctx.fillStyle = headerGradient;
       ctx.fillRect(0, 0, cardWidth, headerHeight);
 
-      // Header text
-      ctx.fillStyle = '#ececf1';
+      // Header text - centered vertically
+      ctx.fillStyle = '#ffffff';
       ctx.font = 'bold 24px Arial';
       ctx.textAlign = 'center';
-      ctx.fillText('ForU ID Card', cardWidth / 2, 35);
+      ctx.textBaseline = 'middle';
+      ctx.fillText('ForU ID Card', cardWidth / 2, headerHeight / 2 - 8);
 
-      // Subtitle
+      // Subtitle - centered vertically
       ctx.font = '14px Arial';
-      ctx.fillStyle = '#aeb0b6';
-      ctx.fillText('Your Digital Identity', cardWidth / 2, 55);
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+      ctx.fillText('Your Digital Identity', cardWidth / 2, headerHeight / 2 + 12);
 
       // Main content area
       const contentY = headerHeight + 20;

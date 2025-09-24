@@ -62,6 +62,18 @@ async function fetchPublicMetrics(username: string): Promise<MetricsData> {
 }
 
 /**
+ * Format number with commas (e.g., 121555 -> 121,555)
+ */
+function formatNumberWithCommas(value: string): string {
+  if (value === '-' || value === '') return value;
+  
+  const num = parseInt(value);
+  if (isNaN(num)) return value;
+  
+  return num.toLocaleString();
+}
+
+/**
  * Draw IdentiFi Score Breakdown card with real API data
  */
 export async function drawScoreBreakdownCard(
@@ -144,11 +156,12 @@ function drawScoreCard(ctx: CanvasRenderingContext2D, x: number, y: number, widt
   ctx.textAlign = 'left';
   ctx.fillText(label, x + 8, y + 16);
 
-  // Value - Center of card
-  ctx.fillStyle = '#FFB005';
+  // Value - Center of card (white color with comma formatting)
+  ctx.fillStyle = '#ffffff';
   ctx.font = 'bold 16px Arial';
   ctx.textAlign = 'center';
-  ctx.fillText(value, x + width/2, y + height/2);
+  const formattedValue = formatNumberWithCommas(value);
+  ctx.fillText(formattedValue, x + width/2, y + height/2);
 
   // Details - Bottom left of card (wrapped text)
   ctx.fillStyle = '#8a8d93';
