@@ -6,13 +6,39 @@
 export function extractTwitterProfileData(): UserProfileData {
   // --- 1) Get the latest avatar ---
   let avatarUrl = "";
-  const primaryColumn = document.querySelector('[data-testid="primaryColumn"]');
-  if (primaryColumn) {
-    const avatarElem = primaryColumn.querySelector(
-      'img[src*="profile_images"]'
-    ) as HTMLImageElement;
-    if (avatarElem) avatarUrl = avatarElem.src;
+  
+  // First try: Look for "Opens profile photo" element
+  const profilePhotoContainer = document.querySelector('[aria-label="Opens profile photo"]');
+  if (profilePhotoContainer) {
+    const img = profilePhotoContainer.querySelector('img') as HTMLImageElement;
+    if (img && img.src) {
+      avatarUrl = img.src;
+    }
   }
+  
+  // Second try: Look for UserAvatar container
+  if (!avatarUrl) {
+    const userAvatarContainer = document.querySelector('[data-testid*="UserAvatar-Container"]');
+    if (userAvatarContainer) {
+      const img = userAvatarContainer.querySelector('img[src*="profile_images"]') as HTMLImageElement;
+      if (img && img.src) {
+        avatarUrl = img.src;
+      }
+    }
+  }
+  
+  // Third try: Look in primary column
+  if (!avatarUrl) {
+    const primaryColumn = document.querySelector('[data-testid="primaryColumn"]');
+    if (primaryColumn) {
+      const avatarElem = primaryColumn.querySelector(
+        'img[src*="profile_images"]'
+      ) as HTMLImageElement;
+      if (avatarElem) avatarUrl = avatarElem.src;
+    }
+  }
+  
+  // Fourth try: Global fallback
   if (!avatarUrl) {
     const fallback = document.querySelector('img[src*="profile_images"]') as HTMLImageElement;
     if (fallback) avatarUrl = fallback.src;
@@ -25,8 +51,24 @@ export function extractTwitterProfileData(): UserProfileData {
 
   // --- 3) Get display name ---
   let displayName = "";
-  const nameElem = document.querySelector('div[data-testid="UserName"] h1');
-  if (nameElem) displayName = nameElem.textContent?.trim() || "";
+  const userNameContainer = document.querySelector('div[data-testid="UserName"]');
+  if (userNameContainer) {
+    // Look for the first span with actual text content (display name)
+    const spans = userNameContainer.querySelectorAll('span');
+    for (const span of spans) {
+      const text = span.textContent?.trim();
+      if (text && text.length > 0 && !text.startsWith('@') && !text.includes('Verified account')) {
+        displayName = text;
+        break;
+      }
+    }
+    
+    // Fallback: try to get from h1 if spans don't work
+    if (!displayName) {
+      const nameElem = userNameContainer.querySelector('h1');
+      if (nameElem) displayName = nameElem.textContent?.trim() || "";
+    }
+  }
 
   // --- 4) Get bio ---
   let bioText = "";

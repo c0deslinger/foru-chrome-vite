@@ -18,13 +18,39 @@ export async function renderProfileHeader(): Promise<string> {
 
   // --- 1) Get the latest avatar ---
   let avatarUrl = "";
-  const primaryColumn = document.querySelector('[data-testid="primaryColumn"]');
-  if (primaryColumn) {
-    const avatarElem = primaryColumn.querySelector(
-      'img[src*="profile_images"]'
-    ) as HTMLImageElement;
-    if (avatarElem) avatarUrl = avatarElem.src;
+  
+  // First try: Look for "Opens profile photo" element
+  const profilePhotoContainer = document.querySelector('[aria-label="Opens profile photo"]');
+  if (profilePhotoContainer) {
+    const img = profilePhotoContainer.querySelector('img') as HTMLImageElement;
+    if (img && img.src) {
+      avatarUrl = img.src;
+    }
   }
+  
+  // Second try: Look for UserAvatar container
+  if (!avatarUrl) {
+    const userAvatarContainer = document.querySelector('[data-testid*="UserAvatar-Container"]');
+    if (userAvatarContainer) {
+      const img = userAvatarContainer.querySelector('img[src*="profile_images"]') as HTMLImageElement;
+      if (img && img.src) {
+        avatarUrl = img.src;
+      }
+    }
+  }
+  
+  // Third try: Look in primary column
+  if (!avatarUrl) {
+    const primaryColumn = document.querySelector('[data-testid="primaryColumn"]');
+    if (primaryColumn) {
+      const avatarElem = primaryColumn.querySelector(
+        'img[src*="profile_images"]'
+      ) as HTMLImageElement;
+      if (avatarElem) avatarUrl = avatarElem.src;
+    }
+  }
+  
+  // Fourth try: Global fallback
   if (!avatarUrl) {
     const fallback = document.querySelector('img[src*="profile_images"]') as HTMLImageElement;
     if (fallback) avatarUrl = fallback.src;
@@ -34,6 +60,27 @@ export async function renderProfileHeader(): Promise<string> {
   let handle = "";
   const parts = window.location.pathname.split("/").filter((p) => p);
   if (parts.length) handle = "@" + parts[0];
+
+  // --- 3) Get display name ---
+  let displayName = "";
+  const userNameContainer = document.querySelector('div[data-testid="UserName"]');
+  if (userNameContainer) {
+    // Look for the first span with actual text content (display name)
+    const spans = userNameContainer.querySelectorAll('span');
+    for (const span of spans) {
+      const text = span.textContent?.trim();
+      if (text && text.length > 0 && !text.startsWith('@') && !text.includes('Verified account')) {
+        displayName = text;
+        break;
+      }
+    }
+    
+    // Fallback: try to get from h1 if spans don't work
+    if (!displayName) {
+      const nameElem = userNameContainer.querySelector('h1');
+      if (nameElem) displayName = nameElem.textContent?.trim() || "";
+    }
+  }
 
   // --- 3) Get bio ---
   let bioText = "";
@@ -84,15 +131,18 @@ export async function renderProfileHeader(): Promise<string> {
     <div class="profile-header">
       <img src="${avatarUrl}" alt="avatar" />
       <div class="info">
-        <span class="username">${handle}</span>
-        <span class="location">${locationText}</span>
+        <div style="font-weight: bold; font-size: 16px; color: #ececf1; margin-bottom: 4px;">
+          ${displayName || 'Unknown User'}
+        </div>
+        <div style="font-size: 12px; color: #8a8d93; margin-bottom: 2px;">
+          ${handle}${jobText ? ` - ${jobText || locationText}` : ''}
+        </div>
       </div>
     </div>
 
     <p class="profile-bio">${bioText}</p>
 
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;">
-      <div style="color:#aeb0b6;">${jobText ? `💼 ${jobText}` : ""}</div>
       <div style="color:#aeb0b6;">${
         urlText
           ? `🔗 <a href="${urlText}" target="_blank" style="color:#6c4cb3;text-decoration:underline;">${urlText}</a>`
