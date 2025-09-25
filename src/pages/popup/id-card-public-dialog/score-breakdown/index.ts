@@ -74,6 +74,26 @@ function formatNumberWithCommas(value: string): string {
 }
 
 /**
+ * Extract followers count from web content (similar to profile_header/index.ts)
+ */
+function extractFollowersFromWebContent(): string {
+  try {
+    const anchors = Array.from(document.querySelectorAll("a"));
+    const followersAnchor = anchors.find((a) =>
+      a.textContent?.toLowerCase().endsWith("followers")
+    );
+    if (followersAnchor) {
+      const followersText = followersAnchor.textContent?.split(" ")[0] || "0";
+      console.log("🔵 Followers count from web content:", followersText);
+      return followersText;
+    }
+  } catch (error) {
+    console.warn("Failed to extract followers from web content:", error);
+  }
+  return "0";
+}
+
+/**
  * Draw IdentiFi Score Breakdown card with real API data
  */
 export async function drawScoreBreakdownCard(
@@ -121,8 +141,10 @@ export async function drawScoreBreakdownCard(
   const badgesMinted = metricsData.badges_minted || 0;
   const questCompleted = metricsData.quest_completed || 0;
   const referralCount = metricsData.referral_count || 0;
-  const followersCount = metricsData.followers_count || 0;
   const impressionScore = metricsData.impression_score || 0;
+  
+  // Extract followers count from web content instead of API
+  const followersCountFromWeb = extractFollowersFromWebContent();
 
   // Score grid (2x2) - scaled layout
   const scoreWidth = (width - (36 * scaleFactor)) / 2;
@@ -131,7 +153,7 @@ export async function drawScoreBreakdownCard(
   const scoreStartY = y + (30 * scaleFactor);
 
   // Social
-  drawScoreCard(ctx, scoreStartX, scoreStartY, scoreWidth, scoreHeight, 'Social', reachScore.toString(), `${followersCount} followers & ${impressionScore} impressions`, scaleFactor);
+  drawScoreCard(ctx, scoreStartX, scoreStartY, scoreWidth, scoreHeight, 'Social', reachScore.toString(), `${followersCountFromWeb} followers & ${impressionScore} impressions`, scaleFactor);
   
   // Reputation
   drawScoreCard(ctx, scoreStartX + scoreWidth + (12 * scaleFactor), scoreStartY, scoreWidth, scoreHeight, 'Reputation', engagementScore.toString(), `${avgLikes} avg likes, ${avgReplies} avg replies, ${avgReposts} avg retweets`, scaleFactor);

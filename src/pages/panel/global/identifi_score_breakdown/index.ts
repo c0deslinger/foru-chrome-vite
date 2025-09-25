@@ -31,19 +31,13 @@ export interface MetricsData {
 async function fetchPublicMetrics(username: string): Promise<MetricsData> {
   try {
     if (!username) {
-      console.log("🔵 No username available for public metrics");
       return {};
     }
 
-    console.log("🔵 About to fetch public scores for", username);
     const headers = await buildForuHeaders("GET", "", undefined);
-    console.log("🟡 Headers built", headers);
     const url = `${API_BASE_URL}/v1/public/user/metrics/${username}`;
-    console.log("➡️ Fetching from", url);
     const resp = await fetch(url, { headers });
-    console.log("⬅️ Status", resp.status);
     const json = await resp.json();
-    console.log("📊 JSON", json);
     
     if (json.code === 200 && json.data) {
       const d = json.data;
@@ -178,7 +172,7 @@ function renderScoreGrid(metricsData: MetricsData, config: IdentifiScoreBreakdow
       <div class="score-card" style="cursor: pointer;" onclick="showTooltip('This score reflects how widely your content is seen. It\\'s driven by impressions and how your audience is expanding.', event)">
         <div class="label">Social</div>
         <div class="value" style="color: #ffffff;">${formatNumberWithCommas(reachScore)}</div>
-        <div class="details">${formatNumberWithCommas(finalFollowersCount)} followers & ${formatNumberWithCommas(finalImpressionScore)} impressions</div>
+        <div class="details">${finalFollowersCount} followers & ${formatNumberWithCommas(finalImpressionScore)} impressions</div>
       </div>
       <div class="score-card" style="cursor: pointer;" onclick="showTooltip('This score reflects how widely your content is seen. It\\'s driven by impressions and how your audience is expanding.', event)">
         <div class="label">Reputation</div>

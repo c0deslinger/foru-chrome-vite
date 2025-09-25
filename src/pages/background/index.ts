@@ -122,15 +122,26 @@ if (chrome.sidePanel && (chrome.sidePanel as any).onVisibilityChanged) {
                 isVisible: isVisible,
               })
               .catch((error) => {
-                if (error.message.includes("Could not establish connection")) {
-                  console.warn(
-                    `[Background] Content script not ready in tab ${tab.id} or connection lost.`
+                // Check if tab still exists before logging error
+                if (tab.id) {
+                  chrome.tabs.get(tab.id).then(() => {
+                  // Tab exists, log the actual error
+                  if (error.message.includes("Could not establish connection")) {
+                    console.warn(
+                      `[Background] Content script not ready in tab ${tab.id} or connection lost.`
+                    );
+                  } else {
+                    console.error(
+                      `[Background] Error sending message to tab ${tab.id}:`,
+                      error
+                    );
+                  }
+                }).catch(() => {
+                  // Tab doesn't exist anymore, this is normal
+                  console.log(
+                    `[Background] Tab ${tab.id} no longer exists, skipping message.`
                   );
-                } else {
-                  console.error(
-                    `[Background] Error sending message to tab ${tab.id}:`,
-                    error
-                  );
+                });
                 }
               });
           }
@@ -185,16 +196,25 @@ chrome.webNavigation.onHistoryStateUpdated.addListener(function (details) {
       chrome.tabs
         .sendMessage(details.tabId, { action: "urlChanged", url: details.url })
         .catch((error) => {
-          if (error.message.includes("Could not establish connection")) {
-            console.warn(
-              `[Background] Content script not ready in tab ${details.tabId} or connection lost.`
+          // Check if tab still exists before logging error
+          chrome.tabs.get(details.tabId).then(() => {
+            // Tab exists, log the actual error
+            if (error.message.includes("Could not establish connection")) {
+              console.warn(
+                `[Background] Content script not ready in tab ${details.tabId} or connection lost.`
+              );
+            } else {
+              console.error(
+                `[Background] Error sending message (urlChanged) to tab ${details.tabId}:`,
+                error
+              );
+            }
+          }).catch(() => {
+            // Tab doesn't exist anymore, this is normal
+            console.log(
+              `[Background] Tab ${details.tabId} no longer exists, skipping message.`
             );
-          } else {
-            console.error(
-              `[Background] Error sending message (urlChanged) to tab ${details.tabId}:`,
-              error
-            );
-          }
+          });
         });
     }
 

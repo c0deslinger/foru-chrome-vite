@@ -87,17 +87,21 @@ export async function drawDigitalDnaCard(
   username?: string,
   scaleFactor: number = 1
 ): Promise<void> {
-  // Card background
-  // ctx.fillStyle = '#1f1b2b';
-  // ctx.fillRect(x, y, width, height);
-  // ctx.strokeStyle = '#2a2535';
-  // ctx.lineWidth = 1;
-  // ctx.strokeRect(x, y, width, height);
-  // No background or border - clean container
+  // Card background with border radius
+  const borderRadius = 8 * scaleFactor;
+  ctx.fillStyle = '#1f1b2b';
+  ctx.beginPath();
+  ctx.roundRect(x, y, width, height, borderRadius);
+  ctx.fill();
+  ctx.strokeStyle = '#2a2535';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.roundRect(x, y, width, height, borderRadius);
+  ctx.stroke();
 
   // Title (smaller font) - scaled
   ctx.fillStyle = '#ececf1';
-  ctx.font = `bold ${10 * scaleFactor}px Arial`; // Scale font size
+  ctx.font = `bold ${8 * scaleFactor}px Arial`; // Reduced from 10px to 8px // Scale font size
   ctx.textAlign = 'left';
   ctx.fillText('Digital DNA', x + (12 * scaleFactor), y + (16 * scaleFactor));
 
@@ -119,50 +123,57 @@ export async function drawDigitalDnaCard(
     console.log('🧬 No username provided for DNA');
   }
 
-  // DNA grid (5x2) - scaled layout
-  const dnaSize = 40 * scaleFactor; // Scale DNA size
-  const dnaSpacing = 36 * scaleFactor; // Scale DNA spacing
-  const titleHeight = 24 * scaleFactor; // Scale title height
-  const rowSpacing = 5 * scaleFactor; // Scale row spacing
+  // DNA grid (2x2) - scaled layout
+  const itemWidth = (width - (24 * scaleFactor)) / 2; // 2 columns with padding
+  const itemHeight = (height - (80 * scaleFactor)) / 2; // 2 rows with title space and vertical spacing
+  const itemSpacing = 12 * scaleFactor; // Scale item spacing
+  const verticalSpacing = 24 * scaleFactor; // Vertical spacing between grid items
   const startX = x + (12 * scaleFactor);
   const startY = y + (30 * scaleFactor); // Scale start Y
-  const dnaPerRow = 5;
-  const totalDnaItems = 10; // 5x2 grid
+  const itemsPerRow = 2;
+  const totalDnaItems = 4; // 2x2 grid
 
   // Draw DNA items with real data
   console.log(`🎨 Drawing ${Math.min(totalDnaItems, dnaItems.length)} DNA items out of ${dnaItems.length} total`);
   for (let i = 0; i < totalDnaItems; i++) {
-    const row = Math.floor(i / dnaPerRow);
-    const col = i % dnaPerRow;
-    const dnaX = startX + (col * (dnaSize + dnaSpacing));
-    const dnaY = startY + (row * (dnaSize + titleHeight + rowSpacing));
+    const row = Math.floor(i / itemsPerRow);
+    const col = i % itemsPerRow;
+    const itemX = startX + (col * (itemWidth + itemSpacing));
+    const itemY = startY + (row * (itemHeight + verticalSpacing));
 
     if (i < dnaItems.length) {
-      // Draw real DNA item with title
+      // Draw real DNA item with 2-column layout
       const dnaItem = dnaItems[i];
-      console.log(`🎨 Drawing DNA ${i + 1}: "${dnaItem.title}" at position (${dnaX}, ${dnaY})`);
+      console.log(`🎨 Drawing DNA ${i + 1}: "${dnaItem.title}" at position (${itemX}, ${itemY})`);
       console.log(`🎨 DNA image URL: "${dnaItem.image}"`);
       
       // Check if DNA has valid image URL
       if (dnaItem.image && dnaItem.image.trim() && dnaItem.image !== 'null' && dnaItem.image !== 'undefined') {
-        await drawRealDnaItemWithTitle(ctx, dnaX, dnaY, dnaSize, dnaItem, scaleFactor);
+        await drawRealDnaItemTwoColumn(ctx, itemX, itemY, itemWidth, itemHeight, dnaItem, scaleFactor, i);
       } else {
         console.warn(`⚠️ DNA "${dnaItem.title}" has invalid image URL: "${dnaItem.image}", using fallback`);
-        drawDnaFallbackWithTitle(ctx, dnaX, dnaY, dnaSize, dnaItem, scaleFactor);
+        drawDnaFallbackTwoColumn(ctx, itemX, itemY, itemWidth, itemHeight, dnaItem, scaleFactor, i);
       }
     } else {
-      // Draw empty DNA placeholder with title
-      console.log(`🎨 Drawing empty DNA placeholder ${i + 1} at position (${dnaX}, ${dnaY})`);
-      drawEmptyDnaWithTitle(ctx, dnaX, dnaY, dnaSize, scaleFactor);
+      // Draw empty DNA placeholder with 2-column layout
+      console.log(`🎨 Drawing empty DNA placeholder ${i + 1} at position (${itemX}, ${itemY})`);
+      drawEmptyDnaTwoColumn(ctx, itemX, itemY, itemWidth, itemHeight, scaleFactor);
     }
   }
 }
 
 /**
- * Draw real DNA item with image and title
+ * Draw real DNA item with 2-column layout (image + title+percentage)
  */
-async function drawRealDnaItemWithTitle(ctx: CanvasRenderingContext2D, x: number, y: number, size: number, dnaItem: DnaData, scaleFactor: number = 1): Promise<void> {
-  console.log(`🎨 Drawing DNA item with title: ${dnaItem.title} with image: ${dnaItem.image}`);
+async function drawRealDnaItemTwoColumn(ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number, dnaItem: DnaData, scaleFactor: number = 1, index: number = 0): Promise<void> {
+  console.log(`🎨 Drawing DNA item with 2-column layout: ${dnaItem.title} with image: ${dnaItem.image}`);
+
+  // Column 1: Image (left side) - same size as collected badge
+  const imageSize = 40 * scaleFactor; // Same size as collected badge
+  const imagePadding = 4 * scaleFactor;
+  const imageColumnWidth = imageSize + (imagePadding * 2);
+  const imageX = x + imagePadding;
+  const imageY = y + imagePadding;
 
   try {
     // Try to load and draw the DNA image
@@ -170,10 +181,6 @@ async function drawRealDnaItemWithTitle(ctx: CanvasRenderingContext2D, x: number
     
     if (imageLoaded) {
       // Draw the loaded image - scaled
-      const padding = 2 * scaleFactor;
-      const imageSize = size - (padding * 2);
-      
-      // Create a temporary canvas to handle the image
       const tempCanvas = document.createElement('canvas');
       const tempCtx = tempCanvas.getContext('2d')!;
       tempCanvas.width = imageSize;
@@ -183,80 +190,253 @@ async function drawRealDnaItemWithTitle(ctx: CanvasRenderingContext2D, x: number
       tempCtx.drawImage(imageLoaded, 0, 0, imageSize, imageSize);
       
       // Draw temp canvas to main canvas
-      ctx.drawImage(tempCanvas, x + padding, y + padding);
+      ctx.drawImage(tempCanvas, imageX, imageY);
       
       console.log(`✅ Successfully drew DNA image: ${dnaItem.title}`);
     } else {
       console.warn(`⚠️ Failed to load DNA image, using fallback: ${dnaItem.title}`);
-      drawDnaFallbackContent(ctx, x, y, size, dnaItem, scaleFactor);
+      drawDnaFallbackIcon(ctx, imageX, imageY, imageSize, dnaItem, scaleFactor);
     }
   } catch (error) {
     console.error(`❌ Error drawing DNA ${dnaItem.title}:`, error);
-    drawDnaFallbackContent(ctx, x, y, size, dnaItem, scaleFactor);
+    drawDnaFallbackIcon(ctx, imageX, imageY, imageSize, dnaItem, scaleFactor);
   }
 
-  // Draw DNA title below
-  drawDnaTitle(ctx, x, y + size + (2 * scaleFactor), size, dnaItem.title, scaleFactor);
-}
-
-/**
- * Draw DNA fallback with title
- */
-function drawDnaFallbackWithTitle(ctx: CanvasRenderingContext2D, x: number, y: number, size: number, dnaItem: DnaData, scaleFactor: number = 1): void {
-  console.log(`🔄 Drawing fallback DNA with title: ${dnaItem.title}`);
+  // Column 2: Title and Percentage (right side)
+  const textColumnX = x + imageColumnWidth + (8 * scaleFactor);
+  const textColumnWidth = width - imageColumnWidth - (8 * scaleFactor);
   
-  // Draw fallback content
-  drawDnaFallbackContent(ctx, x, y, size, dnaItem, scaleFactor);
-
-  // Draw DNA title below
-  drawDnaTitle(ctx, x, y + size + (2 * scaleFactor), size, dnaItem.title, scaleFactor);
-}
-
-/**
- * Draw empty DNA placeholder with title
- */
-function drawEmptyDnaWithTitle(ctx: CanvasRenderingContext2D, x: number, y: number, size: number, scaleFactor: number = 1): void {
-
-  // DNA molecule icon
-  ctx.fillStyle = '#5D5D5DFF';
-  ctx.font = '16px Arial';
-  ctx.textAlign = 'center';
-  ctx.fillText('🧬', x + size/2, y + size/2 + 5);
-
-  // Draw "No DNA" title below
-  drawDnaTitle(ctx, x, y + size + 2, size, "No DNA");
-}
-
-/**
- * Draw DNA title below the DNA item
- */
-function drawDnaTitle(ctx: CanvasRenderingContext2D, x: number, y: number, dnaWidth: number, title: string, scaleFactor: number = 1): void {
-  ctx.fillStyle = '#aeb0b6';
-  ctx.font = `${10 * scaleFactor}px Arial`; // Scale font size
-  ctx.textAlign = 'center';
+  // Draw title
+  ctx.fillStyle = '#ececf1';
+  ctx.font = `${8 * scaleFactor}px Arial`; // Reduced from 10px to 8px
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'top';
   
   // Truncate title if too long
-  const maxWidth = dnaWidth*1.5;
-  let displayTitle = title;
-  
-  // Measure text and truncate if necessary
-  const metrics = ctx.measureText(title);
-  if (metrics.width > maxWidth) {
-    // Truncate title to fit
-    let truncated = title;
-    while (ctx.measureText(truncated + '...').width > maxWidth && truncated.length > 0) {
+  let displayTitle = dnaItem.title;
+  const maxTitleWidth = textColumnWidth - (4 * scaleFactor);
+  const titleMetrics = ctx.measureText(dnaItem.title);
+  if (titleMetrics.width > maxTitleWidth) {
+    let truncated = dnaItem.title;
+    while (ctx.measureText(truncated + '...').width > maxTitleWidth && truncated.length > 0) {
       truncated = truncated.slice(0, -1);
     }
     displayTitle = truncated + '...';
   }
   
-  ctx.fillText(displayTitle, x + dnaWidth/2, y + 10); // Same as badge title
+  ctx.fillText(displayTitle, textColumnX, y + (8 * scaleFactor));
+
+  // Draw percentage with progress bar - center vertical alignment
+  const progressHeight = 6 * scaleFactor;
+  const percentageTextWidth = 32 * scaleFactor; // Space for percentage text
+  const progressWidth = textColumnWidth - (4 * scaleFactor) - percentageTextWidth - (8 * scaleFactor); // Leave space for percentage
+  const titleHeight = 8 * scaleFactor; // Title font size
+  const titleSpacing = 16 * scaleFactor; // Spacing between title and progress bar
+  const progressY = y + (8 * scaleFactor) + titleHeight + titleSpacing; // Position below title with spacing
+  
+  // Progress bar background with rounded corners
+  ctx.fillStyle = '#2a2535';
+  ctx.beginPath();
+  ctx.roundRect(textColumnX, progressY, progressWidth, progressHeight, progressHeight / 2); // 50% border radius
+  ctx.fill();
+  
+  // Progress bar fill with gradient based on index
+  const progressFillWidth = (progressWidth * dnaItem.percentage) / 100;
+  if (progressFillWidth > 0) {
+    // Create gradient for progress bar based on index
+    const gradient = ctx.createLinearGradient(textColumnX, 0, textColumnX + progressFillWidth, 0);
+    
+    // Different gradients for each DNA item (0-3)
+    switch (index) {
+      case 0:
+        gradient.addColorStop(0, '#14b8a6'); // Teal/Green
+        gradient.addColorStop(1, '#0d9488');
+        break;
+      case 1:
+        gradient.addColorStop(0, '#f97316'); // Orange
+        gradient.addColorStop(1, '#ea580c');
+        break;
+      case 2:
+        gradient.addColorStop(0, '#3b82f6'); // Blue
+        gradient.addColorStop(1, '#1e40af');
+        break;
+      case 3:
+        gradient.addColorStop(0, '#8b5cf6'); // Purple
+        gradient.addColorStop(1, '#7c3aed');
+        break;
+      default:
+        gradient.addColorStop(0, '#6c4cb3'); // Default
+        gradient.addColorStop(1, '#8b5cf6');
+    }
+    
+    ctx.fillStyle = gradient;
+    ctx.beginPath();
+    ctx.roundRect(textColumnX, progressY, progressFillWidth, progressHeight, progressHeight / 2); // 50% border radius
+    ctx.fill();
+  }
+  
+  // Percentage text (positioned to the right of progress bar, center vertical)
+  ctx.fillStyle = '#ececf1';
+  ctx.font = `600 ${10 * scaleFactor}px Arial`; // Same font weight as user_digital_dna
+  ctx.textAlign = 'right';
+  ctx.textBaseline = 'middle'; // Center vertical alignment
+  ctx.fillText(`${dnaItem.percentage}%`, textColumnX + progressWidth + percentageTextWidth, progressY + (progressHeight / 2));
 }
 
 /**
- * Draw DNA fallback content (icon/emoji)
+ * Draw DNA fallback with 2-column layout
  */
-function drawDnaFallbackContent(ctx: CanvasRenderingContext2D, x: number, y: number, size: number, dnaItem: DnaData, scaleFactor: number = 1): void {
+function drawDnaFallbackTwoColumn(ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number, dnaItem: DnaData, scaleFactor: number = 1, index: number = 0): void {
+  console.log(`🔄 Drawing fallback DNA with 2-column layout: ${dnaItem.title}`);
+  
+  // Column 1: Image (left side) - same size as collected badge
+  const imageSize = 40 * scaleFactor; // Same size as collected badge
+  const imagePadding = 4 * scaleFactor;
+  const imageColumnWidth = imageSize + (imagePadding * 2);
+  const imageX = x + imagePadding;
+  const imageY = y + imagePadding;
+
+  // Draw fallback icon
+  drawDnaFallbackIcon(ctx, imageX, imageY, imageSize, dnaItem, scaleFactor);
+
+  // Column 2: Title and Percentage (right side)
+  const textColumnX = x + imageColumnWidth + (8 * scaleFactor);
+  const textColumnWidth = width - imageColumnWidth - (8 * scaleFactor);
+  
+  // Draw title
+  ctx.fillStyle = '#ececf1';
+  ctx.font = `bold ${8 * scaleFactor}px Arial`; // Reduced from 10px to 8px
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'top';
+  
+  // Truncate title if too long
+  let displayTitle = dnaItem.title;
+  const maxTitleWidth = textColumnWidth - (4 * scaleFactor);
+  const titleMetrics = ctx.measureText(dnaItem.title);
+  if (titleMetrics.width > maxTitleWidth) {
+    let truncated = dnaItem.title;
+    while (ctx.measureText(truncated + '...').width > maxTitleWidth && truncated.length > 0) {
+      truncated = truncated.slice(0, -1);
+    }
+    displayTitle = truncated + '...';
+  }
+  
+  ctx.fillText(displayTitle, textColumnX, y + (8 * scaleFactor));
+
+  // Draw percentage with progress bar - center vertical alignment
+  const progressHeight = 6 * scaleFactor;
+  const percentageTextWidth = 32 * scaleFactor; // Space for percentage text
+  const progressWidth = textColumnWidth - (4 * scaleFactor) - percentageTextWidth - (8 * scaleFactor); // Leave space for percentage
+  const titleHeight = 8 * scaleFactor; // Title font size
+  const titleSpacing = 4 * scaleFactor; // Spacing between title and progress bar
+  const progressY = y + (8 * scaleFactor) + titleHeight + titleSpacing; // Position below title with spacing
+  
+  // Progress bar background with rounded corners
+  ctx.fillStyle = '#2a2535';
+  ctx.beginPath();
+  ctx.roundRect(textColumnX, progressY, progressWidth, progressHeight, progressHeight / 2); // 50% border radius
+  ctx.fill();
+  
+  // Progress bar fill with gradient based on index
+  const progressFillWidth = (progressWidth * dnaItem.percentage) / 100;
+  if (progressFillWidth > 0) {
+    // Create gradient for progress bar based on index
+    const gradient = ctx.createLinearGradient(textColumnX, 0, textColumnX + progressFillWidth, 0);
+    
+    // Different gradients for each DNA item (0-3)
+    switch (index) {
+      case 0:
+        gradient.addColorStop(0, '#14b8a6'); // Teal/Green
+        gradient.addColorStop(1, '#0d9488');
+        break;
+      case 1:
+        gradient.addColorStop(0, '#f97316'); // Orange
+        gradient.addColorStop(1, '#ea580c');
+        break;
+      case 2:
+        gradient.addColorStop(0, '#3b82f6'); // Blue
+        gradient.addColorStop(1, '#1e40af');
+        break;
+      case 3:
+        gradient.addColorStop(0, '#8b5cf6'); // Purple
+        gradient.addColorStop(1, '#7c3aed');
+        break;
+      default:
+        gradient.addColorStop(0, '#6c4cb3'); // Default
+        gradient.addColorStop(1, '#8b5cf6');
+    }
+    
+    ctx.fillStyle = gradient;
+    ctx.beginPath();
+    ctx.roundRect(textColumnX, progressY, progressFillWidth, progressHeight, progressHeight / 2); // 50% border radius
+    ctx.fill();
+  }
+  
+  // Percentage text (positioned to the right of progress bar, center vertical)
+  ctx.fillStyle = '#ececf1';
+  ctx.font = `600 ${10 * scaleFactor}px Arial`; // Same font weight as user_digital_dna
+  ctx.textAlign = 'right';
+  ctx.textBaseline = 'middle'; // Center vertical alignment
+  ctx.fillText(`${dnaItem.percentage}%`, textColumnX + progressWidth + percentageTextWidth, progressY + (progressHeight / 2));
+}
+
+/**
+ * Draw empty DNA placeholder with 2-column layout
+ */
+function drawEmptyDnaTwoColumn(ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number, scaleFactor: number = 1): void {
+  // Column 1: Image (left side) - same size as collected badge
+  const imageSize = 40 * scaleFactor; // Same size as collected badge
+  const imagePadding = 4 * scaleFactor;
+  const imageColumnWidth = imageSize + (imagePadding * 2);
+  const imageX = x + imagePadding;
+  const imageY = y + imagePadding;
+
+  // DNA molecule icon
+  ctx.fillStyle = '#5D5D5DFF';
+  ctx.font = `${16 * scaleFactor}px Arial`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('🧬', imageX + imageSize/2, imageY + imageSize/2);
+
+  // Column 2: Title and Percentage (right side)
+  const textColumnX = x + imageColumnWidth + (8 * scaleFactor);
+  const textColumnWidth = width - imageColumnWidth - (8 * scaleFactor);
+  
+  // Draw "No DNA" title
+  ctx.fillStyle = '#aeb0b6';
+  ctx.font = `bold ${8 * scaleFactor}px Arial`; // Reduced from 10px to 8px
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'top';
+  ctx.fillText('No DNA', textColumnX, y + (8 * scaleFactor));
+
+  // Draw empty progress bar - center vertical alignment
+  const progressHeight = 6 * scaleFactor;
+  const percentageTextWidth = 32 * scaleFactor; // Space for percentage text
+  const progressWidth = textColumnWidth - (4 * scaleFactor) - percentageTextWidth - (8 * scaleFactor); // Leave space for percentage
+  const titleHeight = 8 * scaleFactor; // Title font size
+  const titleSpacing = 6 * scaleFactor; // Spacing between title and progress bar
+  const progressY = y + (8 * scaleFactor) + titleHeight + titleSpacing; // Position below title with spacing
+  
+  // Progress bar background (empty) with rounded corners
+  ctx.fillStyle = '#2a2535';
+  ctx.beginPath();
+  ctx.roundRect(textColumnX, progressY, progressWidth, progressHeight, progressHeight / 2); // 50% border radius
+  ctx.fill();
+  
+  // No progress bar fill for empty DNA
+  
+  // Percentage text (0%) - positioned to the right of progress bar, center vertical
+  ctx.fillStyle = '#aeb0b6';
+  ctx.font = `600 ${10 * scaleFactor}px Arial`; // Same font weight as user_digital_dna
+  ctx.textAlign = 'right';
+  ctx.textBaseline = 'middle'; // Center vertical alignment
+  ctx.fillText('0%', textColumnX + progressWidth + percentageTextWidth, y + (height / 2));
+}
+
+/**
+ * Draw DNA fallback icon (for 2-column layout)
+ */
+function drawDnaFallbackIcon(ctx: CanvasRenderingContext2D, x: number, y: number, size: number, dnaItem: DnaData, scaleFactor: number = 1): void {
   // DNA icon based on title or default
   let icon = '🧬'; // Default DNA molecule
   
@@ -280,9 +460,10 @@ function drawDnaFallbackContent(ctx: CanvasRenderingContext2D, x: number, y: num
   }
   
   ctx.fillStyle = '#ececf1';
-  ctx.font = '16px Arial'; // Same as badge fallback
+  ctx.font = `${16 * scaleFactor}px Arial`; // Scale font size
   ctx.textAlign = 'center';
-  ctx.fillText(icon, x + size/2, y + size/2 + 5); // Same as badge fallback
+  ctx.textBaseline = 'middle';
+  ctx.fillText(icon, x + size/2, y + size/2); // Center the icon
 }
 
 /**

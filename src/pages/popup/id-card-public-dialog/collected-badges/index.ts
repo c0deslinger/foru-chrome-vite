@@ -75,17 +75,21 @@ export async function drawCollectedBadgesCard(
   username?: string,
   scaleFactor: number = 1
 ): Promise<void> {
-  // Card background
-  // ctx.fillStyle = '#1f1b2b';
-  // ctx.fillRect(x, y, width, height);
-  // ctx.strokeStyle = '#2a2535';
-  // ctx.lineWidth = 1;
-  // ctx.strokeRect(x, y, width, height);
-  // No background or border - clean container
+  // Card background with border radius
+  const borderRadius = 8 * scaleFactor;
+  ctx.fillStyle = '#1f1b2b';
+  ctx.beginPath();
+  ctx.roundRect(x, y, width, height, borderRadius);
+  ctx.fill();
+  ctx.strokeStyle = '#2a2535';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.roundRect(x, y, width, height, borderRadius);
+  ctx.stroke();
 
   // Title (even smaller font) - scaled
   ctx.fillStyle = '#ececf1';
-  ctx.font = `bold ${10 * scaleFactor}px Arial`; // Scale font size
+  ctx.font = `bold ${8 * scaleFactor}px Arial`; // Scale font size
   ctx.textAlign = 'left';
   ctx.fillText('Collected Badges', x + (12 * scaleFactor), y + (16 * scaleFactor));
 
@@ -124,17 +128,13 @@ export async function drawCollectedBadgesCard(
 
     if (i < badges.length) {
       const badge = badges[i];
-      console.log(`🎨 Drawing badge ${i + 1}: "${badge.name}" at position (${badgeX}, ${badgeY})`);
-      console.log(`🎨 Badge image URL: "${badge.image}"`);
       
       if (badge.image && badge.image.trim() && badge.image !== 'null' && badge.image !== 'undefined') {
         await drawRealBadgeWithTitle(ctx, badgeX, badgeY, badgeSize, badge, scaleFactor);
       } else {
-        console.warn(`⚠️ Badge "${badge.name}" has invalid image URL: "${badge.image}", using fallback`);
         await drawBadgeFallbackWithTitle(ctx, badgeX, badgeY, badgeSize, badge.name, scaleFactor);
       }
     } else {
-      console.log(`🎨 Drawing empty badge placeholder ${i + 1} at position (${badgeX}, ${badgeY})`);
       await drawEmptyBadgeWithTitle(ctx, badgeX, badgeY, badgeSize, scaleFactor);
     }
   }
