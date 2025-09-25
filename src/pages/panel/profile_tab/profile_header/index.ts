@@ -177,7 +177,7 @@ export async function renderProfileHeader(): Promise<string> {
         justify-content: center;
         z-index: 10;
       ">
-        ID Card
+        Card
       </button>
     </div>
 

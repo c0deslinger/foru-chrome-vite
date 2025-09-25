@@ -20,6 +20,7 @@ class IdCardPublicDialog {
   private dialog: HTMLElement | null = null;
   private isVisible = false;
   private tiltInstance: any = null;
+  private currentUsername: string = '';
 
   constructor() {
     this.loadStyles();
@@ -105,6 +106,9 @@ class IdCardPublicDialog {
       this.hide();
     }
 
+    // Store username for download filename
+    this.currentUsername = data.username || 'user';
+    
     this.createDialog();
     this.addEventListeners();
     this.generateIdCard(data);
@@ -149,7 +153,7 @@ class IdCardPublicDialog {
               <div class="foru-id-card-public-dialog-preview shimmer" id="idCardPublicPreview" data-tilt>
                 <div class="foru-id-card-public-dialog-shimmer" id="idCardPublicShimmer">
                   <div class="shimmer-box"></div>
-                  <div class="shimmer-text">Generating ID Card...</div>
+                  <div class="shimmer-text">Generating Card...</div>
                 </div>
                 <canvas id="idCardPublicCanvas" style="display: none;"></canvas>
               </div>
@@ -157,7 +161,7 @@ class IdCardPublicDialog {
             
             <div class="foru-id-card-public-dialog-actions">
               <button class="foru-id-card-public-dialog-download" id="downloadIdCardPublicImage" disabled>
-                <span>Download Image</span>
+                <span>Download Card</span>
               </button>
             </div>
           </div>
@@ -465,11 +469,11 @@ class IdCardPublicDialog {
       console.log('✅ ID Card generated successfully');
 
     } catch (error) {
-      console.error('❌ Error generating ID card:', error);
+      console.error('❌ Error generating card:', error);
       
       // Show error state
       preview.classList.remove('shimmer');
-      shimmer.innerHTML = '<div class="foru-id-card-public-dialog-placeholder"><div class="foru-id-card-public-dialog-placeholder-text">Error generating ID card</div></div>';
+      shimmer.innerHTML = '<div class="foru-id-card-public-dialog-placeholder"><div class="foru-id-card-public-dialog-placeholder-text">Error generating card</div></div>';
     }
   }
 
@@ -479,9 +483,14 @@ class IdCardPublicDialog {
 
     const imageData = downloadBtn.dataset.imageData;
     const link = document.createElement('a');
-    link.download = `foru-id-card-${new Date().toISOString().split('T')[0]}.png`;
+    
+    // Create filename using username: username_card.jpg
+    const filename = `${this.currentUsername}_card.jpg`;
+    link.download = filename;
     link.href = imageData;
     link.click();
+    
+    console.log(`✅ Downloading ID card as: ${filename}`);
   }
 }
 
