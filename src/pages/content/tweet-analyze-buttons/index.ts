@@ -1,21 +1,58 @@
 // src/inject/tweet-analyze-buttons.ts
 
+import { getBodyBackgroundColor, isLightColor } from '../../../lib/body-color-utils.js';
+
 /**
  * TweetAnalyzeButtons - Class for adding "Analyze Tweet" buttons to tweets
  * Integrates with TweetAnalysisDialog for AI-powered analysis
  */
 
+/**
+ * Get dynamic button colors based on body background color
+ * If background is light, return light theme colors; if dark, return current colors
+ */
+function getDynamicButtonColors(): { backgroundColor: string; fontColor: string; borderColor: string } {
+  try {
+    const bodyColor = getBodyBackgroundColor();
+    const isLight = isLightColor(bodyColor);
+    
+    if (isLight) {
+      // Light background: use black button with white text
+      return {
+        backgroundColor: '#000000',
+        fontColor: '#ffffff',
+        borderColor: 'rgba(0, 0, 0, 0.2)'
+      };
+    } else {
+      // Dark background: use current glassmorphism colors
+      return {
+        backgroundColor: 'rgba(255, 255, 255, 0.1)',
+        fontColor: '#ffffff',
+        borderColor: 'rgba(255, 255, 255, 0.2)'
+      };
+    }
+  } catch (error) {
+    console.warn('[ForU Analyze Button] Error getting dynamic button colors:', error);
+    // Fallback to current colors
+    return {
+      backgroundColor: 'rgba(255, 255, 255, 0.1)',
+      fontColor: '#ffffff',
+      borderColor: 'rgba(255, 255, 255, 0.2)'
+    };
+  }
+}
+
 // CSS Styles for Analyze Tweet Button
 const ANALYZE_BUTTON_CSS = `
-/* Analyze Tweet Button Styles - Glassmorphism */
+/* Analyze Tweet Button Styles - Dynamic Colors */
 .foru-analyze-tweet-button {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--foru-button-bg, rgba(255, 255, 255, 0.1));
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid var(--foru-button-border, rgba(255, 255, 255, 0.2));
   border-radius: 20px;
   padding: 8px 16px;
-  color: white;
+  color: var(--foru-button-text, white);
   font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   font-size: 12px;
   font-weight: 500;
@@ -45,8 +82,9 @@ const ANALYZE_BUTTON_CSS = `
 }
 
 .foru-analyze-tweet-button:hover {
-  background: rgba(255, 255, 255, 0.15);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   border: 1px solid rgba(255, 255, 255, 0.3);
+  color: #ffffff;
   transform: translateY(-2px);
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
 }
@@ -128,13 +166,22 @@ class TweetAnalyzeButtons {
       return;
     }
 
+    // Get dynamic button colors based on background
+    const buttonColors = getDynamicButtonColors();
+
     const styleElement = document.createElement('style');
     styleElement.id = 'foru-analyze-tweet-button-styles';
     styleElement.textContent = ANALYZE_BUTTON_CSS;
     document.head.appendChild(styleElement);
+
+    // Set CSS custom properties for dynamic colors
+    document.documentElement.style.setProperty('--foru-button-bg', buttonColors.backgroundColor);
+    document.documentElement.style.setProperty('--foru-button-text', buttonColors.fontColor);
+    document.documentElement.style.setProperty('--foru-button-border', buttonColors.borderColor);
+
     this.isStylesInjected = true;
     
-    console.log('Analyze tweet button styles injected');
+    console.log('Analyze tweet button styles injected with dynamic colors');
   }
 
   /**
