@@ -267,7 +267,7 @@ async function renderReferralSection(forceRefresh = false): Promise<void> {
       logoutContainer.id = "logout-container";
       logoutContainer.innerHTML = `
         <div class="version-container">
-          <p class="version-text">v.1.2.0</p>
+          <p class="version-text">v.1.3.0</p>
         </div>
         <button id="logout-btn" class="logout-button">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">

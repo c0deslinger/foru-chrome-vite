@@ -1,7 +1,7 @@
 {
   "name": "ForU AI",
   "description": "A new way to exist on-chain.",
-  "version": "1.2",
+  "version": "1.3",
   "manifest_version": 3,
   "foruConfigProd": {
     "secretKey": "5452ea6c10f23d4e5b83d1eb393f99d53705951d7b43acc90eadf17ecc839623",
