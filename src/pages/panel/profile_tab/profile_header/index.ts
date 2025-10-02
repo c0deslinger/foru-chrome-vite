@@ -144,7 +144,10 @@ export async function renderProfileHeader(): Promise<string> {
   );
   if (gA) followingCount = gA.textContent?.split(" ")[0] || "0";
 
-  // --- 6) Assemble HTML ---
+  // --- 6) Check if ID card button should be shown ---
+  let shouldShowIdCardButton = true;
+
+  // --- 7) Assemble HTML ---
   const html = `
     <div class="profile-header" style="position: relative;">
       <img src="${avatarUrl}" alt="avatar" />
@@ -156,6 +159,7 @@ export async function renderProfileHeader(): Promise<string> {
           ${handle}${jobText ? ` - ${jobText || locationText}` : ''}
         </div>
       </div>
+      ${shouldShowIdCardButton ? `
       <button id="generate-id-card-public-btn" class="generate-id-card-btn" style="
         position: absolute;
         top: 0;
@@ -179,6 +183,7 @@ export async function renderProfileHeader(): Promise<string> {
       ">
         Card
       </button>
+      ` : ''}
     </div>
 
     <p class="profile-bio">${bioText}</p>

@@ -192,7 +192,7 @@ console.log("[ForU Score Profile Picture] Script loading...");
       const scoreValue = await getIdentifiScore(profileHandle);
       const point = document.createElement("div");
       point.className = POINT_CLASS;
-      point.textContent = scoreValue.toLocaleString();
+      point.textContent = Math.round(scoreValue).toLocaleString();
 
       if (avatarWidth == 0) {
         badge.style.setProperty("width", `40px`, "important");
