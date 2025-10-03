@@ -11,7 +11,8 @@
   align-items: center;
   justify-content: center;
   z-index: 999999;
-  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont,
+    "Segoe UI", Roboto, sans-serif;
 }
 
 .foru-id-card-public-dialog {
@@ -96,14 +97,17 @@
 /* ID Card Preview Container */
 .foru-id-card-public-dialog-preview-container {
   width: 100%;
-  max-width: 500px;
+  max-width: 270px; /* Quarter of 1080px for smaller preview */
   margin-bottom: 32px;
 }
 
 .foru-id-card-public-dialog-preview {
   width: 100%;
-  aspect-ratio: 16/9;
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  aspect-ratio: 9/16; /* 1080:1920 ratio */
+  background-image: url("../../../../public/images/card/card_layer_1.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   border-radius: 16px;
   border: 2px solid #e1e5e9;
   display: flex;
@@ -153,10 +157,11 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  color: #A9A9A9FF;
+  color: #a9a9a9ff;
   font-size: 16px;
   font-weight: 500;
-  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont,
+    "Segoe UI", Roboto, sans-serif;
   z-index: 10;
   text-align: center;
   pointer-events: none;
@@ -184,7 +189,11 @@
 }
 
 .foru-id-card-public-dialog-preview .js-tilt-glare-inner {
-  background: linear-gradient(45deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.3));
+  background: linear-gradient(
+    45deg,
+    rgba(255, 255, 255, 0.1),
+    rgba(255, 255, 255, 0.3)
+  );
   border-radius: 16px;
 }
 
@@ -275,23 +284,23 @@
     padding: 16px;
     max-width: none;
   }
-  
+
   .foru-id-card-public-dialog-content-wrapper {
     padding: 24px;
   }
-  
+
   .foru-id-card-public-dialog-title {
     font-size: 24px;
   }
-  
+
   .foru-id-card-public-dialog-subtitle {
     font-size: 14px;
   }
-  
+
   .foru-id-card-public-dialog-preview-container {
     max-width: 100%;
   }
-  
+
   .foru-id-card-public-dialog-download {
     padding: 14px 24px;
     font-size: 14px;

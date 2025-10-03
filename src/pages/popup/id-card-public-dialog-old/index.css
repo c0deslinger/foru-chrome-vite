@@ -1,5 +1,5 @@
-/* ID Card Dialog Styles */
-.foru-id-card-dialog-overlay {
+/* ID Card Public Dialog Styles */
+.foru-id-card-public-dialog-overlay {
   position: fixed;
   top: 0;
   left: 0;
@@ -14,7 +14,7 @@
   font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-.foru-id-card-dialog {
+.foru-id-card-public-dialog {
   background: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 24px;
@@ -26,7 +26,7 @@
   position: relative;
 }
 
-.foru-id-card-dialog-content-wrapper {
+.foru-id-card-public-dialog-content-wrapper {
   background: #ffffff;
   border-radius: 22px;
   padding: 32px;
@@ -35,7 +35,7 @@
   position: relative;
 }
 
-.foru-id-card-dialog-header {
+.foru-id-card-public-dialog-header {
   display: flex;
   align-items: center;
   justify-content: flex-start;
@@ -43,7 +43,7 @@
   position: relative;
 }
 
-.foru-id-card-dialog-close {
+.foru-id-card-public-dialog-close {
   background: #7246ce;
   border: none;
   border-radius: 50%;
@@ -59,25 +59,25 @@
   top: 0;
 }
 
-.foru-id-card-dialog-close:hover {
+.foru-id-card-public-dialog-close:hover {
   background: #5a3ba8;
   transform: scale(1.05);
 }
 
-.foru-id-card-dialog-close img {
+.foru-id-card-public-dialog-close img {
   width: 16px;
   height: 16px;
   filter: brightness(0) invert(1);
 }
 
-.foru-id-card-dialog-content {
+.foru-id-card-public-dialog-content {
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
 }
 
-.foru-id-card-dialog-title {
+.foru-id-card-public-dialog-title {
   font-size: 28px;
   font-weight: 700;
   color: #1a1a1a;
@@ -85,7 +85,7 @@
   line-height: 1.2;
 }
 
-.foru-id-card-dialog-subtitle {
+.foru-id-card-public-dialog-subtitle {
   font-size: 16px;
   font-weight: 500;
   color: #666666;
@@ -94,13 +94,13 @@
 }
 
 /* ID Card Preview Container */
-.foru-id-card-preview-container {
+.foru-id-card-public-dialog-preview-container {
   width: 100%;
   max-width: 500px;
   margin-bottom: 32px;
 }
 
-.foru-id-card-preview {
+.foru-id-card-public-dialog-preview {
   width: 100%;
   aspect-ratio: 16/9;
   background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
@@ -111,9 +111,12 @@
   justify-content: center;
   position: relative;
   overflow: hidden;
+  transform-style: preserve-3d;
+  transition: transform 0.1s ease;
+  cursor: pointer;
 }
 
-.foru-id-card-preview img {
+.foru-id-card-public-dialog-preview img {
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -121,10 +124,42 @@
 }
 
 /* Shimmer Effect */
-.foru-id-card-preview.shimmer {
+.foru-id-card-public-dialog-preview.shimmer {
   background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
   background-size: 200% 100%;
   animation: shimmer 2s infinite;
+}
+
+.foru-id-card-public-dialog-shimmer {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.shimmer-box {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+  border-radius: 8px;
+}
+
+.shimmer-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #A9A9A9FF;
+  font-size: 16px;
+  font-weight: 500;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  z-index: 10;
+  text-align: center;
+  pointer-events: none;
 }
 
 @keyframes shimmer {
@@ -136,8 +171,30 @@
   }
 }
 
+#idCardPublicCanvas {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 14px;
+}
+
+/* VanillaTilt Glare Effect */
+.foru-id-card-public-dialog-preview .js-tilt-glare {
+  border-radius: 16px;
+}
+
+.foru-id-card-public-dialog-preview .js-tilt-glare-inner {
+  background: linear-gradient(45deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.3));
+  border-radius: 16px;
+}
+
+/* Enhanced 3D Effect */
+.foru-id-card-public-dialog-preview:hover {
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+}
+
 /* Placeholder Content */
-.foru-id-card-placeholder {
+.foru-id-card-public-dialog-placeholder {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -146,29 +203,29 @@
   text-align: center;
 }
 
-.foru-id-card-placeholder-icon {
+.foru-id-card-public-dialog-placeholder-icon {
   margin-bottom: 16px;
   opacity: 0.6;
 }
 
-.foru-id-card-placeholder-icon svg {
+.foru-id-card-public-dialog-placeholder-icon svg {
   color: #999999;
 }
 
-.foru-id-card-placeholder-text {
+.foru-id-card-public-dialog-placeholder-text {
   font-size: 16px;
   font-weight: 500;
   color: #999999;
 }
 
 /* Download Button */
-.foru-id-card-dialog-actions {
+.foru-id-card-public-dialog-actions {
   width: 100%;
   display: flex;
   justify-content: center;
 }
 
-.foru-id-card-download-btn {
+.foru-id-card-public-dialog-download {
   background: linear-gradient(135deg, #7246ce 0%, #9c4dcc 100%);
   color: white;
   border: none;
@@ -186,18 +243,18 @@
   justify-content: center;
 }
 
-.foru-id-card-download-btn:hover:not(:disabled) {
+.foru-id-card-public-dialog-download:hover:not(:disabled) {
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(114, 70, 206, 0.4);
   background: linear-gradient(135deg, #5a3ba8 0%, #7c3a9c 100%);
 }
 
-.foru-id-card-download-btn:active:not(:disabled) {
+.foru-id-card-public-dialog-download:active:not(:disabled) {
   transform: translateY(0);
   box-shadow: 0 2px 8px rgba(114, 70, 206, 0.3);
 }
 
-.foru-id-card-download-btn:disabled {
+.foru-id-card-public-dialog-download:disabled {
   background: #e0e0e0;
   color: #999999;
   cursor: not-allowed;
@@ -205,7 +262,7 @@
   transform: none;
 }
 
-.foru-id-card-download-btn svg {
+.foru-id-card-public-dialog-download svg {
   width: 20px;
   height: 20px;
   stroke: currentColor;
@@ -213,29 +270,29 @@
 
 /* Responsive Design */
 @media (max-width: 768px) {
-  .foru-id-card-dialog {
+  .foru-id-card-public-dialog {
     width: 95%;
     padding: 16px;
     max-width: none;
   }
   
-  .foru-id-card-dialog-content-wrapper {
+  .foru-id-card-public-dialog-content-wrapper {
     padding: 24px;
   }
   
-  .foru-id-card-dialog-title {
+  .foru-id-card-public-dialog-title {
     font-size: 24px;
   }
   
-  .foru-id-card-dialog-subtitle {
+  .foru-id-card-public-dialog-subtitle {
     font-size: 14px;
   }
   
-  .foru-id-card-preview-container {
+  .foru-id-card-public-dialog-preview-container {
     max-width: 100%;
   }
   
-  .foru-id-card-download-btn {
+  .foru-id-card-public-dialog-download {
     padding: 14px 24px;
     font-size: 14px;
     min-width: 180px;
@@ -243,29 +300,29 @@
 }
 
 /* Loading State */
-.foru-id-card-dialog.loading .foru-id-card-preview {
+.foru-id-card-public-dialog.loading .foru-id-card-public-dialog-preview {
   animation: shimmer 2s infinite;
 }
 
-.foru-id-card-dialog.loading .foru-id-card-download-btn {
+.foru-id-card-public-dialog.loading .foru-id-card-public-dialog-download {
   background: #e0e0e0;
   color: #999999;
   cursor: not-allowed;
 }
 
 /* Success State */
-.foru-id-card-dialog.success .foru-id-card-preview {
+.foru-id-card-public-dialog.success .foru-id-card-public-dialog-preview {
   animation: none;
   background: #ffffff;
   border: 2px solid #4caf50;
 }
 
-.foru-id-card-dialog.success .foru-id-card-download-btn {
+.foru-id-card-public-dialog.success .foru-id-card-public-dialog-download {
   background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
   box-shadow: 0 4px 16px rgba(76, 175, 80, 0.3);
 }
 
-.foru-id-card-dialog.success .foru-id-card-download-btn:hover {
+.foru-id-card-public-dialog.success .foru-id-card-public-dialog-download:hover {
   background: linear-gradient(135deg, #45a049 0%, #3d8b40 100%);
   box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
 }

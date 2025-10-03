@@ -4,10 +4,6 @@ import { drawProfileSection, UserProfileData, extractTwitterProfileData } from '
 import { drawDigitalDnaCard } from './digital-dna/index.js';
 import { drawScoreBreakdownCard } from './score-breakdown/index.js';
 import { drawCollectedBadgesCard } from './collected-badges/index.js';
-import { drawBackgroundLayer } from './background-layer/index.js';
-import { drawProfileLayer } from './profile-layer/index.js';
-import { drawOverlayLayer } from './overlay-layer/index.js';
-import { loadAntonFont, drawScoresLayer } from './scores-layer/index.js';
 import VanillaTilt from 'vanilla-tilt';
 
 interface IdCardPublicData {
@@ -28,7 +24,6 @@ class IdCardPublicDialog {
 
   constructor() {
     this.loadStyles();
-    loadAntonFont(); // Load Anton font from scores-layer
   }
 
   private async loadStyles(): Promise<void> {
@@ -52,6 +47,59 @@ class IdCardPublicDialog {
     }
   }
 
+  private async loadHeaderImage(): Promise<HTMLImageElement | null> {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      
+      img.onload = () => {
+        console.log('✅ Header image loaded successfully');
+        resolve(img);
+      };
+      
+      img.onerror = (error) => {
+        console.error('❌ Error loading header image:', error);
+        resolve(null);
+      };
+      
+      // Set timeout to prevent hanging
+      setTimeout(() => {
+        if (!img.complete) {
+          console.warn('⚠️ Header image loading timeout');
+          resolve(null);
+        }
+      }, 5000);
+      
+      img.src = chrome.runtime.getURL('images/card_header_2.png');
+    });
+  }
+
+  private async loadLogoImage(): Promise<HTMLImageElement | null> {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      
+      img.onload = () => {
+        console.log('✅ Logo image loaded successfully');
+        resolve(img);
+      };
+      
+      img.onerror = (error) => {
+        console.error('❌ Error loading logo image:', error);
+        resolve(null);
+      };
+      
+      // Set timeout to prevent hanging
+      setTimeout(() => {
+        if (!img.complete) {
+          console.warn('⚠️ Logo image loading timeout');
+          resolve(null);
+        }
+      }, 5000);
+      
+      img.src = chrome.runtime.getURL('images/foruaI_title_logo.png');
+    });
+  }
 
   public show(data: IdCardPublicData): void {
     if (this.isVisible) {
@@ -238,7 +286,6 @@ class IdCardPublicDialog {
     console.log('✅ Fallback tilt effect added');
   }
 
-
   private addEventListeners(): void {
     if (!this.dialog) return;
 
@@ -278,11 +325,14 @@ class IdCardPublicDialog {
     if (!canvas || !preview || !shimmer || !downloadBtn) return;
 
     try {
-      // Set canvas size - 1080x1920 portrait
-      const cardWidth = 1080;
-      const cardHeight = 1920;
+      // Set canvas size - increased for larger generated image
+      const cardWidth = 1200; // 50% larger than original 800px
+      const cardHeight = 675; // 50% larger than original 450px (maintaining 16:9 ratio)
       canvas.width = cardWidth;
       canvas.height = cardHeight;
+      
+      // Scale factor for proportional scaling of all elements
+      const scaleFactor = cardWidth / 800; // 1.5x scale factor
 
       const ctx = canvas.getContext('2d');
       if (!ctx) return;
@@ -290,19 +340,113 @@ class IdCardPublicDialog {
       // Clear canvas
       ctx.clearRect(0, 0, cardWidth, cardHeight);
 
-      // Layer 1: Draw background
-      await drawBackgroundLayer(ctx, cardWidth, cardHeight);
+      // Background
+      ctx.fillStyle = '#1a1625';
+      ctx.fillRect(0, 0, cardWidth, cardHeight);
 
-      // Layer 2: Draw profile picture (88, 323, 903x903, radius 32)
-      await drawProfileLayer(ctx, 88, 323, 903, 903, 32, data);
+      // Header section - scaled proportionally
+      const headerHeight = 80 * scaleFactor; // Scale header height
+      
+      // Load and draw header background image
+      try {
+        const headerImage = await this.loadHeaderImage();
+        if (headerImage) {
+          // Draw header background image
+          ctx.drawImage(headerImage, 0, 0, cardWidth, headerHeight);
+          console.log('✅ Header background image loaded successfully');
+        } else {
+          // Fallback to gradient if image fails to load
+          const headerGradient = ctx.createLinearGradient(0, 0, cardWidth, 0);
+          headerGradient.addColorStop(0, '#7246ce');
+          headerGradient.addColorStop(1, '#9c4dcc');
+          ctx.fillStyle = headerGradient;
+          ctx.fillRect(0, 0, cardWidth, headerHeight);
+          console.log('⚠️ Header image failed to load, using gradient fallback');
+        }
+      } catch (error) {
+        // Fallback to gradient if image loading fails
+        const headerGradient = ctx.createLinearGradient(0, 0, cardWidth, 0);
+        headerGradient.addColorStop(0, '#7246ce');
+        headerGradient.addColorStop(1, '#9c4dcc');
+        ctx.fillStyle = headerGradient;
+        ctx.fillRect(0, 0, cardWidth, headerHeight);
+        console.error('❌ Error loading header image, using gradient fallback:', error);
+      }
 
-      // Layer 3: Draw card overlay (0, 1207)
-      await drawOverlayLayer(ctx, 0, 1207);
+      // Load and draw logo image - centered vertically and horizontally
+      try {
+        const logoImage = await this.loadLogoImage();
+        if (logoImage) {
+          // Calculate logo dimensions to fit nicely in header
+          const logoMaxWidth = cardWidth * 0.6; // 60% of card width
+          const logoMaxHeight = headerHeight * 0.6; // 60% of header height
+          
+          // Calculate aspect ratio to maintain logo proportions
+          const logoAspectRatio = logoImage.width / logoImage.height;
+          let logoWidth = logoMaxWidth;
+          let logoHeight = logoWidth / logoAspectRatio;
+          
+          // If height exceeds max height, scale down by height
+          if (logoHeight > logoMaxHeight) {
+            logoHeight = logoMaxHeight;
+            logoWidth = logoHeight * logoAspectRatio;
+          }
+          
+          // Center the logo in the header
+          const logoX = (cardWidth - logoWidth) / 2;
+          const logoY = (headerHeight - logoHeight) / 2;
+          
+          // Draw the logo
+          ctx.drawImage(logoImage, logoX, logoY, logoWidth, logoHeight);
+          console.log('✅ Logo drawn successfully');
+        } else {
+          // Fallback to text if logo fails to load
+          ctx.fillStyle = '#ffffff';
+          ctx.font = `bold ${24 * scaleFactor}px Arial`;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText('ForU ID Card', cardWidth / 2, headerHeight / 2 - (8 * scaleFactor));
 
-      // Layer 4: Draw scores on top
-      await drawScoresLayer(ctx, cardWidth, data);
+          ctx.font = `${14 * scaleFactor}px Arial`;
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+          ctx.fillText('Digital Identity', cardWidth / 2, headerHeight / 2 + (12 * scaleFactor));
+          console.log('⚠️ Logo failed to load, using text fallback');
+        }
+      } catch (error) {
+        // Fallback to text if logo loading fails
+        ctx.fillStyle = '#ffffff';
+        ctx.font = `bold ${24 * scaleFactor}px Arial`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('ForU ID Card', cardWidth / 2, headerHeight / 2 - (8 * scaleFactor));
 
-      console.log('✅ All layers rendered successfully');
+        ctx.font = `${14 * scaleFactor}px Arial`;
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+        ctx.fillText('Digital Identity', cardWidth / 2, headerHeight / 2 + (12 * scaleFactor));
+        console.error('❌ Error loading logo, using text fallback:', error);
+      }
+
+      // Main content area - scaled proportionally
+      const contentY = headerHeight + (20 * scaleFactor);
+      const contentHeight = cardHeight - headerHeight - (40 * scaleFactor);
+      const columnSpacing = 20 * scaleFactor; // Reduced spacing between columns
+      const columnWidth = (cardWidth - (40 * scaleFactor) - columnSpacing) / 2; // Two columns with reduced spacing
+
+      // Column 1: Profile + IdentiFi Score Breakdown - scaled heights
+      const profileHeight = 120 * scaleFactor;
+      const scoreHeight = contentHeight - profileHeight - (20 * scaleFactor);
+
+      // Extract Twitter profile data in real-time
+      const twitterProfileData = extractTwitterProfileData();
+      await drawProfileSection(ctx, 20 * scaleFactor, contentY, columnWidth, profileHeight, twitterProfileData, data.identifiScore, scaleFactor);
+      await drawScoreBreakdownCard(ctx, 20 * scaleFactor, contentY + profileHeight + (20 * scaleFactor), columnWidth, scoreHeight, data.username, scaleFactor);
+
+      // Column 2: Digital DNA + Collected Badges - scaled heights
+      const dnaHeight = (contentHeight - (20 * scaleFactor)) / 2;
+      const badgesHeight = (contentHeight - (20 * scaleFactor)) / 2;
+
+      await drawDigitalDnaCard(ctx, (20 * scaleFactor) + columnWidth + columnSpacing, contentY, columnWidth, dnaHeight, data.username, scaleFactor);
+      await drawCollectedBadgesCard(ctx, (20 * scaleFactor) + columnWidth + columnSpacing, contentY + dnaHeight + (20 * scaleFactor), columnWidth, badgesHeight, data.username, scaleFactor);
 
       // Convert canvas to image
       const imageDataUrl = canvas.toDataURL('image/png');

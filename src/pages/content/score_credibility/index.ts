@@ -329,7 +329,7 @@ Calculates your on-chain footprint from quest completions, badge mints, and wall
         <span style="display: flex; align-items: center; white-space: nowrap; gap: 4px;">
           <span style="font-weight:700;color:${dynamicFontColor};">-</span>Governance
           <span class="foru-metric-tooltip" data-tooltip="🏛️ Governance Score (Coming Soon)
-          
+
 Will track participation in DAO and protocol governance. Based on voting frequency, proposal depth, and alignment with past behavior.">
             <span class="foru-metric-tooltip-icon">i</span>
           </span>
@@ -408,20 +408,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
           // Respond to ping to indicate content script is ready
           console.log('Content script ping received');
           sendResponse({ success: true, message: 'Content script ready' });
-          return true;
-        }
-
-        if (message.action === 'showIdCardDialog') {
-          console.log('Showing ID card dialog from sidepanel message');
-          const idCardData = message.idCardData || {};
-          
-          if (window.idCardDialog) {
-            window.idCardDialog.show(idCardData);
-            sendResponse({ success: true, message: 'ID card dialog shown' });
-          } else {
-            console.error('IdCardDialog not available in content script');
-            sendResponse({ success: false, message: 'IdCardDialog not available' });
-          }
           return true;
         }
 
