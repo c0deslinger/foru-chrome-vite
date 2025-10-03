@@ -1,11 +1,8 @@
 // src/pages/popup/id-card-public-dialog/index.ts
 
 import { drawProfileSection, UserProfileData, extractTwitterProfileData } from './profile/index.js';
-import { drawDigitalDnaCard } from './digital-dna/index.js';
-import { drawScoreBreakdownCard } from './score-breakdown/index.js';
-import { drawCollectedBadgesCard } from './collected-badges/index.js';
 import { drawBackgroundLayer } from './background-layer/index.js';
-import { drawProfileLayer } from './profile-layer/index.js';
+import { drawProfileLayer, loadCustomFonts } from './profile-layer/index.js';
 import { drawOverlayLayer } from './overlay-layer/index.js';
 import { loadAntonFont, drawScoresLayer } from './scores-layer/index.js';
 import VanillaTilt from 'vanilla-tilt';
@@ -29,6 +26,7 @@ class IdCardPublicDialog {
   constructor() {
     this.loadStyles();
     loadAntonFont(); // Load Anton font from scores-layer
+    loadCustomFonts(); // Load Plus Jakarta Sans and Zalando Sans fonts
   }
 
   private async loadStyles(): Promise<void> {

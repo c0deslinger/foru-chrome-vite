@@ -75,6 +75,7 @@ async function fetchPublicMetrics(username: string): Promise<any> {
         engagement_score: d.engagement_score || 0,
         impression_score: d.impression_score || 0,
         on_chain_score: d.on_chain_score || 0,
+        followers_count: d.followers_count || 0,
       };
     }
   } catch (e) {
@@ -108,6 +109,8 @@ export async function drawScoresLayer(
     
     const socialScore = metricsData.reach_score || 0;
     const reputationScore = metricsData.engagement_score || 0;
+    const followersCount = metricsData.followers_count || 0;
+    const impressionScore = metricsData.impression_score || 0;
 
     // Configure text properties
     ctx.fillStyle = '#000000';
@@ -118,17 +121,14 @@ export async function drawScoresLayer(
     ctx.font = '400 92px Anton, Arial, sans-serif';
     const formattedIdentifiScore = Math.round(identifiScore).toLocaleString();
     ctx.fillText(formattedIdentifiScore, cardWidth / 2, 1295 + 55);
-    console.log(`✅ IdentiFi score drawn: ${formattedIdentifiScore} at (${cardWidth / 2}, ${1295 + 55})`);
 
     // Debug: Measure text width to ensure it's not being clipped
     const identifiTextMetrics = ctx.measureText(formattedIdentifiScore);
-    console.log(`📏 IdentiFi text width: ${identifiTextMetrics.width}px`);
 
     // 2. Social Score - X 300, Y 1503+50, size 78px
     ctx.font = '400 78px Anton, Arial, sans-serif';
     const formattedSocialScore = socialScore;
     ctx.fillText(formattedSocialScore, 300, 1503 + 50);
-    console.log(`✅ Social score drawn: ${formattedSocialScore} at (300, ${1503 + 50})`);
 
     // Debug: Measure text width
     const socialTextMetrics = ctx.measureText(formattedSocialScore);
@@ -138,11 +138,27 @@ export async function drawScoresLayer(
     ctx.font = '400 78px Anton, Arial, sans-serif';
     const formattedReputationScore = reputationScore;
     ctx.fillText(formattedReputationScore, 780, 1503 + 50);
-    console.log(`✅ Reputation score drawn: ${formattedReputationScore} at (780, ${1503 + 50})`);
 
     // Debug: Measure text width
     const reputationTextMetrics = ctx.measureText(formattedReputationScore);
     console.log(`📏 Reputation text width: ${reputationTextMetrics.width}px`);
+
+    // 4. Follower Count - X 300, Y 1771, size 78px
+    ctx.font = '400 78px Anton, Arial, sans-serif';
+    const formattedFollowersCount = followersCount; // No rounding needed
+    ctx.fillText(formattedFollowersCount, 300, 1771);
+
+    // Debug: Measure text width
+    const followersTextMetrics = ctx.measureText(formattedFollowersCount);
+    console.log(`📏 Followers text width: ${followersTextMetrics.width}px`);
+
+    // 5. Impression Score - X 780, Y 1779, size 78px
+    ctx.font = '400 78px Anton, Arial, sans-serif';
+    const formattedImpressionScore = impressionScore; // No rounding needed
+    ctx.fillText(formattedImpressionScore, 780, 1779);
+
+    // Debug: Measure text width
+    const impressionTextMetrics = ctx.measureText(formattedImpressionScore);
 
   } catch (error) {
     console.error('❌ Error drawing scores layer:', error);
