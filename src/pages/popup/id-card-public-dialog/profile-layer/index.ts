@@ -1,12 +1,228 @@
 // src/pages/popup/id-card-public-dialog/profile-layer/index.ts
 
-import { extractTwitterProfileData } from '../profile/index.js';
+import { buildForuHeaders, API_BASE_URL } from '../../../../lib/crypto-utils.js';
 
 /**
  * Profile Layer - Layer 2
  * Handles loading and drawing the user's profile picture with rounded corners,
  * display name, and username with custom fonts
  */
+
+/**
+ * Get IdentiFi score for a username using public API
+ */
+async function getIdentifiScore(username: string): Promise<number> {
+  try {
+    if (!username) {
+      console.log("🔵 No username available for IdentiFi score");
+      return 0;
+    }
+
+    console.log("🔵 About to fetch IdentiFi score for", username);
+    const headers = await buildForuHeaders("GET", "", undefined);
+    console.log("🟡 Headers built", headers);
+    const url = `${API_BASE_URL}/v1/public/user/metrics/${username}`;
+    console.log("➡️ Fetching from", url);
+    const resp = await fetch(url, { headers });
+    console.log("⬅️ Status", resp.status);
+    const json = await resp.json();
+    console.log("📊 JSON", json);
+    
+    if (json.code === 200 && json.data) {
+      const score = json.data.identifi_score || 0;
+      console.log(`✅ Got IdentiFi score for ${username}:`, score);
+      return score;
+    }
+  } catch (e) {
+    console.error("🔴 Failed to fetch IdentiFi score", e);
+  }
+
+  return 0;
+}
+
+/**
+ * Extract profile data from Twitter page
+ */
+export function extractTwitterProfileData(): UserProfileData {
+  // --- 1) Get the latest avatar ---
+  let avatarUrl = "";
+  
+  // First try: Look for "Opens profile photo" element
+  const profilePhotoContainer = document.querySelector('[aria-label="Opens profile photo"]');
+  if (profilePhotoContainer) {
+    const img = profilePhotoContainer.querySelector('img') as HTMLImageElement;
+    if (img && img.src) {
+      avatarUrl = img.src;
+    }
+  }
+  
+  // Second try: Look for UserAvatar container
+  if (!avatarUrl) {
+    const userAvatarContainer = document.querySelector('[data-testid*="UserAvatar-Container"]');
+    if (userAvatarContainer) {
+      const img = userAvatarContainer.querySelector('img[src*="profile_images"]') as HTMLImageElement;
+      if (img && img.src) {
+        avatarUrl = img.src;
+      }
+    }
+  }
+  
+  // Third try: Look in primary column
+  if (!avatarUrl) {
+    const primaryColumn = document.querySelector('[data-testid="primaryColumn"]');
+    if (primaryColumn) {
+      const avatarElem = primaryColumn.querySelector(
+        'img[src*="profile_images"]'
+      ) as HTMLImageElement;
+      if (avatarElem) avatarUrl = avatarElem.src;
+    }
+  }
+  
+  // Fourth try: Global fallback
+  if (!avatarUrl) {
+    const fallback = document.querySelector('img[src*="profile_images"]') as HTMLImageElement;
+    if (fallback) avatarUrl = fallback.src;
+  }
+
+  // Improve URL resolution: Replace 200x200 with 400x400 for better quality
+  if (avatarUrl && avatarUrl.includes('_200x200.')) {
+    avatarUrl = avatarUrl.replace('_200x200.', '_400x400.');
+    console.log('🔄 Upgraded profile picture URL to 400x400 resolution');
+  }
+
+  // --- 2) Get handle (username) from URL ---
+  let handle = "";
+  const parts = window.location.pathname.split("/").filter((p) => p);
+  if (parts.length) handle = parts[0];
+
+  // --- 3) Get display name ---
+  let displayName = "";
+  const userNameContainer = document.querySelector('div[data-testid="UserName"]');
+  if (userNameContainer) {
+    // Look for the first span with actual text content (display name)
+    const spans = userNameContainer.querySelectorAll('span');
+    for (const span of spans) {
+      const text = span.textContent?.trim();
+      if (text && text.length > 0 && !text.startsWith('@') && !text.includes('Verified account')) {
+        displayName = text;
+        break;
+      }
+    }
+    
+    // Fallback: try to get from h1 if spans don't work
+    if (!displayName) {
+      const nameElem = userNameContainer.querySelector('h1');
+      if (nameElem) displayName = nameElem.textContent?.trim() || "";
+    }
+  }
+
+  // --- 4) Get bio ---
+  let bioText = "";
+  const bioElem = document.querySelector('div[data-testid="UserDescription"]');
+  if (bioElem) bioText = bioElem.textContent?.replace(/\n/g, " ").trim() || "";
+
+  // --- 4) Get location, occupation, URL, join date, born date ---
+  let locationText = "",
+    jobText = "",
+    urlText = "",
+    joinDateText = "",
+    bornDateText = "";
+  const items = document.querySelector(
+    'div[data-testid="UserProfileHeader_Items"]'
+  );
+  if (items) {
+    const spans = Array.from(items.querySelectorAll("span"));
+    const links = Array.from(items.querySelectorAll("a"));
+    
+    // Find join date
+    const jSpan = spans.find((s) => s.textContent?.trim().startsWith("Joined "));
+    if (jSpan) joinDateText = jSpan.textContent?.trim() || "";
+    
+    // Find born date
+    const bornSpan = spans.find((s) => s.textContent?.trim().startsWith("Born "));
+    if (bornSpan) bornDateText = bornSpan.textContent?.trim() || "";
+    
+    // Find URL
+    const linkElem = links.find((a) => (a as HTMLAnchorElement).href?.startsWith("http"));
+    if (linkElem) urlText = (linkElem as HTMLAnchorElement).href;
+    
+    // Get other items (location, job, etc.)
+    const others = spans.filter(
+      (s) => !s.textContent?.trim().startsWith("Joined ") && 
+             !s.textContent?.trim().startsWith("Born ")
+    );
+    
+    if (others.length >= 2) {
+      locationText = others[0].textContent?.trim() || "";
+      jobText = others[1].textContent?.trim() || "";
+    } else if (others.length === 1) {
+      // Check if it's location or job based on content
+      const text = others[0].textContent?.trim() || "";
+      if (text.includes("📍") || text.includes("🌍") || text.includes("🏠")) {
+        locationText = text;
+      } else {
+        jobText = text;
+      }
+    }
+  }
+
+  // --- 5) Get followers & following ---
+  let followersCount = "0",
+    followingCount = "0";
+  const anchors = Array.from(document.querySelectorAll("a"));
+  const fA = anchors.find((a) =>
+    a.textContent?.toLowerCase().endsWith("followers")
+  );
+  if (fA) followersCount = fA.textContent?.split(" ")[0] || "0";
+  const gA = anchors.find((a) =>
+    a.textContent?.toLowerCase().endsWith("following")
+  );
+  if (gA) followingCount = gA.textContent?.split(" ")[0] || "0";
+
+  return {
+    twitter_account: {
+      profile_picture_url: avatarUrl,
+      username: handle,
+      location: locationText
+    },
+    displayName: displayName,
+    bio: bioText,
+    location: locationText,
+    job: jobText,
+    url: urlText,
+    joinDate: joinDateText,
+    bornDate: bornDateText,
+    followersCount: followersCount,
+    followingCount: followingCount
+  };
+}
+
+export interface UserProfileData {
+  name?: string;
+  email?: string;
+  twitter_account?: {
+    profile_picture_url?: string;
+    username?: string;
+    location?: string;
+  };
+  attributes?: {
+    level?: number;
+    exp?: number;
+    max_exp_on_level?: number;
+    exp_progress_percentage?: number;
+  };
+  // Twitter bio data
+  displayName?: string;
+  bio?: string;
+  location?: string;
+  job?: string;
+  url?: string;
+  joinDate?: string;
+  bornDate?: string;
+  followersCount?: string;
+  followingCount?: string;
+  [key: string]: any;
+}
 
 interface IdCardPublicData {
   imageUrl?: string;
@@ -40,29 +256,36 @@ export async function loadCustomFonts(): Promise<void> {
 
 export async function loadProfileImageForCard(imageUrl: string): Promise<HTMLImageElement | null> {
   try {
-    console.log(`🔄 Loading profile image for card: ${imageUrl}`);
+    // Improve URL resolution: Replace 200x200 with 400x400 for better quality
+    let enhancedUrl = imageUrl;
+    if (enhancedUrl && enhancedUrl.includes('_200x200.')) {
+      enhancedUrl = enhancedUrl.replace('_200x200.', '_400x400.');
+      console.log('🔄 Enhanced profile image URL to 400x400 resolution:', enhancedUrl);
+    }
+    
+    console.log(`🔄 Loading profile image for card: ${enhancedUrl}`);
     return new Promise((resolve) => {
       const img = new Image();
       const timeout = setTimeout(() => {
-        console.warn(`⏰ Timeout loading profile image: ${imageUrl}`);
+        console.warn(`⏰ Timeout loading profile image: ${enhancedUrl}`);
         resolve(null);
       }, 10000); // 10 second timeout
       
       img.onload = () => {
         clearTimeout(timeout);
-        console.log(`✅ Profile image loaded successfully: ${imageUrl}`);
+        console.log(`✅ Profile image loaded successfully: ${enhancedUrl}`);
         resolve(img);
       };
       
       img.onerror = () => {
         clearTimeout(timeout);
-        console.warn(`❌ Failed to load profile image: ${imageUrl}`);
+        console.warn(`❌ Failed to load profile image: ${enhancedUrl}`);
         resolve(null);
       };
       
       // Set crossOrigin for Twitter images
       img.crossOrigin = 'anonymous';
-      img.src = imageUrl;
+      img.src = enhancedUrl;
     });
   } catch (error) {
     console.warn(`❌ Error loading profile image:`, error);
@@ -393,8 +616,30 @@ export async function drawProfileLayer(
         ctx.roundRect(x, y, width, height, borderRadius);
         ctx.clip();
         
-        // Draw the profile image
-        ctx.drawImage(img, x, y, width, height);
+        // Draw the profile image with center crop (not stretched)
+        const imgAspectRatio = img.width / img.height;
+        const targetAspectRatio = width / height;
+        
+        let sourceX = 0;
+        let sourceY = 0;
+        let sourceWidth = img.width;
+        let sourceHeight = img.height;
+        
+        if (imgAspectRatio > targetAspectRatio) {
+          // Image is wider than target - crop horizontally
+          sourceWidth = img.height * targetAspectRatio;
+          sourceX = (img.width - sourceWidth) / 2;
+        } else {
+          // Image is taller than target - crop vertically  
+          sourceHeight = img.width / targetAspectRatio;
+          sourceY = (img.height - sourceHeight) / 2;
+        }
+        
+        ctx.drawImage(
+          img,
+          sourceX, sourceY, sourceWidth, sourceHeight, // Source rectangle (cropped)
+          x, y, width, height // Destination rectangle
+        );
         
         // Restore context
         ctx.restore();

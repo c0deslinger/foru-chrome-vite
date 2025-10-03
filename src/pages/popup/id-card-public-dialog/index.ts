@@ -1,8 +1,9 @@
 // src/pages/popup/id-card-public-dialog/index.ts
 
-import { drawProfileSection, UserProfileData, extractTwitterProfileData } from './profile/index.js';
+import { UserProfileData, extractTwitterProfileData } from './profile-layer/index.js';
 import { drawBackgroundLayer } from './background-layer/index.js';
 import { drawProfileLayer, loadCustomFonts } from './profile-layer/index.js';
+import { drawBadgeDnaLayer } from './badge-dna-layer/index.js';
 import { drawOverlayLayer } from './overlay-layer/index.js';
 import { loadAntonFont, drawScoresLayer } from './scores-layer/index.js';
 import VanillaTilt from 'vanilla-tilt';
@@ -291,8 +292,11 @@ class IdCardPublicDialog {
       // Layer 1: Draw background
       await drawBackgroundLayer(ctx, cardWidth, cardHeight);
 
-      // Layer 2: Draw profile picture (88, 323, 903x903, radius 32)
-      await drawProfileLayer(ctx, 88, 323, 903, 903, 32, data);
+      // Layer 2: Draw profile picture (88, 323, 903x1063, radius 32)
+      await drawProfileLayer(ctx, 88, 323, 903, 1063, 32, data);
+
+      // Layer 2.5: Draw badge-dna layer (between profile and overlay)
+      await drawBadgeDnaLayer(ctx, data);
 
       // Layer 3: Draw card overlay (0, 1207)
       await drawOverlayLayer(ctx, 0, 1207);

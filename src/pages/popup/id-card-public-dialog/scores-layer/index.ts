@@ -1,7 +1,7 @@
 // src/pages/popup/id-card-public-dialog/scores-layer/index.ts
 
 import { buildForuHeaders, API_BASE_URL } from '../../../../lib/crypto-utils.js';
-import { extractTwitterProfileData } from '../profile/index.js';
+import { extractTwitterProfileData } from '../profile-layer/index.js';
 
 /**
  * Scores Layer - Layer 4 (Top layer)

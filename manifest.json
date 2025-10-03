@@ -1,7 +1,7 @@
 {
   "name": "ForU AI",
   "description": "A new way to exist on-chain.",
-  "version": "1.4",
+  "version": "1.5",
   "manifest_version": 3,
   "foruConfigProd": {
     "secretKey": "5452ea6c10f23d4e5b83d1eb393f99d53705951d7b43acc90eadf17ecc839623",
@@ -18,7 +18,7 @@
     "privateKey": "6587e29c8bf629eab6d29eaf1009450d10f05dd35b2ed9d9eb2b60c65b78638b",
     "apiBaseUrl": "https://api-social-dev.foruai.io"
   },
-  "environment": "dev",
+  "environment": "prod",
   "cacheConfig": {
     "enabled": true,
     "defaultTTL": 300000,
