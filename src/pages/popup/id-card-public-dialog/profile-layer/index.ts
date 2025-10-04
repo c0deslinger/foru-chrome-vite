@@ -476,6 +476,9 @@ function drawNameAndUsername(
     ctx.textAlign = 'left';
     ctx.textBaseline = 'top';
     
+    // Track the final Y position of display name
+    let finalDisplayNameY = adjustedY;
+    
     // Now draw the actual text with proper positioning
     const words = displayName.split(' ');
     
@@ -499,6 +502,7 @@ function drawNameAndUsername(
       } else {
         ctx.fillText(singleWord, startX, adjustedY);
       }
+      finalDisplayNameY = adjustedY + lineHeight;
     } else {
       // Multi-word handling
       let line = '';
@@ -515,6 +519,7 @@ function drawNameAndUsername(
           if (linesDrawn === maxLines - 1) {
             const truncatedLine = line.trim() + '...';
             ctx.fillText(truncatedLine, startX, currentY);
+            finalDisplayNameY = currentY + lineHeight;
             break;
           }
           
@@ -539,6 +544,7 @@ function drawNameAndUsername(
           currentY += lineHeight;
           linesDrawn++;
           line = '';
+          finalDisplayNameY = currentY;
         } else {
           line = testLine;
         }
@@ -567,8 +573,12 @@ function drawNameAndUsername(
         } else {
           ctx.fillText(line.trim(), startX, currentY);
         }
+        finalDisplayNameY = currentY + lineHeight;
       }
     }
+    
+    // Calculate username Y position - 20px below display name
+    const usernameY = finalDisplayNameY + 20;
     
     // Draw username with Plus Jakarta Sans
     ctx.fillStyle = 'rgba(255, 255, 255, 0.5)'; // White with 50% transparency
@@ -578,12 +588,116 @@ function drawNameAndUsername(
     
     // Add @ symbol if not present
     const formattedUsername = username.startsWith('@') ? username : `@${username}`;
-    ctx.fillText(formattedUsername, 84, 240);
+    ctx.fillText(formattedUsername, 84, usernameY);
     
-    console.log(`✅ Name and username drawn: "${displayName}" (${lineCount} lines) and "${formattedUsername}"`);
+    // Calculate position for badges (next to username)
+    const usernameWidth = ctx.measureText(formattedUsername).width;
+    const badgeStartX = 84 + usernameWidth + 20; // 20px gap after username
+    
+    // Draw rank badge (#100)
+    drawRankBadge(ctx, badgeStartX, usernameY - 5); // Slightly higher to align with username baseline
+    
+    // Draw date badge (next to rank badge)
+    const rankBadgeWidth = 159; // From Figma design
+    const dateBadgeX = badgeStartX + rankBadgeWidth + 4; // 4px gap between badges (from Figma)
+    drawDateBadge(ctx, dateBadgeX, usernameY - 5);
+    
+    console.log(`✅ Name and username drawn: "${displayName}" (${lineCount} lines) and "${formattedUsername}" at Y: ${usernameY}`);
   }).catch(error => {
     console.error('❌ Error waiting for fonts:', error);
   });
+}
+
+// Function to draw rank badge with purple gradient background
+function drawRankBadge(ctx: CanvasRenderingContext2D, x: number, y: number): void {
+  const badgeWidth = 159;
+  const badgeHeight = 38;
+  const borderRadius = 21;
+  
+  // Save context
+  ctx.save();
+  
+  // Create rounded rectangle for badge background
+  ctx.beginPath();
+  ctx.roundRect(x, y, badgeWidth, badgeHeight, borderRadius);
+  
+  // Create gradient background (purple gradient from Figma)
+  const gradient = ctx.createLinearGradient(x, y, x + badgeWidth, y);
+  gradient.addColorStop(0, '#3d0772'); // from-[#3d0772]
+  gradient.addColorStop(1, '#3f006a'); // to-[#3f006a]
+  
+  ctx.fillStyle = gradient;
+  ctx.fill();
+  
+  // Add border
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)';
+  ctx.lineWidth = 1;
+  ctx.stroke();
+  
+  // Draw rank text
+  ctx.fillStyle = '#ffffff';
+  ctx.font = 'bold 32px "Plus Jakarta Sans", Arial, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  
+  // Center the text in the badge
+  const centerX = x + badgeWidth / 2;
+  const centerY = y + badgeHeight / 2;
+  ctx.fillText('#100', centerX, centerY);
+  
+  // Restore context
+  ctx.restore();
+  
+  console.log(`✅ Rank badge drawn at (${x}, ${y})`);
+}
+
+// Function to draw date badge with white background
+function drawDateBadge(ctx: CanvasRenderingContext2D, x: number, y: number): void {
+  const badgeWidth = 235;
+  const badgeHeight = 38;
+  const borderRadius = 20;
+  
+  // Save context
+  ctx.save();
+  
+  // Create rounded rectangle for badge background
+  ctx.beginPath();
+  ctx.roundRect(x, y, badgeWidth, badgeHeight, borderRadius);
+  
+  // White background
+  ctx.fillStyle = '#ffffff';
+  ctx.fill();
+  
+  // Add border
+  ctx.strokeStyle = '#ffffff';
+  ctx.lineWidth = 1;
+  ctx.stroke();
+  
+  // Draw date text
+  ctx.fillStyle = '#868c98'; // text/soft-400 from Figma
+  ctx.font = 'bold 24px "Plus Jakarta Sans", Arial, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  
+  // Center the text in the badge
+  const centerX = x + badgeWidth / 2;
+  const centerY = y + badgeHeight / 2;
+  
+  // Generate current date
+  const currentDate = new Date();
+  const options: Intl.DateTimeFormatOptions = { 
+    day: '2-digit', 
+    month: 'short', 
+    year: 'numeric' 
+  };
+  const formattedDate = `As ${currentDate.toLocaleDateString('en-GB', options)}`;
+  
+  ctx.fillText(formattedDate, centerX, centerY);
+  
+  // Restore context
+  ctx.restore();
+  
+  console.log(`✅ Date badge drawn at (${x}, ${y}) with date: ${formattedDate}`);
 }
 
 export async function drawProfileLayer(
